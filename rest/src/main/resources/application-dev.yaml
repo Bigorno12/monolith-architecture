@@ -1,0 +1,21 @@
+logging:
+  level:
+    org.springframework: info
+
+spring:
+  jpa:
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+    generate-ddl: false
+  datasource:
+    url: jdbc:mysql://localhost:3306/jsonplaceholder
+    username: root
+    driverClassName: com.mysql.cj.jdbc.Driver
+    password: root
+  flyway:
+    user: root
+    password: root
+    url: jdbc:mysql://localhost:3306/jsonplaceholder
+    enabled: true
