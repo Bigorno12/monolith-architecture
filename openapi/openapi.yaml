@@ -1,0 +1,176 @@
+openapi: 3.0.3
+info:
+  title: Swagger Petstore - OpenAPI 3.0
+  version: 1.0.11
+servers:
+  - url: https://jsonplaceholder.swagger.io/api/v3
+tags:
+  - name: jsonplaceholder
+    description: Operations about user
+  - name: todos
+    description: Operations about todos
+paths:
+  /jsonplaceholder/users:
+    get:
+      tags:
+        - jsonplaceholder
+      summary: Save all users from the jsonplaceholder api
+      operationId: retrieveUsers
+      responses:
+        201:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+  /jsonplaceholder/todos:
+    get:
+      tags:
+        - jsonplaceholder
+      summary: Save all todos from the jsonplaceholder api
+      operationId: retrieveTodos
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Todo'
+  /jsonplaceholder/posts:
+    get:
+      tags:
+        - jsonplaceholder
+      summary: Save all posts from the jsonplaceholder api
+      operationId: retrievePosts
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+  /jsonplaceholder/comments:
+    get:
+      tags:
+        - jsonplaceholder
+      summary: Save all comments from the jsonplaceholder api
+      operationId: retrieveComments
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        name:
+          type: string
+          example: "Leanne Graham"
+        username:
+          type: string
+          example: "Bret"
+        address:
+          $ref: '#/components/schemas/Address'
+        phone:
+          type: string
+          example: 1-463-123-4447
+        website:
+          type: string
+          example: ramiro.info
+        company:
+          $ref: '#/components/schemas/Company'
+    Address:
+      type: object
+      properties:
+        street:
+          type: string
+          example: Kulas Light
+        suite:
+          type: string
+          example: Apt. 556
+        city:
+          type: string
+          example: Gwenborough
+        zipcode:
+          type: string
+          example: 59590-4157
+        geo:
+          $ref: '#/components/schemas/Geo'
+    Geo:
+      type: object
+      properties:
+        lat:
+          type: number
+          format: double
+          example: -68.6102
+        lng:
+          type: number
+          format: double
+          example: -47.0653
+    Company:
+      type: object
+      properties:
+        name:
+          type: string
+          example: Romaguera-Jacobson
+        catchPhrase:
+          type: string
+          example: Face to face bifurcated interface
+        bs:
+          type: string
+          example: e-enable strategic applications
+    Todo:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        userDto:
+          $ref: '#/components/schemas/User'
+        title:
+          type: string
+          example: delectus aut autem
+        completed:
+          type: boolean
+    Post:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        userDto:
+          $ref: '#/components/schemas/User'
+        title:
+          type: string
+          example: delectus aut autem
+        body:
+          type: string
+          example: delectus aut autem
+    Comment:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        post:
+          $ref: '#/components/schemas/Post'
+        email:
+          type: string
+          example: test@test.com
+        body:
+          type: string
+          example: delectus aut autem
+        name:
+          type: string
+          example: delectus aut autem
