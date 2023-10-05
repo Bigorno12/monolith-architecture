@@ -1,6 +1,7 @@
 package mu.server.service.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
+import mu.server.persistence.entity.Todo;
 import mu.server.persistence.entity.User;
 import mu.server.persistence.repository.TodoRepository;
 import mu.server.persistence.repository.UserRepository;
@@ -27,21 +28,11 @@ public class JsonPlaceHolderServiceImpl implements JsonPlaceHolderService {
 
     @Override
     public void saveAllUsers(List<User> users) {
-
+        userRepository.saveAll(users);
     }
 
     @Override
-    public void saveAllTodos() {
-
-    }
-
-    @Override
-    public void saveAllPosts() {
-
-    }
-
-    @Override
-    public void saveAllComments() {
+    public void saveAllTodos(List<Todo> todos) {
 
     }
 }
