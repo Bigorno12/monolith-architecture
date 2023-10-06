@@ -19,9 +19,7 @@
         <java.version>17</java.version>
         <mapstruct.version>1.5.5.Final</mapstruct.version>
         <lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version>
-        <io.springfox-core.version>3.0.0</io.springfox-core.version>
-        <io.swagger-codegen-maven-plugin.version>3.0.42</io.swagger-codegen-maven-plugin.version>
-        <org.openapi-generator-maven-plugin.version>6.5.0</org.openapi-generator-maven-plugin.version>
+        <org.openapi-generator-maven-plugin.version>7.0.1</org.openapi-generator-maven-plugin.version>
     </properties>
 
     <modules>
@@ -54,6 +52,19 @@
                 <version>${querydsl.version}</version>
                 <classifier>jakarta</classifier>
             </dependency>
+
+            <!-- OpenApi -->
+            <dependency>
+                <groupId>io.swagger.core.v3</groupId>
+                <artifactId>swagger-annotations</artifactId>
+                <version>2.2.16</version>
+            </dependency>
+
+            <dependency>
+                <groupId>jakarta.validation</groupId>
+                <artifactId>jakarta.validation-api</artifactId>
+                <version>3.0.2</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -68,6 +79,42 @@
     <build>
         <pluginManagement>
             <plugins>
+                <plugin>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-maven-plugin</artifactId>
+                </plugin>
+                <plugin>
+                    <groupId>org.openapitools</groupId>
+                    <artifactId>openapi-generator-maven-plugin</artifactId>
+                    <version>${org.openapi-generator-maven-plugin.version}</version>
+                    <executions>
+                        <execution>
+                            <id>1</id>
+                            <goals>
+                                <goal>generate</goal>
+                            </goals>
+                            <configuration>
+                                <inputSpec>${project.basedir}/../openapi/openapi.yaml</inputSpec>
+                                <generatorName>spring</generatorName>
+                                <apiPackage>mu.server.rest.controller</apiPackage>
+                                <generateApis>false</generateApis>
+                                <generateApiTests>false</generateApiTests>
+                                <generateApiDocumentation>false</generateApiDocumentation>
+                                <modelPackage>mu.server.service.dto</modelPackage>
+                                <modelNameSuffix>Dto</modelNameSuffix>
+                                <generateModels>false</generateModels>
+                                <generateModelTests>false</generateModelTests>
+                                <generateModelDocumentation>false</generateModelDocumentation>
+                                <configOptions>
+                                    <dateLibrary>java8</dateLibrary>
+                                    <useJakartaEe>true</useJakartaEe>
+                                    <interfaceOnly>true</interfaceOnly>
+                                    <openApiNullable>false</openApiNullable>
+                                </configOptions>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
                 <!-- mapstruct -->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
