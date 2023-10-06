@@ -52,6 +52,7 @@
                         <configuration>
                             <generateApis>true</generateApis>
                             <generateModels>false</generateModels>
+                            <generateSupportingFiles>true</generateSupportingFiles>
                         </configuration>
                     </execution>
                 </executions>
