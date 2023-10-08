@@ -17,7 +17,7 @@ public class GlobalExceptionHandler {
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
     public ErrorMessage jsonPlaceHolderBadRequestHandler(JsonPlaceHolderException ex, WebRequest webRequest) {
         return ErrorMessage.builder()
-                .statusCode(HttpStatus.NOT_FOUND.value())
+                .statusCode(HttpStatus.BAD_REQUEST.value())
                 .timestamp(LocalDateTime.now())
                 .message(ex.getMessage())
                 .description(webRequest.getDescription(false))
