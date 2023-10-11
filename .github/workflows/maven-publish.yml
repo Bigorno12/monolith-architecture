@@ -32,3 +32,13 @@ jobs:
       run: mvn deploy -s $GITHUB_WORKSPACE/settings.xml
       env:
         GITHUB_TOKEN: ${{ github.token }}
+    - name: Cache
+      uses: actions/cache@v3.3.2
+      with:
+        # A list of files, directories, and wildcard patterns to cache and restore
+        path: ~/.m2/repository
+        # An explicit key for restoring and saving the cache
+        key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+        # An ordered list of keys to use for restoring stale cache if no cache hit occurred for key. Note `cache-hit` returns false in this case.
+        restore-keys: | 
+          ${{ runner.os }}-maven-
