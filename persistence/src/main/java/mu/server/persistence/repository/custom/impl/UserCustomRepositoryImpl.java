@@ -25,6 +25,7 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
         return new JPAQuery<User>(entityManager)
                 .select(user)
                 .from(user)
+                .where(user.name.containsIgnoreCase(firstName))
                 .fetch();
     }
 }
