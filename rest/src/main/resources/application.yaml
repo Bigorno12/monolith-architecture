@@ -5,3 +5,8 @@ logging:
 spring:
   profiles:
     active: test
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html

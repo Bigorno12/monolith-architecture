@@ -21,6 +21,8 @@
         <lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version>
         <org.openapi-generator-maven-plugin.version>7.0.1</org.openapi-generator-maven-plugin.version>
         <jakarta.validation-api.version>3.0.2</jakarta.validation-api.version>
+        <swagger-annotations.version>2.2.16</swagger-annotations.version>
+        <springdoc-openapi-starter-webmvc-ui.version>2.2.0</springdoc-openapi-starter-webmvc-ui.version>
     </properties>
 
     <modules>
@@ -58,7 +60,13 @@
             <dependency>
                 <groupId>io.swagger.core.v3</groupId>
                 <artifactId>swagger-annotations</artifactId>
-                <version>2.2.16</version>
+                <version>${swagger-annotations.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springdoc</groupId>
+                <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+                <version>${springdoc-openapi-starter-webmvc-ui.version}</version>
             </dependency>
 
             <dependency>
