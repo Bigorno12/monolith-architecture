@@ -65,6 +65,14 @@
                             <generateSupportingFiles>true</generateSupportingFiles>
                         </configuration>
                     </execution>
+                    <!-- Resttemplate -->
+                    <execution>
+                        <id>2</id>
+                        <configuration>
+                            <generateApis>true</generateApis>
+                            <generateApiTests>false</generateApiTests>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
         </plugins>
