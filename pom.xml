@@ -122,6 +122,34 @@
                                 </configOptions>
                             </configuration>
                         </execution>
+                        <execution>
+                            <id>2</id>
+                            <goals>
+                                <goal>generate</goal>
+                            </goals>
+                            <configuration>
+                                <inputSpec>${project.basedir}/../openapi/openapi.yaml</inputSpec>
+                                <generatorName>java</generatorName>
+                                <library>resttemplate</library>
+                                <apiPackage>mu.server.rest.controller.api</apiPackage>
+                                <generateApis>false</generateApis>
+                                <generateApiTests>false</generateApiTests>
+                                <generateApiDocumentation>false</generateApiDocumentation>
+                                <modelPackage>mu.server.service.dto.api</modelPackage>
+                                <generateModels>false</generateModels>
+                                <generateModelTests>false</generateModelTests>
+                                <generateModelDocumentation>false</generateModelDocumentation>
+                                <configOptions>
+                                    <dateLibrary>java8</dateLibrary>
+                                    <java8>true</java8>
+                                    <useBeanValidation>false</useBeanValidation>
+                                    <useJakartaEe>true</useJakartaEe>
+                                    <interfaceOnly>true</interfaceOnly>
+                                    <openApiNullable>false</openApiNullable>
+                                    <useOptional>false</useOptional>
+                                </configOptions>
+                            </configuration>
+                        </execution>
                     </executions>
                 </plugin>
                 <!-- mapstruct -->
