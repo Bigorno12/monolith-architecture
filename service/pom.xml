@@ -52,6 +52,14 @@
                             <generateSupportingFiles>false</generateSupportingFiles>
                         </configuration>
                     </execution>
+                    <execution>
+                        <id>2</id>
+                        <configuration>
+                            <generateApis>false</generateApis>
+                            <generateModels>true</generateModels>
+                            <generateSupportingFiles>false</generateSupportingFiles>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
             <!-- mapstruct -->
