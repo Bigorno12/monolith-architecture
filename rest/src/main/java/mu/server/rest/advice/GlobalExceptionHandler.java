@@ -23,4 +23,15 @@ public class GlobalExceptionHandler {
                 .description(webRequest.getDescription(false))
                 .build();
     }
+
+    @ExceptionHandler(JsonPlaceHolderException.class)
+    @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
+    public ErrorMessage jsonPlaceHolderInternalServerError(JsonPlaceHolderException ex, WebRequest webRequest) {
+        return ErrorMessage.builder()
+                .statusCode(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                .timestamp(LocalDateTime.now())
+                .message(ex.getMessage())
+                .description(webRequest.getDescription(false))
+                .build();
+    }
 }
