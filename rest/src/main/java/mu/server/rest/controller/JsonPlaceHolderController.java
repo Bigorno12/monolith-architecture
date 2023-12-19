@@ -43,17 +43,14 @@ public class JsonPlaceHolderController implements JsonplaceholderApi {
     public ResponseEntity<UserDto> retrieveUsers() {
         List<User> users = restClient.get()
                 .uri("/users")
-                .exchange((request, response) -> {
-                    switch (response.getStatusCode()) {
-                        case HttpStatus.OK -> {
-                            return objectMapper.readValue(response.getBody(), new TypeReference<>() {
+                .exchange((request, response) -> switch (response.getStatusCode()) {
+                            case HttpStatus.OK -> objectMapper.readValue(response.getBody(), new TypeReference<>() {
                             });
+                            case HttpStatus.NO_CONTENT, HttpStatus.NOT_FOUND ->
+                                    throw new JsonPlaceHolderException("Failed to get users from jsonplaceholder.typicode.com");
+                            default -> throw new IllegalStateException(ERROR_MESSAGE + response.getStatusCode());
                         }
-                        case HttpStatus.NO_CONTENT, HttpStatus.NOT_FOUND ->
-                                throw new JsonPlaceHolderException("Failed to get users from jsonplaceholder.typicode.com");
-                        default -> throw new IllegalStateException(ERROR_MESSAGE + response.getStatusCode());
-                    }
-                });
+                );
 
         jsonPlaceHolderService.saveAllUsers(users);
 
@@ -64,17 +61,12 @@ public class JsonPlaceHolderController implements JsonplaceholderApi {
     public ResponseEntity<TodoDto> retrieveTodos() {
         List<TodoJsonPlaceHolder> todoJsonPlaceHolders = restClient.get()
                 .uri("/todos")
-                .exchange((request, response) -> {
-                    switch (response.getStatusCode()) {
-                        case HttpStatus.OK -> {
-                            return objectMapper.readValue(response.getBody(), new TypeReference<>() {
-                            });
+                .exchange((request, response) -> switch (response.getStatusCode()) {
+                            case HttpStatus.OK -> objectMapper.readValue(response.getBody(), new TypeReference<>() {});
+                            case HttpStatus.NO_CONTENT, HttpStatus.NOT_FOUND -> throw new JsonPlaceHolderException("Failed to get todos from jsonplaceholder.typicode.com");
+                            default -> throw new IllegalStateException(ERROR_MESSAGE + response.getStatusCode());
                         }
-                        case HttpStatus.NO_CONTENT, HttpStatus.NOT_FOUND ->
-                                throw new JsonPlaceHolderException("Failed to get todos from jsonplaceholder.typicode.com");
-                        default -> throw new IllegalStateException(ERROR_MESSAGE + response.getStatusCode());
-                    }
-                });
+                );
 
         jsonPlaceHolderService.saveAllTodos(todoJsonPlaceHolders);
 
@@ -86,17 +78,12 @@ public class JsonPlaceHolderController implements JsonplaceholderApi {
 
         List<PostJsonPlaceHolder> postJsonPlaceHolders = restClient.get()
                 .uri("/posts")
-                .exchange((request, response) -> {
-                    switch (response.getStatusCode()) {
-                        case HttpStatus.OK -> {
-                            return objectMapper.readValue(response.getBody(), new TypeReference<>() {
-                            });
+                .exchange((request, response) -> switch (response.getStatusCode()) {
+                            case HttpStatus.OK -> objectMapper.readValue(response.getBody(), new TypeReference<>() {});
+                            case HttpStatus.NO_CONTENT, HttpStatus.NOT_FOUND -> throw new JsonPlaceHolderException("Failed to get posts from jsonplaceholder.typicode.com");
+                            default -> throw new IllegalStateException(ERROR_MESSAGE + response.getStatusCode());
                         }
-                        case HttpStatus.NO_CONTENT, HttpStatus.NOT_FOUND ->
-                                throw new JsonPlaceHolderException("Failed to get posts from jsonplaceholder.typicode.com");
-                        default -> throw new IllegalStateException(ERROR_MESSAGE + response.getStatusCode());
-                    }
-                });
+                );
 
         jsonPlaceHolderService.saveAllPosts(postJsonPlaceHolders);
 
@@ -107,17 +94,14 @@ public class JsonPlaceHolderController implements JsonplaceholderApi {
     public ResponseEntity<CommentDto> retrieveComments() {
         List<CommentJsonPlaceHolder> commentJsonPlaceHolders = restClient.get()
                 .uri("/comments")
-                .exchange((request, response) -> {
+                .exchange((request, response) ->
                     switch (response.getStatusCode()) {
-                        case HttpStatus.OK -> {
-                            return objectMapper.readValue(response.getBody(), new TypeReference<>() {
-                            });
-                        }
+                        case HttpStatus.OK -> objectMapper.readValue(response.getBody(), new TypeReference<>() {});
                         case HttpStatus.NO_CONTENT, HttpStatus.NOT_FOUND ->
                                 throw new JsonPlaceHolderException("Failed to get comments from jsonplaceholder.typicode.com");
                         default -> throw new IllegalStateException(ERROR_MESSAGE + response.getStatusCode());
                     }
-                });
+                );
 
         jsonPlaceHolderService.saveAllComments(commentJsonPlaceHolders);
 
