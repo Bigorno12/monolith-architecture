@@ -20,6 +20,11 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestClient;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.stream.IntStream;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -84,42 +89,45 @@ public class JsonPlaceHolderController implements JsonplaceholderApi {
     @Override
     public ResponseEntity<PostDto> retrievePosts() {
 
-        List<PostJsonPlaceHolder> postJsonPlaceHolders = restClient.get()
-                .uri("/posts")
-                .exchange((request, response) -> {
-                    switch (response.getStatusCode()) {
-                        case HttpStatus.OK -> {
-                            return objectMapper.readValue(response.getBody(), new TypeReference<>() {
-                            });
+        try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
+            List<Future<PostJsonPlaceHolder>> futurePosts = IntStream.rangeClosed(1, 100)
+                    .mapToObj(index -> executor.submit(() -> restClient.get()
+                            .uri("/posts/" + index)
+                            .retrieve()
+                            .body(PostJsonPlaceHolder.class)))
+                    .toList();
+
+            List<PostJsonPlaceHolder> postJsonPlaceHolders = futurePosts.stream()
+                    .map(futurePost -> {
+                        try {
+                            return futurePost.get();
+                        } catch (InterruptedException | ExecutionException e) {
+                            throw new JsonPlaceHolderException("Failed to get posts from jsonplaceholder.typicode.com");
                         }
-                        case HttpStatus.NO_CONTENT, HttpStatus.NOT_FOUND ->
-                                throw new JsonPlaceHolderException("Failed to get posts from jsonplaceholder.typicode.com");
-                        default -> throw new IllegalStateException(ERROR_MESSAGE + response.getStatusCode());
-                    }
-                });
+                    })
+                    .toList();
 
-        jsonPlaceHolderService.saveAllPosts(postJsonPlaceHolders);
+            jsonPlaceHolderService.saveAllPosts(postJsonPlaceHolders);
+            return ResponseEntity.status(HttpStatus.CREATED).build();
+        }
 
-        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @Override
     public ResponseEntity<CommentDto> retrieveComments() {
-        List<CommentJsonPlaceHolder> commentJsonPlaceHolders = restClient.get()
-                .uri("/comments")
-                .exchange((request, response) -> {
-                    switch (response.getStatusCode()) {
-                        case HttpStatus.OK -> {
-                            return objectMapper.readValue(response.getBody(), new TypeReference<>() {
-                            });
-                        }
-                        case HttpStatus.NO_CONTENT, HttpStatus.NOT_FOUND ->
-                                throw new JsonPlaceHolderException("Failed to get comments from jsonplaceholder.typicode.com");
-                        default -> throw new IllegalStateException(ERROR_MESSAGE + response.getStatusCode());
-                    }
-                });
 
-        jsonPlaceHolderService.saveAllComments(commentJsonPlaceHolders);
+        List<CompletableFuture<CommentJsonPlaceHolder>> completableFutureComments = IntStream.rangeClosed(1, 500)
+                .mapToObj(index -> CompletableFuture.supplyAsync(() -> restClient.get()
+                        .uri("/comments/" + index)
+                        .retrieve()
+                        .body(CommentJsonPlaceHolder.class)))
+                .toList();
+
+        List<CommentJsonPlaceHolder> comments = completableFutureComments.stream()
+                .map(CompletableFuture::join)
+                .toList();
+
+        jsonPlaceHolderService.saveAllComments(comments);
 
         return ResponseEntity.status(HttpStatus.CREATED).build();
 
