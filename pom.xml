@@ -23,6 +23,7 @@
         <jakarta.validation-api.version>3.0.2</jakarta.validation-api.version>
         <swagger-annotations.version>2.2.16</swagger-annotations.version>
         <springdoc-openapi-starter-webmvc-ui.version>2.2.0</springdoc-openapi-starter-webmvc-ui.version>
+        <build-helper-maven-plugin.version>3.5.0</build-helper-maven-plugin.version>
     </properties>
 
     <modules>
@@ -193,6 +194,26 @@
                             <configuration>
                                 <outputDirectory>target/generated-sources/java</outputDirectory>
                                 <processor>com.querydsl.apt.jpa.JPAAnnotationProcessor</processor>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+                <!-- Make target/generated-sources marked directory as source -->
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>build-helper-maven-plugin</artifactId>
+                    <version>${build-helper-maven-plugin.version}</version>
+                    <executions>
+                        <execution>
+                            <id>make target/generated-sources as source</id>
+                            <phase>generate-sources</phase>
+                            <goals>
+                                <goal>add-source</goal>
+                            </goals>
+                            <configuration>
+                                <sources>
+                                    <source>${basedir}/target/generated-sources</source>
+                                </sources>
                             </configuration>
                         </execution>
                     </executions>
