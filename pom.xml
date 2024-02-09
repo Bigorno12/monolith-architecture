@@ -23,6 +23,7 @@
         <jakarta.validation-api.version>3.0.2</jakarta.validation-api.version>
         <swagger-annotations.version>2.2.16</swagger-annotations.version>
         <springdoc-openapi-starter-webmvc-ui.version>2.2.0</springdoc-openapi-starter-webmvc-ui.version>
+        <build-helper-maven-plugin.version>3.5.0</build-helper-maven-plugin.version>
     </properties>
 
     <modules>
