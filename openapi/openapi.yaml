@@ -19,10 +19,6 @@ paths:
       responses:
         201:
           description: successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/User'
   /jsonplaceholder/todos:
     get:
       tags:
@@ -32,10 +28,6 @@ paths:
       responses:
         '200':
           description: successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Todo'
   /jsonplaceholder/posts:
     get:
       tags:
@@ -45,10 +37,6 @@ paths:
       responses:
         '200':
           description: successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Post'
   /jsonplaceholder/comments:
     get:
       tags:
@@ -58,10 +46,6 @@ paths:
       responses:
         '200':
           description: successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Comment'
   /users/find-all-by-user-name:
     get:
       tags:
