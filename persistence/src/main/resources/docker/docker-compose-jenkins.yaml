@@ -8,6 +8,6 @@ services:
     volumes:
       - jenkins_home:/var/jenkins_home
     environment:
-      JENKINS_OPTS: --httpPort=8080
+      JENKINS_OPTS: --httpPort=9091
 volumes:
   jenkins_home:
