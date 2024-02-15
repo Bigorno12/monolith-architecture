@@ -116,7 +116,7 @@
                                 <generateModelTests>false</generateModelTests>
                                 <generateModelDocumentation>false</generateModelDocumentation>
                                 <configOptions>
-                                    <dateLibrary>java8</dateLibrary>
+                                    <dateLibrary>java21</dateLibrary>
                                     <useJakartaEe>true</useJakartaEe>
                                     <interfaceOnly>true</interfaceOnly>
                                     <openApiNullable>false</openApiNullable>
@@ -141,8 +141,8 @@
                                 <generateModelTests>false</generateModelTests>
                                 <generateModelDocumentation>false</generateModelDocumentation>
                                 <configOptions>
-                                    <dateLibrary>java8</dateLibrary>
-                                    <java8>true</java8>
+                                    <dateLibrary>java21</dateLibrary>
+                                    <java21>true</java21>
                                     <useBeanValidation>false</useBeanValidation>
                                     <useJakartaEe>true</useJakartaEe>
                                     <interfaceOnly>true</interfaceOnly>
