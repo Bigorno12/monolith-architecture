@@ -131,7 +131,7 @@
                             <configuration>
                                 <inputSpec>${project.basedir}/../openapi/openapi.yaml</inputSpec>
                                 <generatorName>java</generatorName>
-                                <library>resttemplate</library>
+                                <library>webclient</library>
                                 <apiPackage>mu.server.rest.controller.api</apiPackage>
                                 <generateApis>false</generateApis>
                                 <generateApiTests>false</generateApiTests>
