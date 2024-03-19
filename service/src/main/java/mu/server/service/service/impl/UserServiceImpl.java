@@ -1,6 +1,7 @@
 package mu.server.service.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
+import mu.server.persistence.projections.NamesOnly;
 import mu.server.persistence.repository.UserRepository;
 import mu.server.service.dto.UserDto;
 import mu.server.service.mapper.UserMapper;
@@ -29,5 +30,10 @@ public class UserServiceImpl implements UserService {
     public Page<UserDto> findAllUserByName(Pageable pageable, String name) {
         return userRepository.findByNameContainsIgnoreCase(pageable, name)
                 .map(userMapper::mapToDto);
+    }
+
+    @Override
+    public NamesOnly findNamesOnlyByUserId(Long userId) {
+        return userRepository.findNamesOnlyById(userId);
     }
 }
