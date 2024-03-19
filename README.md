@@ -7,3 +7,8 @@
 ## Swagger Ui
 - Documenting REST APIs with Swagger
   - http://localhost:8080/swagger-ui.html
+***
+### Database Connection For Test 
+- JDBC URL: jdbc:h2:mem:testdb
+- UserName: sa
+- Password: 
