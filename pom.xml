@@ -99,12 +99,12 @@
                     <version>${org.openapi-generator-maven-plugin.version}</version>
                     <executions>
                         <execution>
-                            <id>1</id>
+                            <id>Generate Controller and Dtos</id>
                             <goals>
                                 <goal>generate</goal>
                             </goals>
                             <configuration>
-                                <inputSpec>${project.basedir}/../openapi/openapi.yaml</inputSpec>
+                                <inputSpec>${project.basedir}/../openapi/json-api-holder.yaml</inputSpec>
                                 <generatorName>spring</generatorName>
                                 <apiPackage>mu.server.rest.controller</apiPackage>
                                 <generateApis>false</generateApis>
@@ -124,12 +124,12 @@
                             </configuration>
                         </execution>
                         <execution>
-                            <id>2</id>
+                            <id>Generate WebClient APIs</id>
                             <goals>
                                 <goal>generate</goal>
                             </goals>
                             <configuration>
-                                <inputSpec>${project.basedir}/../openapi/openapi.yaml</inputSpec>
+                                <inputSpec>${project.basedir}/../openapi/json-api-holder.yaml</inputSpec>
                                 <generatorName>java</generatorName>
                                 <library>webclient</library>
                                 <apiPackage>mu.server.rest.controller.api</apiPackage>
