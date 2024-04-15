@@ -14,10 +14,10 @@ import java.time.LocalDateTime;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(JsonPlaceHolderException.class)
-    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorMessage jsonPlaceHolderBadRequestHandler(JsonPlaceHolderException ex, WebRequest webRequest) {
         return ErrorMessage.builder()
-                .statusCode(HttpStatus.BAD_REQUEST.value())
+                .statusCode(HttpStatus.INTERNAL_SERVER_ERROR.value())
                 .timestamp(LocalDateTime.now())
                 .message(ex.getMessage())
                 .description(webRequest.getDescription(false))
