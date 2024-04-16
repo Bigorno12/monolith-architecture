@@ -50,7 +50,7 @@ public class JsonPlaceHolderController implements JsonplaceholderApi {
                             return objectMapper.readValue(response.getBody(), new TypeReference<>() {
                             });
                         }
-                        case HttpStatus.NO_CONTENT, HttpStatus.NOT_FOUND ->
+                        case HttpStatus.NO_CONTENT, HttpStatus.NOT_FOUND, HttpStatus.INTERNAL_SERVER_ERROR ->
                                 throw new JsonPlaceHolderException("Failed to get users from jsonplaceholder.typicode.com");
                         default -> throw new IllegalStateException(ERROR_MESSAGE + response.getStatusCode());
                     }
