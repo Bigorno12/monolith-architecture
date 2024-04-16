@@ -13,8 +13,8 @@ import java.time.LocalDateTime;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(JsonPlaceHolderException.class)
     @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
+    @ExceptionHandler(JsonPlaceHolderException.class)
     public ErrorMessage jsonPlaceHolderBadRequestHandler(JsonPlaceHolderException ex, WebRequest webRequest) {
         return ErrorMessage.builder()
                 .statusCode(HttpStatus.INTERNAL_SERVER_ERROR.value())

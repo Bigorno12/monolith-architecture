@@ -15,6 +15,7 @@ public interface UserRepository extends GenericRepository<User>, UserCustomRepos
 
     // Projections
     NamesOnly findNamesOnlyById(Long id);
+
     Page<NamesOnly> findNamesOnlyByNameContainsIgnoreCase(Pageable pageable, String name);
 
     // To remove boilerplate code
