@@ -1,6 +1,6 @@
 package mu.server.rest.advice;
 
-import mu.server.service.exception.ErrorMessage;
+import lombok.Builder;
 import mu.server.service.exception.InvalidCallException;
 import mu.server.service.exception.JsonPlaceHolderException;
 import org.springframework.http.HttpStatus;
@@ -36,4 +36,7 @@ public class GlobalExceptionHandler {
                 .description(webRequest.getDescription(false))
                 .build();
     }
+
+    @Builder
+    public record ErrorMessage(int statusCode, LocalDateTime timestamp, String message, String description) { }
 }
