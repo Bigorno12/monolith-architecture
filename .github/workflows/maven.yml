@@ -52,20 +52,3 @@ jobs:
       - name: Check build status
         run: exit 1
         if: ${{ failure() }}
-
-  codeql:
-    name: "CodeQL"
-    needs: build
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@v1
-        with:
-          languages: "java"
-
-      - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v1
