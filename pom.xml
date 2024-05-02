@@ -24,6 +24,7 @@
         <swagger-annotations.version>2.2.16</swagger-annotations.version>
         <springdoc-openapi-starter-webmvc-ui.version>2.2.0</springdoc-openapi-starter-webmvc-ui.version>
         <build-helper-maven-plugin.version>3.5.0</build-helper-maven-plugin.version>
+        <error-handling-spring-boot-starter.version>4.3.0</error-handling-spring-boot-starter.version>
     </properties>
 
     <modules>
@@ -74,6 +75,13 @@
                 <groupId>jakarta.validation</groupId>
                 <artifactId>jakarta.validation-api</artifactId>
                 <version>${jakarta.validation-api.version}</version>
+            </dependency>
+
+            <!-- Error Handling -->
+            <dependency>
+                <groupId>io.github.wimdeblauwe</groupId>
+                <artifactId>error-handling-spring-boot-starter</artifactId>
+                <version>${error-handling-spring-boot-starter.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
