@@ -12,6 +12,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @Slf4j
 @Transactional
@@ -33,7 +35,15 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public NamesOnly findNamesOnlyByUserId(Long userId) {
+    public List<UserDto> findAllUserDtoByFirstName(String firstName) {
+        return userRepository.findAllUserDtoByFirstName(firstName)
+                .stream()
+                .map(userMapper::mapToUserDto)
+                .toList();
+    }
+
+    @Override
+    public NamesOnly findNameOnlyByUserId(Long userId) {
         return userRepository.findNamesOnlyById(userId);
     }
 }
