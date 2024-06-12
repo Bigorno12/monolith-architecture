@@ -1,6 +1,7 @@
 #Create a docker compose file for mysql database and jenkins file
 version: '3.7'
 services:
+#  For Database
   mysql:
     image: mysql:latest
     container_name: mysql
@@ -11,6 +12,7 @@ services:
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     ports:
       - "3306:3306"
+#  To create jenkins container
   jenkins:
     image: jenkins/jenkins:lts
     ports:
@@ -20,6 +22,7 @@ services:
       - jenkins_home:/var/jenkins_home
     environment:
       JENKINS_OPTS: --httpPort=9091
+#  Postgres Database for Keycloak
   postgres:
     image: postgres:latest
     volumes:
@@ -30,6 +33,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     networks:
       - keycloak_network
+  # Keycloak container
   keycloak:
     image: quay.io/keycloak/keycloak:23.0.6
     command: start
