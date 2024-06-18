@@ -4,7 +4,7 @@ logging:
 
 spring:
   profiles:
-    active: test
+    active: @spring.profiles.active@
 
 # swagger-ui custom path
 springdoc:
