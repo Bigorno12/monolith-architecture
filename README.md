@@ -13,6 +13,19 @@
 - UserName: sa
 - Password: 
 ***
+### Profile
+- Add Profile using Maven Profile
+- By default environment **test**
+```
+spring:
+  profiles:
+    active: @spring.profiles.active@
+```
+- To package the dev profile just run 
+```
+mvn clean package -Pdev
+```
+***
 ### Things to add
 1. https://wimdeblauwe.github.io/error-handling-spring-boot-starter/4.3.0/#goal --> Try this to replace @RestControllerAdvice
 2. https://www.datafaker.net/documentation/getting-started/ --> Add Data Faker
