@@ -127,11 +127,16 @@
                                 <generateModels>false</generateModels>
                                 <generateModelTests>false</generateModelTests>
                                 <generateModelDocumentation>false</generateModelDocumentation>
+                                <output>${project.build.directory}/generated-sources</output>
                                 <configOptions>
+                                    <collectionType>list</collectionType>
                                     <dateLibrary>java21</dateLibrary>
-                                    <useJakartaEe>true</useJakartaEe>
+                                    <enumPropertyNaming>UPPERCASE</enumPropertyNaming>
+                                    <java21>true</java21>
                                     <interfaceOnly>true</interfaceOnly>
                                     <openApiNullable>false</openApiNullable>
+                                    <sourceFolder>generated</sourceFolder>
+                                    <useJakartaEe>true</useJakartaEe>
                                 </configOptions>
                             </configuration>
                         </execution>
@@ -143,7 +148,6 @@
                             <configuration>
                                 <inputSpec>${project.basedir}/../openapi/json-api-holder.yaml</inputSpec>
                                 <generatorName>java</generatorName>
-                                <library>webclient</library>
                                 <apiPackage>mu.server.rest.controller.api</apiPackage>
                                 <generateApis>false</generateApis>
                                 <generateApiTests>false</generateApiTests>
@@ -152,14 +156,19 @@
                                 <generateModels>false</generateModels>
                                 <generateModelTests>false</generateModelTests>
                                 <generateModelDocumentation>false</generateModelDocumentation>
+                                <output>${project.build.directory}/generated-sources</output>
                                 <configOptions>
+                                    <collectionType>list</collectionType>
+                                    <enumPropertyNaming>UPPERCASE</enumPropertyNaming>
                                     <dateLibrary>java21</dateLibrary>
+                                    <interfaceOnly>true</interfaceOnly>
                                     <java21>true</java21>
+                                    <library>webclient</library>
+                                    <openApiNullable>false</openApiNullable>
                                     <useBeanValidation>false</useBeanValidation>
                                     <useJakartaEe>true</useJakartaEe>
-                                    <interfaceOnly>true</interfaceOnly>
-                                    <openApiNullable>false</openApiNullable>
                                     <useOptional>false</useOptional>
+                                    <sourceFolder>generated</sourceFolder>
                                 </configOptions>
                             </configuration>
                         </execution>
