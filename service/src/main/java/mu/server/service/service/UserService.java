@@ -14,4 +14,6 @@ public interface UserService {
     List<UserDto> findAllUserDtoByFirstName(String firstName);
 
     NamesOnly findNameOnlyByUserId(Long userId);
+
+    Page<NamesOnly> findNamesOnlyByName(Pageable pageable, String name);
 }

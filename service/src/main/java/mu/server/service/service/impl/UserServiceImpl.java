@@ -46,4 +46,9 @@ public class UserServiceImpl implements UserService {
     public NamesOnly findNameOnlyByUserId(Long userId) {
         return userRepository.findNamesOnlyById(userId);
     }
+
+    @Override
+    public Page<NamesOnly> findNamesOnlyByName(Pageable pageable, String name) {
+        return userRepository.findNamesOnlyByNameContainsIgnoreCase(pageable, name);
+    }
 }
