@@ -5,6 +5,9 @@ logging:
 spring:
   profiles:
     active: @spring.profiles.active@
+  threads:
+    virtual:
+      enabled: true
 
 # swagger-ui custom path
 springdoc:
