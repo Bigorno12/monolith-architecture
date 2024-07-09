@@ -22,7 +22,6 @@ import java.util.List;
 
 @Slf4j
 @Service
-@Transactional
 public class JsonPlaceHolderServiceImpl implements JsonPlaceHolderService {
 
     private final UserRepository userRepository;
@@ -44,6 +43,7 @@ public class JsonPlaceHolderServiceImpl implements JsonPlaceHolderService {
     }
 
     @Override
+    @Transactional
     public void saveAllTodos(List<TodoJsonPlaceHolder> todoJsonPlaceHolders) {
         List<Todo> mapToTodos = todoJsonPlaceHolders.stream()
                 .map(this::mapTodosJsonPlaceHolderToEntity)
@@ -53,6 +53,7 @@ public class JsonPlaceHolderServiceImpl implements JsonPlaceHolderService {
     }
 
     @Override
+    @Transactional
     public void saveAllPosts(List<PostJsonPlaceHolder> postJsonPlaceHolders) {
         List<Post> posts = postJsonPlaceHolders.stream()
                 .map(this::mapPostJsonPlaceHolderToEntity)
@@ -62,6 +63,7 @@ public class JsonPlaceHolderServiceImpl implements JsonPlaceHolderService {
     }
 
     @Override
+    @Transactional
     public void saveAllComments(List<CommentJsonPlaceHolder> commentJsonPlaceHolders) {
         List<Comment> comments = commentJsonPlaceHolders.stream()
                 .map(this::mapCommentJsonPlaceHolderToEntity)
