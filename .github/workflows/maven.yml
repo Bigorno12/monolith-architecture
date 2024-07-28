@@ -52,3 +52,12 @@ jobs:
       - name: Check build status
         run: exit 1
         if: ${{ failure() }}
+
+env:
+  POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+  POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+  POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+  MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
+  MYSQL_DATABASE: ${{ secrets.MYSQL_DATABASE }}
+  KEYCLOAK_ADMIN_PASSWORD: ${{ secrets.KEYCLOAK_ADMIN_PASSWORD }}
+  KEYCLOAK_ADMIN: ${{ secrets.KEYCLOAK_ADMIN }}
