@@ -7,7 +7,7 @@ import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import mu.server.persistence.entity.QUser;
 import mu.server.persistence.entity.User;
-import mu.server.persistence.projections.UserProjectionDto;
+import mu.server.persistence.projections.RetrieveUsers;
 import mu.server.persistence.repository.custom.UserCustomRepository;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Repository;
@@ -23,9 +23,9 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
     private static final QUser user = QUser.user;
 
     @Override
-    public List<UserProjectionDto> findAllUserDtoByFirstName(@NonNull String firstName) {
+    public List<RetrieveUsers> findAllUserDtoByFirstName(@NonNull String firstName) {
         return new JPAQuery<User>(entityManager)
-                .select(Projections.constructor(UserProjectionDto.class, user.name, user.username, user.website))
+                .select(Projections.constructor(RetrieveUsers.class, user.name, user.username, user.website))
                 .from(user)
                 .where(user.name.containsIgnoreCase(firstName))
                 .fetch();
