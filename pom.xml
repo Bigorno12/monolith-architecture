@@ -230,13 +230,13 @@
                 <activeByDefault>false</activeByDefault>
             </activation>
             <properties>
-                <spring.profiles.active>true</spring.profiles.active>
+                <spring.profiles.active>test</spring.profiles.active>
             </properties>
         </profile>
         <profile>
             <id>dev</id>
             <activation>
-                <activeByDefault>false</activeByDefault>
+                <activeByDefault>true</activeByDefault>
             </activation>
             <properties>
                 <spring.profiles.active>dev</spring.profiles.active>
