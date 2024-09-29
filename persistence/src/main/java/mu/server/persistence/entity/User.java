@@ -10,6 +10,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import mu.server.persistence.audit.Auditable;
 import mu.server.persistence.embeded.Address;
 import mu.server.persistence.embeded.Company;
 
@@ -19,7 +20,7 @@ import mu.server.persistence.embeded.Company;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "_user")
-public class User {
+public class User extends Auditable {
 
     @Id
     private Long id;
