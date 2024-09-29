@@ -7,7 +7,7 @@ logging:
 
 spring:
   profiles:
-    active: @spring.profiles.active@
+    active: "@spring.profiles.active@"
   threads:
     virtual:
       enabled: true

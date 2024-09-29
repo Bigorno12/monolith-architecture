@@ -34,3 +34,6 @@ mvn clean package -Pdev
 ***
 ### TODOS
 1. Add projection using @Query
+***
+### Virtual Threads and its pitfall
+- Note: Pining issue block virtual and platform thread (synchronized) 
