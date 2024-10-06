@@ -38,6 +38,7 @@ public class JsonPlaceHolderServiceImpl implements JsonPlaceHolderService {
     }
 
     @Override
+    @Transactional
     public void saveAllUsers(List<User> users) {
         userRepository.saveAll(users);
     }
