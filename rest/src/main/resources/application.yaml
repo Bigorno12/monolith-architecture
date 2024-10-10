@@ -11,6 +11,8 @@ spring:
   threads:
     virtual:
       enabled: true
+  jackson:
+    default-property-inclusion: NON_NULL
 
 # swagger-ui custom path
 springdoc:

@@ -158,6 +158,9 @@
                                 <generateModelDocumentation>false</generateModelDocumentation>
                                 <output>${project.build.directory}/generated-sources</output>
                                 <configOptions>
+                                    <additionalModelTypeAnnotations>
+                                        @com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)
+                                    </additionalModelTypeAnnotations>
                                     <collectionType>list</collectionType>
                                     <enumPropertyNaming>UPPERCASE</enumPropertyNaming>
                                     <dateLibrary>java21</dateLibrary>
