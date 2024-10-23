@@ -10,7 +10,6 @@ spring:
       hibernate:
         format_sql: true
     generate-ddl: false
-    open-in-view: false
   datasource:
     url: jdbc:mysql://localhost:3306/jsonplaceholder
     username: root
