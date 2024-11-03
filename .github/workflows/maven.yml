@@ -3,6 +3,8 @@ name: Java CI with Maven
 on:
   push:
     branches: [ "main", "develop" ]
+  pull_request:
+    branches: [ "develop" ]
   schedule:
     - cron: '0 0 * * 1'
 
