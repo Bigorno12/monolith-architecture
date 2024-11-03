@@ -61,6 +61,9 @@ jobs:
       - name: Run Dependabot
         uses: dependabot/fetch-metadata@v1
         with:
+          github-token: '${{ github.token }}'
+          skip-commit-verification: 'false'
+          skip-verification: 'false'
           package-manager: 'maven'
           directory: '/'
           open-pull-requests-limit: 10
