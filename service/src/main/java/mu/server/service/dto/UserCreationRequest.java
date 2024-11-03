@@ -5,10 +5,10 @@ import lombok.Builder;
 import java.util.Objects;
 
 @Builder
-public record UserCreation(String name, String username, AddressCreation address, String phone, String website,
-                           GeoCreation geoCreation, CompanyCreation companyCreation) {
+public record UserCreationRequest(String name, String username, AddressCreation address, String phone, String website,
+                                  GeoCreation geoCreation, CompanyCreation companyCreation) {
 
-    public UserCreation {
+    public UserCreationRequest {
         Objects.requireNonNull(name, "Name is null");
         Objects.requireNonNull(username, "Username is null");
         Objects.requireNonNull(address, "Address is null");
