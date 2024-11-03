@@ -3,8 +3,6 @@ name: Java CI with Maven
 on:
   push:
     branches: [ "main", "develop" ]
-  pull_request:
-    branches: [ "develop" ]
   schedule:
     - cron: '0 0 * * 1'
 
@@ -41,6 +39,7 @@ jobs:
         if: ${{ failure() }}
 
   dependabot:
+    if: github.actor == 'dependabot[bot]'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
