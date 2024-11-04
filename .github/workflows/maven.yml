@@ -4,11 +4,7 @@ on:
   push:
     branches: [ "main", "develop" ]
   pull_request:
-    branches: [ "develop" ]
-    types:
-      - opened
-      - synchronize
-      - reopened
+    branches: [ "main", "develop" ]
   schedule:
     - cron: '0 0 * * 1'
 
@@ -47,39 +43,6 @@ jobs:
       - name: Check build status
         run: exit 1
         if: ${{ failure() }}
-
-  fetch-metadata:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-
-      - name: Fetch Dependabot metadata
-        uses: dependabot/fetch-metadata@v1
-        with:
-          github-token: '${{ github.token }}'
-
-  dependabot:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-      - name: Set up JDK 21
-        uses: actions/setup-java@v3
-        with:
-          java-version: '21'
-          distribution: 'temurin'
-      - name: Fetch Dependabot metadata
-        id: metadata
-        uses: dependabot/fetch-metadata@v1
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Enable auto-merge for Dependabot PRs
-        if: contains(steps.metadata.outputs.dependency-names, 'my-dependency') && steps.metadata.outputs.update-type == 'version-update:semver-patch'
-        run: gh pr merge --auto --merge "$PR_URL"
-        env:
-          PR_URL: ${{github.event.pull_request.html_url}}
-          GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
 
 env:
   POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
