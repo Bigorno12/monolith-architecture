@@ -5,6 +5,9 @@ on:
     branches: [ "main", "develop" ]
   pull_request:
     branches: [ "develop" ]
+    types:
+      - opened
+      - synchronize
   schedule:
     - cron: '0 0 * * 1'
 
@@ -43,6 +46,17 @@ jobs:
       - name: Check build status
         run: exit 1
         if: ${{ failure() }}
+
+  fetch-metadata:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Fetch Dependabot metadata
+        uses: dependabot/fetch-metadata@v1
+        with:
+          github-token: '${{ github.token }}'
 
   dependabot:
     runs-on: ubuntu-latest
