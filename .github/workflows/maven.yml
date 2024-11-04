@@ -8,6 +8,7 @@ on:
     types:
       - opened
       - synchronize
+      - reopened
   schedule:
     - cron: '0 0 * * 1'
 
