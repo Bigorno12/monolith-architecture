@@ -41,7 +41,7 @@ jobs:
         if: ${{ failure() }}
 
   dependabot:
-    if: github.actor == 'dependabot[bot]'
+    if: contains(github.actor, 'dependabot')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
