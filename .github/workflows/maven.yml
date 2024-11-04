@@ -8,6 +8,10 @@ on:
   schedule:
     - cron: '0 0 * * 1'
 
+permissions:
+  contents: write
+  pull-requests: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -42,6 +46,10 @@ jobs:
 
   dependabot:
     runs-on: ubuntu-latest
+    if: |-
+      github.event.pull_request.user.login == 'dependabot[bot]' 
+        && github.repository == 'Bigorno12/modular-monolith-architecture'
+        && github.event.workflow_run.conclusion == 'success'
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -51,11 +59,16 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
       - name: Fetch Dependabot metadata
-        uses: dependabot/fetch-metadata@v1
+        id: metadata
+        uses: dependabot/fetch-metadata@4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          skip-commit-verification: false
-          skip-verification: false
+      - name: Enable auto-merge for Dependabot PRs
+        if: contains(steps.metadata.outputs.dependency-names, 'my-dependency') && steps.metadata.outputs.update-type == 'version-update:semver-patch'
+        run: gh pr merge --auto --merge "$PR_URL"
+        env:
+          PR_URL: ${{github.event.pull_request.html_url}}
+          GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
 
 env:
   POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
