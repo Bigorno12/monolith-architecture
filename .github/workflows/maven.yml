@@ -6,11 +6,6 @@ on:
   pull_request:
     branches: [ "main", "develop" ]
 
-permissions:
-  contents: read
-  security-events: write
-  dependency-graph: write
-
 jobs:
   build:
     runs-on: ubuntu-latest
