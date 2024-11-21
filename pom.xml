@@ -24,7 +24,7 @@
         <swagger-annotations.version>2.2.16</swagger-annotations.version>
         <springdoc-openapi-starter-webmvc-ui.version>2.2.0</springdoc-openapi-starter-webmvc-ui.version>
         <build-helper-maven-plugin.version>3.5.0</build-helper-maven-plugin.version>
-        <error-handling-spring-boot-starter.version>4.3.0</error-handling-spring-boot-starter.version>
+        <error-handling-spring-boot-starter.version>4.5.0</error-handling-spring-boot-starter.version>
     </properties>
 
     <modules>
