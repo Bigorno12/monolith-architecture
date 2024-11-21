@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.2.0</version>
+        <version>3.3.4</version>
     </parent>
 
     <groupId>mu.modularachictecture</groupId>
@@ -158,6 +158,9 @@
                                 <generateModelDocumentation>false</generateModelDocumentation>
                                 <output>${project.build.directory}/generated-sources</output>
                                 <configOptions>
+                                    <additionalModelTypeAnnotations>
+                                        @com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)
+                                    </additionalModelTypeAnnotations>
                                     <collectionType>list</collectionType>
                                     <enumPropertyNaming>UPPERCASE</enumPropertyNaming>
                                     <dateLibrary>java21</dateLibrary>
@@ -227,7 +230,7 @@
         <profile>
             <id>test</id>
             <activation>
-                <activeByDefault>true</activeByDefault>
+                <activeByDefault>false</activeByDefault>
             </activation>
             <properties>
                 <spring.profiles.active>test</spring.profiles.active>
@@ -236,7 +239,7 @@
         <profile>
             <id>dev</id>
             <activation>
-                <activeByDefault>false</activeByDefault>
+                <activeByDefault>true</activeByDefault>
             </activation>
             <properties>
                 <spring.profiles.active>dev</spring.profiles.active>

@@ -16,7 +16,6 @@ import java.util.List;
 
 @Service
 @Slf4j
-@Transactional
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
@@ -29,12 +28,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Page<UserDto> findAllUserByName(Pageable pageable, String name) {
         return userRepository.findByNameContainsIgnoreCase(pageable, name)
                 .map(userMapper::mapToDto);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<UserDto> findAllUserDtoByFirstName(String firstName) {
         return userRepository.findAllUserDtoByFirstName(firstName)
                 .stream()
@@ -43,6 +44,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public NamesOnly findNameOnlyByUserId(Long userId) {
         return userRepository.findNamesOnlyById(userId);
     }
