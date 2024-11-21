@@ -1,4 +1,4 @@
-create table _user
+CREATE TABLE IF NOT EXISTS _user
 (
     id                   bigint       not null,
     name                 varchar(100) not null,
@@ -16,7 +16,7 @@ create table _user
     primary key (id)
 ) engine=InnoDB;
 
-create table todo
+CREATE TABLE IF NOT EXISTS todo
 (
     completed bit           not null,
     id        bigint        not null,
@@ -26,7 +26,7 @@ create table todo
     foreign key (user_id) references _user (id)
 ) engine=InnoDB;
 
-create table post
+CREATE TABLE IF NOT EXISTS post
 (
     id      bigint        not null,
     user_id bigint        not null,
@@ -36,7 +36,7 @@ create table post
     foreign key (user_id) references _user (id)
 ) engine=InnoDB;
 
-create table comments
+CREATE TABLE IF NOT EXISTS comments
 (
     id      bigint       not null,
     post_id bigint       not null,

@@ -11,6 +11,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import mu.server.persistence.audit.Auditable;
 
 @Getter
 @Entity
@@ -18,7 +19,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "todo")
-public class Todo {
+public class Todo extends Auditable {
 
     @Id
     private Long id;
