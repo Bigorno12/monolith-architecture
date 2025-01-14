@@ -128,6 +128,4 @@ public class JsonPlaceHolderController implements JsonplaceholderApi {
         return ResponseEntity.status(HttpStatus.CREATED).build();
 
     }
-
-
 }
