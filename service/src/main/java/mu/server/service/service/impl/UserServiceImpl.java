@@ -37,9 +37,9 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional(readOnly = true)
     public List<UserDto> findAllUserDtoByFirstName(String firstName) {
-        return userRepository.findAllUserDtoByFirstName(firstName)
+        return userRepository.searchForAllNames(firstName)
                 .stream()
-                .map(userMapper::mapToUserDto)
+                .map(userMapper::mapToUserView)
                 .toList();
     }
 
