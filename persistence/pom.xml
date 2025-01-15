@@ -45,17 +45,27 @@
         <!-- Blaze -->
         <dependency>
             <groupId>com.blazebit</groupId>
+            <artifactId>blaze-persistence-core-api-jakarta</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.blazebit</groupId>
+            <artifactId>blaze-persistence-core-impl-jakarta</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.blazebit</groupId>
+            <artifactId>blaze-persistence-integration-hibernate-6.2</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.blazebit</groupId>
             <artifactId>blaze-persistence-entity-view-api-jakarta</artifactId>
         </dependency>
 
         <dependency>
             <groupId>com.blazebit</groupId>
             <artifactId>blaze-persistence-entity-view-impl-jakarta</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.blazebit</groupId>
-            <artifactId>blaze-persistence-integration-entity-view-spring-6.0</artifactId>
         </dependency>
     </dependencies>
 
