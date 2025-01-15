@@ -25,14 +25,13 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
     public List<UserView> searchForAllNames(String name) { // Using projections
         return Optional.ofNullable(name)
                 .map(String::toLowerCase)
-                .map(s -> s + "%")
                 .map(s -> cbf.create(entityManager, User.class, "u")
                         .select("u.id")
                         .select("u.name")
                         .select("u.username")
                         .select("u.website")
                         .where("u.name").isNotNull()
-                        .where("u.name").eq(s))
+                        .where("LOWER(u.name)").like().value("%" + s + "%").noEscape())
                 .map(userCriteriaBuilder -> evm.applySetting(EntityViewSetting.create(UserView.class), userCriteriaBuilder)
                         .getResultList())
                 .orElse(List.of());
