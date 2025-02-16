@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.3.4</version>
+        <version>3.4.2</version>
     </parent>
 
     <groupId>mu.modularachictecture</groupId>
@@ -151,7 +151,7 @@
                             <goals>
                                 <goal>generate</goal>
                             </goals>
-                            <configuration>
+                            <configuration> <!-- This only generate DTOs  -->
                                 <inputSpec>${project.basedir}/../openapi/json-api-holder.yaml</inputSpec>
                                 <generatorName>spring</generatorName>
                                 <apiPackage>mu.server.rest.controller</apiPackage>

@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.stream.IntStream;
 
 @RestController
@@ -86,17 +85,14 @@ public class JsonPlaceHolderController implements JsonplaceholderApi {
     public ResponseEntity<Void> retrievePosts() {
 
         try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
-            List<Future<PostJsonPlaceHolder>> futurePosts = IntStream.rangeClosed(1, 100)
+            List<PostJsonPlaceHolder> postJsonPlaceHolders = IntStream.rangeClosed(1, 100)
                     .mapToObj(index -> executor.submit(() -> restClient.get()
                             .uri("/posts/" + index)
                             .retrieve()
                             .body(PostJsonPlaceHolder.class)))
-                    .toList();
-
-            List<PostJsonPlaceHolder> postJsonPlaceHolders = futurePosts.stream()
-                    .map(futurePost -> {
+                    .<PostJsonPlaceHolder>mapMulti((futurePost, consumer) -> {
                         try {
-                            return futurePost.get();
+                            consumer.accept(futurePost.get());
                         } catch (InterruptedException | ExecutionException e) {
                             throw new JsonPlaceHolderException("Failed to get posts from jsonplaceholder.typicode.com");
                         }
