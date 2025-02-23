@@ -143,7 +143,7 @@
                                 <configOptions>
                                     <collectionType>list</collectionType>
                                     <dateLibrary>java21</dateLibrary>
-                                    <enumPropertyNaming>UPPERCASE</enumPropertyNaming>
+                                    <enumPropertyNaming>MACRO_CASE</enumPropertyNaming>
                                     <java21>true</java21>
                                     <interfaceOnly>true</interfaceOnly>
                                     <openApiNullable>false</openApiNullable>
@@ -174,7 +174,7 @@
                                         @com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)
                                     </additionalModelTypeAnnotations>
                                     <collectionType>list</collectionType>
-                                    <enumPropertyNaming>UPPERCASE</enumPropertyNaming>
+                                    <enumPropertyNaming>MACRO_CASE</enumPropertyNaming>
                                     <dateLibrary>java21</dateLibrary>
                                     <interfaceOnly>true</interfaceOnly>
                                     <java21>true</java21>
