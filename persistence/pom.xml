@@ -42,27 +42,31 @@
             <artifactId>flyway-mysql</artifactId>
         </dependency>
 
-        <!-- Querydsl -->
+        <!-- Blaze -->
         <dependency>
-            <groupId>com.querydsl</groupId>
-            <artifactId>querydsl-apt</artifactId>
-            <classifier>jakarta</classifier>
+            <groupId>com.blazebit</groupId>
+            <artifactId>blaze-persistence-core-api-jakarta</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>com.querydsl</groupId>
-            <artifactId>querydsl-jpa</artifactId>
-            <classifier>jakarta</classifier>
+            <groupId>com.blazebit</groupId>
+            <artifactId>blaze-persistence-core-impl-jakarta</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.blazebit</groupId>
+            <artifactId>blaze-persistence-integration-hibernate-6.2</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.blazebit</groupId>
+            <artifactId>blaze-persistence-entity-view-api-jakarta</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.blazebit</groupId>
+            <artifactId>blaze-persistence-entity-view-impl-jakarta</artifactId>
         </dependency>
     </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>com.mysema.maven</groupId>
-                <artifactId>apt-maven-plugin</artifactId>
-            </plugin>
-        </plugins>
-    </build>
 
 </project>

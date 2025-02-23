@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.3.4</version>
+        <version>3.3.2</version>
     </parent>
 
     <groupId>mu.modularachictecture</groupId>
@@ -24,7 +24,7 @@
         <swagger-annotations.version>2.2.16</swagger-annotations.version>
         <springdoc-openapi-starter-webmvc-ui.version>2.2.0</springdoc-openapi-starter-webmvc-ui.version>
         <build-helper-maven-plugin.version>3.5.0</build-helper-maven-plugin.version>
-        <error-handling-spring-boot-starter.version>4.3.0</error-handling-spring-boot-starter.version>
+        <blaze-persistence.version>1.6.14</blaze-persistence.version>
     </properties>
 
     <modules>
@@ -40,22 +40,6 @@
                 <groupId>org.mapstruct</groupId>
                 <artifactId>mapstruct</artifactId>
                 <version>${mapstruct.version}</version>
-            </dependency>
-
-            <!-- Querydsl -->
-            <dependency>
-                <groupId>com.querydsl</groupId>
-                <artifactId>querydsl-apt</artifactId>
-                <version>${querydsl.version}</version>
-                <scope>provided</scope>
-                <classifier>jakarta</classifier>
-            </dependency>
-
-            <dependency>
-                <groupId>com.querydsl</groupId>
-                <artifactId>querydsl-jpa</artifactId>
-                <version>${querydsl.version}</version>
-                <classifier>jakarta</classifier>
             </dependency>
 
             <!-- OpenApi -->
@@ -77,11 +61,39 @@
                 <version>${jakarta.validation-api.version}</version>
             </dependency>
 
-            <!-- Error Handling -->
+            <!-- Blaze -->
             <dependency>
-                <groupId>io.github.wimdeblauwe</groupId>
-                <artifactId>error-handling-spring-boot-starter</artifactId>
-                <version>${error-handling-spring-boot-starter.version}</version>
+                <groupId>com.blazebit</groupId>
+                <artifactId>blaze-persistence-core-api-jakarta</artifactId>
+                <version>${blaze-persistence.version}</version>
+                <scope>compile</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>com.blazebit</groupId>
+                <artifactId>blaze-persistence-core-impl-jakarta</artifactId>
+                <version>${blaze-persistence.version}</version>
+                <scope>runtime</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>com.blazebit</groupId>
+                <artifactId>blaze-persistence-integration-hibernate-6.2</artifactId>
+                <version>${blaze-persistence.version}</version>
+                <scope>runtime</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>com.blazebit</groupId>
+                <artifactId>blaze-persistence-entity-view-api-jakarta</artifactId>
+                <version>${blaze-persistence.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.blazebit</groupId>
+                <artifactId>blaze-persistence-entity-view-impl-jakarta</artifactId>
+                <version>${blaze-persistence.version}</version>
+                <scope>runtime</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -115,7 +127,7 @@
                             <goals>
                                 <goal>generate</goal>
                             </goals>
-                            <configuration>
+                            <configuration> <!-- This only generate DTOs  -->
                                 <inputSpec>${project.basedir}/../openapi/json-api-holder.yaml</inputSpec>
                                 <generatorName>spring</generatorName>
                                 <apiPackage>mu.server.rest.controller</apiPackage>
@@ -204,23 +216,6 @@
                             </path>
                         </annotationProcessorPaths>
                     </configuration>
-                </plugin>
-                <!-- QueryDsl -->
-                <plugin>
-                    <groupId>com.mysema.maven</groupId>
-                    <artifactId>apt-maven-plugin</artifactId>
-                    <version>1.1.3</version>
-                    <executions>
-                        <execution>
-                            <goals>
-                                <goal>process</goal>
-                            </goals>
-                            <configuration>
-                                <outputDirectory>target/generated-sources/java</outputDirectory>
-                                <processor>com.querydsl.apt.jpa.JPAAnnotationProcessor</processor>
-                            </configuration>
-                        </execution>
-                    </executions>
                 </plugin>
             </plugins>
         </pluginManagement>
