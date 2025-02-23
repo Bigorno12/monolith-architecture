@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.3.2</version>
+        <version>3.4.3</version>
     </parent>
 
     <groupId>mu.modularachictecture</groupId>
@@ -20,9 +20,9 @@
         <mapstruct.version>1.5.5.Final</mapstruct.version>
         <lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version>
         <org.openapi-generator-maven-plugin.version>7.0.1</org.openapi-generator-maven-plugin.version>
-        <jakarta.validation-api.version>3.0.2</jakarta.validation-api.version>
-        <swagger-annotations.version>2.2.16</swagger-annotations.version>
-        <springdoc-openapi-starter-webmvc-ui.version>2.2.0</springdoc-openapi-starter-webmvc-ui.version>
+        <jakarta.validation-api.version>3.1.1</jakarta.validation-api.version>
+        <swagger-annotations.version>2.2.28</swagger-annotations.version>
+        <springdoc-openapi-starter-webmvc-ui.version>2.8.5</springdoc-openapi-starter-webmvc-ui.version>
         <build-helper-maven-plugin.version>3.5.0</build-helper-maven-plugin.version>
         <blaze-persistence.version>1.6.14</blaze-persistence.version>
     </properties>
