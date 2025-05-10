@@ -15,6 +15,15 @@ spring:
     username: root
     driverClassName: com.mysql.cj.jdbc.Driver
     password: root
+    hikari:
+      pool-name: HikariPool
+      maximum-pool-size: 20
+      minimum-idle: 10
+      idle-timeout: 300000
+      max-lifetime: 1800000
+      connection-timeout: 30000
+      validation-timeout: 5000
+      leak-detection-threshold: 2000
   flyway:
     user: root
     password: root
