@@ -25,6 +25,7 @@
         <springdoc-openapi-starter-webmvc-ui.version>2.8.8</springdoc-openapi-starter-webmvc-ui.version>
         <build-helper-maven-plugin.version>3.5.0</build-helper-maven-plugin.version>
         <blaze-persistence.version>1.6.15</blaze-persistence.version>
+        <io.micrometer.version>1.14.6</io.micrometer.version>
     </properties>
 
     <modules>
@@ -95,6 +96,13 @@
                 <version>${blaze-persistence.version}</version>
                 <scope>runtime</scope>
             </dependency>
+
+            <!-- Actuator -->
+            <dependency>
+                <groupId>io.micrometer</groupId>
+                <artifactId>micrometer-registry-prometheus</artifactId>
+                <version>${io.micrometer.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -116,6 +124,17 @@
                 <plugin>
                     <groupId>org.springframework.boot</groupId>
                     <artifactId>spring-boot-maven-plugin</artifactId>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>build-info</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>io.github.git-commit-id</groupId>
+                    <artifactId>git-commit-id-maven-plugin</artifactId>
                 </plugin>
                 <plugin>
                     <groupId>org.openapitools</groupId>

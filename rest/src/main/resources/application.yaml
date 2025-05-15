@@ -4,6 +4,11 @@ logging:
     org.hibernate:
         SQL: INFO
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: ["prometheus", "health"]
 
 spring:
   profiles:
