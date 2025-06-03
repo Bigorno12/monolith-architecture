@@ -1,3 +1,9 @@
+logging:
+  level:
+    org.springframework: info
+    org.hibernate:
+      SQL: info
+
 spring:
   h2:
     console:
@@ -11,6 +17,10 @@ spring:
   jpa:
     show-sql: true
     database-platform: org.hibernate.dialect.H2Dialect
+    properties:
+      hibernate:
+        generate_statistics: true
+    generate-ddl: true
   flyway:
     user: root
     password: root
