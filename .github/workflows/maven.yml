@@ -37,7 +37,7 @@ jobs:
       - name: Run Unit test
         run: mvn test
       - name: Update dependency graph
-        uses: advanced-security/maven-dependency-submission-action@v1
+        uses: advanced-security/maven-dependency-submission-action@v5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
