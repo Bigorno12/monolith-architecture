@@ -24,7 +24,7 @@
         <swagger-annotations.version>2.2.32</swagger-annotations.version>
         <springdoc-openapi-starter-webmvc-ui.version>2.8.8</springdoc-openapi-starter-webmvc-ui.version>
         <build-helper-maven-plugin.version>3.5.0</build-helper-maven-plugin.version>
-        <blaze-persistence.version>1.6.15</blaze-persistence.version>
+        <blaze-persistence.version>1.6.16</blaze-persistence.version>
     </properties>
 
     <modules>
