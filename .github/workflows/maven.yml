@@ -50,9 +50,11 @@ jobs:
         uses: myrotvorets/set-commit-status-action@master
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          sha: ${{ github.event.pull_request.head.sha || github.sha }}
           status: ${{ job.status }}
           context: 'Build validation'
           description: 'Build status for branch verification'
+          allowForks: false
 
   check_build:
     needs: build
