@@ -22,8 +22,6 @@ updates:
     # Recommend reviewers for PRs
     reviewers:
       - "Bigorno"
-    vulnerability-alerts:
-      enabled: true
 
   - package-ecosystem: "maven"
     directory: "/persistence"
