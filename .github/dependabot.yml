@@ -3,15 +3,70 @@ updates:
   - package-ecosystem: "maven"
     directory: "/"
     schedule:
-      interval: "daily"
+      interval: "weekly"
     open-pull-requests-limit: 10
     groups:
       spring:
         patterns:
           - "org.springframework.boot:spring-boot-starter-parent"
+          - "org.springframework.*"
+      test-dependencies:
+        patterns:
+          - "junit:*"
+          - "org.junit*"
+          - "org.mockito:*"
+          - "org.assertj:*"
+    labels:
+      - "dependencies"
+      - "java"
+    # Recommend reviewers for PRs
+    reviewers:
+      - "Bigorno"
+    vulnerability-alerts:
+      enabled: true
+
+  - package-ecosystem: "maven"
+    directory: "/persistence"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "persistence"
+
+  - package-ecosystem: "maven"
+    directory: "/rest"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "rest"
+
+  - package-ecosystem: "maven"
+    directory: "/service"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "service"
+
+
+  - package-ecosystem: "docker"
+    directory: "/infra"
+    schedule:
+      interval: "monthly"
+    open-pull-requests-limit: 3
+    labels:
+      - "dependencies"
+      - "docker"
 
   - package-ecosystem: github-actions
     directory: "/"
     schedule:
-      interval: weekly
+      interval: "monthly"
     open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "github-actions"
