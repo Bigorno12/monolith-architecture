@@ -47,7 +47,7 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>mu.server.rest.Application</mainClass>
+                    <mainClass>${app.main.class}</mainClass>
                 </configuration>
                 <executions>
                     <execution>
@@ -79,6 +79,24 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <!-- Enforcer -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <configuration>
+                    <rules>
+                        <!-- .mvn and wrapper file must exist -->
+                        <requireFilesExist>
+                            <files>
+                                <file>${project.parent.basedir}/.mvn</file>
+                                <file>${project.parent.basedir}/.mvn/wrapper/maven-wrapper.properties</file>
+                                <file>${project.parent.basedir}/mvnw</file>
+                                <file>${project.parent.basedir}/mvnw.cmd</file>
+                            </files>
+                        </requireFilesExist>
+                    </rules>
+                </configuration>
             </plugin>
         </plugins>
     </build>
