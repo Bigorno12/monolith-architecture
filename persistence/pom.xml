@@ -24,6 +24,7 @@
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
+            <scope>runtime</scope>
         </dependency>
 
         <dependency>
@@ -33,8 +34,8 @@
 
         <!-- Flyway -->
         <dependency>
-            <groupId>org.flywaydb</groupId>
-            <artifactId>flyway-core</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-flyway</artifactId>
         </dependency>
 
         <dependency>
@@ -55,7 +56,7 @@
 
         <dependency>
             <groupId>com.blazebit</groupId>
-            <artifactId>blaze-persistence-integration-hibernate-6.2</artifactId>
+            <artifactId>blaze-persistence-integration-hibernate-7.1</artifactId>
         </dependency>
 
         <dependency>

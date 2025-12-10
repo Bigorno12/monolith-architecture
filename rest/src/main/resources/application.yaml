@@ -13,6 +13,8 @@ spring:
   datasource:
     hikari:
       auto-commit: false
+  main:
+    lazy-initialization: true
 
 # swagger-ui custom path
 springdoc:

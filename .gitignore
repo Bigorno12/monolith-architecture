@@ -28,3 +28,5 @@ replay_pid*
 /persistence/target/
 /rest/target/
 /service/target/
+/rest/src/main/java/mu/server/rest/httprequests/http-client.env.json
+/rest/src/main/java/mu/server/rest/httprequests/generated-requests.http
