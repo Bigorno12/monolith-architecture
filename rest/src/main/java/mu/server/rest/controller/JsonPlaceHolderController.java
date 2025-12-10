@@ -1,7 +1,5 @@
 package mu.server.rest.controller;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import mu.server.persistence.entity.User;
 import mu.server.service.exception.JsonPlaceHolderException;
 import mu.server.service.jsonplaceholder.CommentJsonPlaceHolder;
@@ -14,6 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestClient;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -28,14 +28,14 @@ public class JsonPlaceHolderController implements JsonplaceholderApi {
     private static final String ERROR_MESSAGE = "Unexpected value: ";
 
     private final JsonPlaceHolderService jsonPlaceHolderService;
-    private final ObjectMapper objectMapper;
+    private final JsonMapper jsonMapper;
     private final RestClient restClient;
 
     public JsonPlaceHolderController(JsonPlaceHolderService jsonPlaceHolderService,
-                                     ObjectMapper objectMapper,
+                                     JsonMapper jsonMapper,
                                      @Qualifier("restClient") RestClient restClient) {
         this.jsonPlaceHolderService = jsonPlaceHolderService;
-        this.objectMapper = objectMapper;
+        this.jsonMapper = jsonMapper;
         this.restClient = restClient;
     }
 
@@ -46,7 +46,7 @@ public class JsonPlaceHolderController implements JsonplaceholderApi {
                 .exchange((request, response) -> {
                     switch (response.getStatusCode()) {
                         case HttpStatus.OK -> {
-                            return objectMapper.readValue(response.getBody(), new TypeReference<>() {
+                            return jsonMapper.readValue(response.getBody(), new TypeReference<>() {
                             });
                         }
                         case HttpStatus.NO_CONTENT, HttpStatus.NOT_FOUND, HttpStatus.INTERNAL_SERVER_ERROR ->
@@ -67,7 +67,7 @@ public class JsonPlaceHolderController implements JsonplaceholderApi {
                 .exchange((request, response) -> {
                     switch (response.getStatusCode()) {
                         case HttpStatus.OK -> {
-                            return objectMapper.readValue(response.getBody(), new TypeReference<>() {
+                            return jsonMapper.readValue(response.getBody(), new TypeReference<>() {
                             });
                         }
                         case HttpStatus.NO_CONTENT, HttpStatus.NOT_FOUND ->
