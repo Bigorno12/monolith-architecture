@@ -23,3 +23,17 @@ springdoc:
 
 server:
   port: 8080
+  tomcat:
+    threads:
+      # Min num of threads always kept alive
+      min-spare: 20
+      # Max threads available to serve requests
+      max: 200
+    connection-timeout: 20000
+    keep-alive-timeout: 15000 # Time Tomcat awaits for the next request before closing connection
+    max-keep-alive-requests: 100 # Max requests served over a single connection
+    accept-count: 100
+  compression:
+    enabled: true
+    mime-types: application/json, application/xml, text/xml, text/plain
+    min-response-size: 1024
