@@ -32,6 +32,7 @@
         <build-helper-maven-plugin.version>3.5.0</build-helper-maven-plugin.version>
         <blaze-persistence.version>1.6.17</blaze-persistence.version>
         <commons-lang3.version>3.18.0</commons-lang3.version>
+        <io.jsonwebtoken.version>0.13.0</io.jsonwebtoken.version>
     </properties>
 
     <modules>
@@ -101,6 +102,31 @@
                 <artifactId>blaze-persistence-entity-view-impl-jakarta</artifactId>
                 <version>${blaze-persistence.version}</version>
                 <scope>runtime</scope>
+            </dependency>
+            <!-- JWT Token -->
+            <dependency>
+                <groupId>io.jsonwebtoken</groupId>
+                <artifactId>jjwt-api</artifactId>
+                <version>${io.jsonwebtoken.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.jsonwebtoken</groupId>
+                <artifactId>jjwt-impl</artifactId>
+                <version>${io.jsonwebtoken.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.jsonwebtoken</groupId>
+                <artifactId>jjwt-jackson</artifactId>
+                <version>${io.jsonwebtoken.version}</version>
+            </dependency>
+
+            <!-- Tomcat Core -->
+            <dependency>
+                <groupId>org.apache.tomcat.embed</groupId>
+                <artifactId>tomcat-embed-core</artifactId>
+                <version>${tomcat.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
