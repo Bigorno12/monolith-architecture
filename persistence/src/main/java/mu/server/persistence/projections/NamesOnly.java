@@ -1,8 +1,8 @@
 package mu.server.persistence.projections;
 
-public record NamesOnly(Long id, String name, String username) {
+public record NamesOnly(Long id, String firstname, String username) {
     public NamesOnly {
-        if (name.isBlank()) {
+        if (firstname.isBlank()) {
             throw new IllegalArgumentException("Name is empty");
         }
 
@@ -11,7 +11,7 @@ public record NamesOnly(Long id, String name, String username) {
         }
     }
 
-    public NamesOnly(String name, String username) {
-        this(1L, name, username);
+    public NamesOnly(String firstname, String username) {
+        this(1L, firstname, username);
     }
 }

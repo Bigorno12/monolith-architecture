@@ -21,6 +21,14 @@ springdoc:
   swagger-ui:
     path: /swagger-ui.html
 
+application:
+  security:
+    jwt:
+      secret-key: ${WELLDEV.SECRET.KEY:***REMOVED***}
+      expiration: 86400000
+      refresh-token:
+        expiration: 604800000
+
 server:
   port: 8080
   tomcat:

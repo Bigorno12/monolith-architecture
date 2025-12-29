@@ -6,5 +6,4 @@ import java.util.List;
 
 public interface UserCustomRepository {
     List<UserView> searchForAllNames(String name);
-
 }

@@ -30,7 +30,7 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional(readOnly = true)
     public Page<UserDto> findAllUserByName(Pageable pageable, String name) {
-        return userRepository.findByNameContainsIgnoreCase(pageable, name)
+        return userRepository.findByFirstnameContainsIgnoreCase(pageable, name)
                 .map(userMapper::mapToDto);
     }
 
@@ -51,6 +51,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Page<NamesOnly> findNamesOnlyByName(Pageable pageable, String name) {
-        return userRepository.findNamesOnlyByNameContainsIgnoreCase(pageable, name);
+        return userRepository.findNamesOnlyByFirstnameContainsIgnoreCase(pageable, name);
     }
 }
