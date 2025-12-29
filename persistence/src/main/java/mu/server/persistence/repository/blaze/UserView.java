@@ -10,9 +10,9 @@ public interface UserView {
     @IdMapping
     Long getId();
 
-    String getName();
+    String getFirstname();
+
+    String getLastname();
 
     String getUsername();
-
-    String getWebsite();
 }

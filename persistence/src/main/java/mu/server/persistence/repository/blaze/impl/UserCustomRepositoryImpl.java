@@ -27,11 +27,9 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
                 .map(String::toLowerCase)
                 .map(s -> cbf.create(entityManager, User.class, "u")
                         .select("u.id")
-                        .select("u.name")
                         .select("u.username")
-                        .select("u.website")
-                        .where("u.name").isNotNull()
-                        .where("LOWER(u.name)").like().value("%" + s + "%").noEscape())
+                        .where("u.username").isNotNull()
+                        .where("LOWER(u.username)").like().value("%" + s + "%").noEscape())
                 .map(userCriteriaBuilder -> evm.applySetting(EntityViewSetting.create(UserView.class), userCriteriaBuilder)
                         .getResultList())
                 .orElse(List.of());

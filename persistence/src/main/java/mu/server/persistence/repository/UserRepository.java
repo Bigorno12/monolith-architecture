@@ -10,12 +10,12 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface UserRepository extends GenericRepository<User>, UserCustomRepository {
 
-    Page<User> findByNameContainsIgnoreCase(Pageable pageable, String name);
+    Page<User> findByFirstnameContainsIgnoreCase(Pageable pageable, String firstname);
 
     // Projections
     NamesOnly findNamesOnlyById(Long id);
 
-    Page<NamesOnly> findNamesOnlyByNameContainsIgnoreCase(Pageable pageable, String name);
+    Page<NamesOnly> findNamesOnlyByFirstnameContainsIgnoreCase(Pageable pageable, String firstname);
 
     // To remove boilerplate code
     <T> T findById(Long id, Class<T> clazz);
