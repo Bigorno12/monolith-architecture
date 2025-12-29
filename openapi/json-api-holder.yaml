@@ -87,64 +87,54 @@ components:
       properties:
         id:
           type: integer
+          nullable: false
           format: int64
+          maxLength: 50
           example: 1
-        name:
+        firstname:
           type: string
-          example: "Leanne Graham"
+          nullable: false
+          maxLength: 50
+          example: "Leanne"
+        lastname:
+          type: string
+          nullable: false
+          maxLength: 50
+          example: "Graham"
+        age:
+          type: integer
+          nullable: false
+          format: int64
+          example: 12
+        gender:
+          type: string
+          nullable: false
+          enum:
+            - MALE
+            - FEMALE
+            - OTHER
         username:
           type: string
+          nullable: false
           example: "Bret"
-        address:
-          $ref: '#/components/schemas/Address'
-        phone:
+        email:
           type: string
-          example: 1-463-123-4447
-        website:
+          nullable: false
+          example: "test@test.com"
+        password:
           type: string
-          example: ramiro.info
-        company:
-          $ref: '#/components/schemas/Company'
-    Address:
-      type: object
-      properties:
-        street:
+          nullable: false
+          example: "password"
+        role:
           type: string
-          example: Kulas Light
-        suite:
-          type: string
-          example: Apt. 556
-        city:
-          type: string
-          example: Gwenborough
-        zipcode:
-          type: string
-          example: 59590-4157
-        geo:
-          $ref: '#/components/schemas/Geo'
-    Geo:
-      type: object
-      properties:
-        lat:
-          type: number
-          format: double
-          example: -68.6102
-        lng:
-          type: number
-          format: double
-          example: -47.0653
-    Company:
-      type: object
-      properties:
-        name:
-          type: string
-          example: Romaguera-Jacobson
-        catchPhrase:
-          type: string
-          example: Face to face bifurcated interface
-        bs:
-          type: string
-          example: e-enable strategic applications
+          nullable: false
+          enum:
+            - USER
+            - ADMIN
+        tokens:
+          type: array
+          items:
+            $ref: '#/components/schemas/Token'
     Todo:
       type: object
       properties:
@@ -192,3 +182,26 @@ components:
         name:
           type: string
           example: delectus aut autem
+    Token:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        token:
+          type: string
+          nullable: false
+        tokenType:
+          type: string
+          nullable: false
+          enum:
+            - BEARER
+        revoked:
+          type: boolean
+          nullable: false
+        expired:
+          type: boolean
+          nullable: false
+        user:
+          $ref: "#/components/schemas/User"

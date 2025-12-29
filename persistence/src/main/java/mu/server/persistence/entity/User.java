@@ -1,18 +1,25 @@
 package mu.server.persistence.entity;
 
-import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
-import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import mu.server.persistence.audit.Auditable;
-import mu.server.persistence.embeded.Address;
-import mu.server.persistence.embeded.Company;
+import mu.server.persistence.enumeration.Gender;
+import mu.server.persistence.enumeration.Role;
+import org.jspecify.annotations.NonNull;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import java.util.Collection;
+import java.util.List;
 
 @Getter
 @Builder
@@ -20,34 +27,49 @@ import mu.server.persistence.embeded.Company;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "_user")
-public class User extends Auditable {
+public class User extends Auditable implements UserDetails {
 
     @Id
     private Long id;
 
-    @Column(name = "name", nullable = false, length = 100)
-    private String name;
+    @Column(name = "firstname", nullable = false, length = 50)
+    private String firstname;
 
-    @Column(name = "username", nullable = false)
+    @Column(name = "lastname", nullable = false, length = 50)
+    private String lastname;
+
+    @Column(name = "age", nullable = false)
+    private Integer age;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "gender", nullable = false)
+    private Gender gender;
+
+    @Column(name = "username", nullable = false, unique = true)
     private String username;
 
-    @Embedded
-    @AttributeOverride(name = "street", column = @Column(name = "street"))
-    @AttributeOverride(name = "city", column = @Column(name = "city"))
-    @AttributeOverride(name = "zipcode", column = @Column(name = "zipcode"))
-    @AttributeOverride(name = "geo.lat", column = @Column(name = "geo_lat"))
-    @AttributeOverride(name = "geo.lng", column = @Column(name = "geo_lng"))
-    private Address address;
+    @Column(name = "email", nullable = false)
+    private String email;
 
-    @Column(name = "phone", nullable = false)
-    private String phone;
+    @Column(name = "password", nullable = false)
+    private String password;
 
-    @Column(name = "website", nullable = false)
-    private String website;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role", nullable = false)
+    private Role role;
 
-    @Embedded
-    @AttributeOverride(name = "name", column = @Column(name = "company_name"))
-    @AttributeOverride(name = "catchPhrase", column = @Column(name = "company_catchPhrase"))
-    @AttributeOverride(name = "bs", column = @Column(name = "company_bs"))
-    private Company company;
+    @OneToMany(mappedBy = "user")
+    private List<Token> tokens;
+
+    public User(String username, String email, String password) {
+        this.username = username;
+        this.email = email;
+        this.password = password;
+    }
+
+    @Override
+    @NonNull
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return role.getGrantedAuthorities();
+    }
 }
