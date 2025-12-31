@@ -24,7 +24,7 @@ springdoc:
 application:
   security:
     jwt:
-      secret-key: ${WELLDEV.SECRET.KEY:***REMOVED***}
+      secret-key: ${WELLDEV.SECRET.KEY}
       expiration: 86400000
       refresh-token:
         expiration: 604800000
