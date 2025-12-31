@@ -40,10 +40,6 @@ import static org.springframework.http.HttpMethod.PUT;
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
 @Configuration
-@RequiredArgsConstructor
-@EnableWebSecurity
-@EnableSpringDataWebSupport(pageSerializationMode = VIA_DTO)
-@EnableMethodSecurity(jsr250Enabled = true, securedEnabled = true)
 public class SecurityConfig {
 
     private static final String[] WHITELISTED_PATHS = {
