@@ -184,9 +184,9 @@
                                 <output>${project.build.directory}/generated-sources</output>
                                 <configOptions>
                                     <collectionType>list</collectionType>
-                                    <dateLibrary>java21</dateLibrary>
+                                    <dateLibrary>java25</dateLibrary>
                                     <enumPropertyNaming>MACRO_CASE</enumPropertyNaming>
-                                    <java21>true</java21>
+                                    <java25>true</java25>
                                     <interfaceOnly>true</interfaceOnly>
                                     <openApiNullable>false</openApiNullable>
                                     <sourceFolder>generated</sourceFolder>
@@ -195,7 +195,7 @@
                             </configuration>
                         </execution>
                         <execution>
-                            <id>Generate WebClient APIs</id>
+                            <id>Generate RestClient APIs</id>
                             <goals>
                                 <goal>generate</goal>
                             </goals>
@@ -217,10 +217,10 @@
                                     </additionalModelTypeAnnotations>
                                     <collectionType>list</collectionType>
                                     <enumPropertyNaming>MACRO_CASE</enumPropertyNaming>
-                                    <dateLibrary>java21</dateLibrary>
+                                    <dateLibrary>java25</dateLibrary>
                                     <interfaceOnly>true</interfaceOnly>
-                                    <java21>true</java21>
-                                    <library>webclient</library>
+                                    <java25>true</java25>
+                                    <library>restclient</library>
                                     <openApiNullable>false</openApiNullable>
                                     <useBeanValidation>false</useBeanValidation>
                                     <useJakartaEe>true</useJakartaEe>

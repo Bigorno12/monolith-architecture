@@ -75,7 +75,7 @@
                         </configuration>
                     </execution>
                     <execution>
-                        <id>Generate WebClient APIs</id>
+                        <id>Generate RestClient APIs</id>
                         <configuration>
                             <generateApis>false</generateApis>
                             <generateModels>true</generateModels>
