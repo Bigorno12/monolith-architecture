@@ -1,4 +1,9 @@
 spring:
+  mvc:
+    apiversion:
+      use:
+        header: X-API-Version
+
   application:
     name: "MonolithArchitecture"
   profiles:

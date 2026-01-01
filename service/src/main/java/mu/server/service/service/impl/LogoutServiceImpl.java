@@ -18,7 +18,7 @@ public class LogoutServiceImpl implements LogoutService {
 
     @Override
     @Transactional
-    public void logout(HttpServletRequest request, @NonNull HttpServletResponse response, Authentication authentication) {
+    public void logout(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, Authentication authentication) {
         final String authHeader = request.getHeader("Authorization");
         final String jwt;
 

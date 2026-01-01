@@ -31,15 +31,5 @@ public class TokenCustomRepositoryImpl implements TokenCustomRepository {
                     .where("t.revoked").eq(false)
                 .endOr()
                 .getResultList();
-
-//        return cbf.create(entityManager, Token.class, "t")
-//                .select("t")
-//                .innerJoin("t.user", "u")
-//                .where("u.username").eq(username)
-//                .whereOr()
-//                    .where("t.expired").eq(false)
-//                    .where("t.revoked").eq(false)
-//                .endOr()
-//                .getResultList();
     }
 }

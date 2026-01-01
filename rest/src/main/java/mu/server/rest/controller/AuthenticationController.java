@@ -20,31 +20,31 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/auth")
+@RequestMapping(value = "/api/v1/auth", version = "1.0")
 public class AuthenticationController {
 
     private final AuthenticationService authenticationService;
     private final LogoutService logoutService;
 
 
-    @PostMapping("/register")
+    @PostMapping(value = "/register", version = "1.0")
     public ResponseEntity<AuthenticationResponse> register(@Valid @RequestBody UserRequest userRequest) {
         log.info("Request Body: {}", userRequest);
         return ResponseEntity.ok(authenticationService.register(userRequest));
     }
 
-    @PostMapping("/authenticate")
+    @PostMapping(value = "/authenticate", version = "1.0")
     public ResponseEntity<AuthenticationResponse> authenticate(@Valid @RequestBody AuthenticationRequest authenticationRequest) {
         return ResponseEntity.ok(authenticationService.authenticate(authenticationRequest));
     }
 
-    @PostMapping("/refresh-token")
+    @PostMapping(value = "/refresh-token", version = "1.0")
     public ResponseEntity<Void> refreshToken(HttpServletRequest request, HttpServletResponse response) {
         authenticationService.refreshToken(request, response);
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/logout")
+    @PostMapping(value = "/logout", version = "1.0")
     public ResponseEntity<Void> logout(HttpServletRequest request, HttpServletResponse response) {
         logoutService.logout(request, response, SecurityContextHolder.getContext().getAuthentication());
         return ResponseEntity.ok().build();
