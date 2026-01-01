@@ -57,8 +57,9 @@ public class SecurityConfig {
             "/webjars/**",
             "/swagger-ui.html",
             "/h2-console/**",
+            "/jsonplaceholder.typicode.com/**"
     };
-    private static final String path = "/api/v1/blog/**";
+    private static final String path = "/api/v1/mono/**";
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final FingerprintFilter fingerprintFilter;
