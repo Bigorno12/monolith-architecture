@@ -67,6 +67,21 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git tag -a "$TAG" -m "CI tag $TAG"
           git push origin "$TAG"
+      - name: Cleanup old PR tags (keep latest 4)
+        if: ${{ success() && github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'main' }}
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          git fetch --tags
+          # List all tags for this PR, sort by run number, keep all except the 3 most recent
+          TAGS_TO_DELETE=$(git tag -l "pr-${PR_NUMBER}-run-*" | sort -t'-' -k4 -n | head -n -3)
+          if [ -n "$TAGS_TO_DELETE" ]; then
+          for TAG in $TAGS_TO_DELETE; do
+          echo "Deleting tag: $TAG"
+          git push origin --delete "$TAG" || true
+          git tag -d "$TAG" || true
+          done
+          fi
 
   check_build:
     needs: build
