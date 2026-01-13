@@ -30,3 +30,4 @@ replay_pid*
 /service/target/
 /rest/src/main/java/mu/server/rest/httprequests/http-client.env.json
 /rest/src/main/java/mu/server/rest/httprequests/generated-requests.http
+/rest/src/main/java/mu/server/rest/httprequests/auth-requests.http
