@@ -34,4 +34,12 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
                         .getResultList())
                 .orElse(List.of());
     }
+
+    @Override
+    public User findByUsername(String username) {
+        return cbf.create(entityManager, User.class)
+                .from(User.class, "u")
+                .where("u.username").eqExpression(username)
+                .getSingleResultOrNull();
+    }
 }

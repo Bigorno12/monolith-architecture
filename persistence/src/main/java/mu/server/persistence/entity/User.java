@@ -10,9 +10,9 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import mu.server.persistence.audit.Auditable;
 import mu.server.persistence.enumeration.Gender;
 import mu.server.persistence.enumeration.Role;
@@ -24,7 +24,7 @@ import java.util.Collection;
 import java.util.List;
 
 @Getter
-@Builder
+@Setter
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor

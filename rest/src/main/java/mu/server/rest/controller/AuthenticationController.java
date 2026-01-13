@@ -29,7 +29,6 @@ public class AuthenticationController {
 
     @PostMapping(value = "/register", version = "1.0")
     public ResponseEntity<AuthenticationResponse> register(@Valid @RequestBody UserRequest userRequest) {
-        log.info("Request Body: {}", userRequest);
         return ResponseEntity.ok(authenticationService.register(userRequest));
     }
 

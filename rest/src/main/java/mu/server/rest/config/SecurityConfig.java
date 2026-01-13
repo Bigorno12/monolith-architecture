@@ -29,7 +29,9 @@ import static mu.server.persistence.enumeration.Permission.ADMIN_CREATE;
 import static mu.server.persistence.enumeration.Permission.ADMIN_DELETE;
 import static mu.server.persistence.enumeration.Permission.ADMIN_READ;
 import static mu.server.persistence.enumeration.Permission.ADMIN_UPDATE;
+import static mu.server.persistence.enumeration.Permission.USER_UPDATE;
 import static mu.server.persistence.enumeration.Role.ADMIN;
+import static mu.server.persistence.enumeration.Role.USER;
 import static org.springframework.data.web.config.EnableSpringDataWebSupport.PageSerializationMode.VIA_DTO;
 import static org.springframework.http.HttpMethod.DELETE;
 import static org.springframework.http.HttpMethod.GET;
@@ -59,7 +61,8 @@ public class SecurityConfig {
             "/h2-console/**",
             "/jsonplaceholder.typicode.com/**"
     };
-    private static final String path = "/api/v1/mono/**";
+    private static final String path = "/api/v1/mono/admin/**";
+    private static final String userPath = "/api/v1/mono/**";
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final FingerprintFilter fingerprintFilter;
@@ -77,6 +80,8 @@ public class SecurityConfig {
                         .requestMatchers(PUT, path).hasAnyAuthority(ADMIN_UPDATE.getPermission())
                         .requestMatchers(DELETE, path).hasAnyAuthority(ADMIN_DELETE.getPermission())
                         .requestMatchers(path).hasAnyRole(ADMIN.name())
+                        .requestMatchers(PUT, userPath).hasAnyAuthority(USER_UPDATE.getPermission())
+                        .requestMatchers(userPath).hasAnyRole(USER.name())
                         .anyRequest()
                         .authenticated()
                 )
@@ -88,6 +93,7 @@ public class SecurityConfig {
                 .httpBasic(Customizer.withDefaults())
                 .logout(logout -> logout.logoutUrl("/api/v1/auth/logout")
                         .addLogoutHandler(logoutHandler)
+                        .invalidateHttpSession(true)
                         .logoutSuccessHandler((_, _, _) -> {
                             SecurityContextHolder.clearContext();
                             new HttpStatusReturningLogoutSuccessHandler(HttpStatus.OK);
@@ -100,7 +106,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
-        corsConfiguration.setAllowedOrigins(List.of("http://localhost:8080", "http://localhost:8080/h2-console"));
+        corsConfiguration.setAllowedOrigins(List.of("http://localhost:8080"));
         corsConfiguration.setAllowedMethods(List.of("*"));
         corsConfiguration.setAllowedHeaders(List.of("*"));
         corsConfiguration.setAllowCredentials(true);

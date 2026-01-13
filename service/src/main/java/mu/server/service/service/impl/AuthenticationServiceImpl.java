@@ -43,7 +43,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         userRepository.findUserByUsername(request.username())
                 .ifPresent(_ -> {
-                    throw new UsernameExistException(request.username());
+                    throw new UsernameExistException("Username already exists" + request.username());
                 });
         User user = userRepository.save(userMapper.mapToUser(request));
 
