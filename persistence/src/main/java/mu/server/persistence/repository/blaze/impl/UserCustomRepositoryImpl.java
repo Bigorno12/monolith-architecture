@@ -28,4 +28,12 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
                 .where("u.username").eqExpression(username)
                 .getSingleResultOrNull();
     }
+
+    @Override
+    public User findByUsername(String username) {
+        return cbf.create(entityManager, User.class)
+                .from(User.class, "u")
+                .where("u.username").eqExpression(username)
+                .getSingleResultOrNull();
+    }
 }
