@@ -1,4 +1,4 @@
-package mu.server.service.dto;
+package mu.server.service.dto.user;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
