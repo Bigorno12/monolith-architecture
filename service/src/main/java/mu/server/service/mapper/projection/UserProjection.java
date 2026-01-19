@@ -1,7 +1,7 @@
 package mu.server.service.mapper.projection;
 
 import mu.server.persistence.repository.blaze.UserView;
-import mu.server.service.dto.UpdateUserRequest;
+import mu.server.service.dto.user.UpdateUserRequest;
 import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
