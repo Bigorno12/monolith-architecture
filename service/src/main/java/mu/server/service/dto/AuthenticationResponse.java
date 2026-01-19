@@ -1,4 +1,4 @@
-package mu.server.service.dto.auth;
+package mu.server.service.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;

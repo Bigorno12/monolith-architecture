@@ -3,7 +3,7 @@ package mu.server.rest.controller;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import mu.server.service.dto.user.UpdateUserRequest;
+import mu.server.service.dto.UpdateUserRequest;
 import mu.server.service.service.LogoutService;
 import mu.server.service.service.UserService;
 import org.springframework.http.HttpStatus;
@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
+@PreAuthorize("hasAnyRole('USER')")
 @RequestMapping(value = "/api/v1/mono/user", version = "1.0")
 public class UserController {
 
@@ -25,7 +26,7 @@ public class UserController {
     private final LogoutService logoutService;
 
     @PutMapping(value = "/update", version = "1.0")
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN') and hasAnyAuthority('user:update', 'admin:update')")
+    @PreAuthorize("hasAnyAuthority('user:update')")
     ResponseEntity<Void> updateUser(@RequestBody UpdateUserRequest updateUserRequest, @RequestParam(name = "username") String username, HttpServletRequest request, HttpServletResponse response) {
         userService.updateUser(updateUserRequest, username);
         logoutService.logout(request, response, SecurityContextHolder.getContext().getAuthentication());

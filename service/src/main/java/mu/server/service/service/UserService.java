@@ -1,7 +1,7 @@
 package mu.server.service.service;
 
-import mu.server.service.dto.user.UpdateUserRequest;
-import mu.server.service.dto.user.UserResponse;
+import mu.server.service.dto.UpdateUserRequest;
+import mu.server.service.dto.UserResponse;
 
 public interface UserService {
     UserResponse findUserById(Long id);

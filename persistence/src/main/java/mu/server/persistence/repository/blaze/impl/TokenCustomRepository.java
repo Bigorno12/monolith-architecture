@@ -6,6 +6,4 @@ import java.util.List;
 
 public interface TokenCustomRepository {
     List<Token> findTokenByUsernameWhereExpiredOrRevokedIsFalse(String username);
-
-    List<Token> findTokensWhereExpiredAndRevokedIsTrue();
 }

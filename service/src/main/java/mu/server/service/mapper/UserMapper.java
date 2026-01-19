@@ -1,9 +1,9 @@
 package mu.server.service.mapper;
 
 import mu.server.persistence.entity.User;
-import mu.server.service.dto.user.UpdateUserRequest;
-import mu.server.service.dto.user.UserRequest;
-import mu.server.service.dto.user.UserResponse;
+import mu.server.service.dto.UpdateUserRequest;
+import mu.server.service.dto.UserRequest;
+import mu.server.service.dto.UserResponse;
 import mu.server.service.mapper.component.PasswordEncoderQualifier;
 import mu.server.service.mapper.projection.UserProjection;
 import org.mapstruct.InheritInverseConfiguration;
