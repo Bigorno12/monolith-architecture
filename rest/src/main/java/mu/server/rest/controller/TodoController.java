@@ -17,7 +17,7 @@ public class TodoController {
     private final TodoService todoService;
 
     @PostMapping(value = "/{userId}", version = "1.0")
-    @PreAuthorize("hasAnyRole('USER') and hasAnyAuthority('user:create')")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN') and hasAnyAuthority('user:create', 'admin:create')")
     public ResponseEntity<Void> save(@PathVariable Long userId) {
         todoService.saveByUserId(userId);
         return ResponseEntity.ok().build();

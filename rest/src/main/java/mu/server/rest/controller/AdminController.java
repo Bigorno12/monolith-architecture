@@ -17,7 +17,7 @@ public class AdminController {
 
     private final UserService userService;
 
-    @PreAuthorize("hasAnyRole('ADMIN') and hasAnyAuthority('admin:read')")
+    @PreAuthorize("hasRole('ADMIN') and hasAuthority('admin:read')")
     @GetMapping(value = "/{id}", version = "1.0")
     ResponseEntity<UserResponse> findUserById(@PathVariable Long id) {
         return ResponseEntity.ok(userService.findUserById(id));

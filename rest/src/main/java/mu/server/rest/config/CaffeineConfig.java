@@ -32,7 +32,7 @@ public class CaffeineConfig {
     public CacheManager cacheManager() {
         CaffeineCacheManager caffeineCacheManager = new CaffeineCacheManager();
         caffeineCacheManager.setCaffeine(caffeine());
-        caffeineCacheManager.setCacheNames(List.of("jsonPlaceHolder"));
+        caffeineCacheManager.setCacheNames(List.of("jsonPlaceHolder", "userCache"));
 
         return caffeineCacheManager;
     }

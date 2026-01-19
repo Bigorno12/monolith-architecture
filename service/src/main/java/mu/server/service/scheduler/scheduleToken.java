@@ -22,6 +22,9 @@ public class scheduleToken {
                 .stream()
                 .toList();
 
-        if (!tokens.isEmpty()) tokenRepository.deleteAll(tokens);
+        if (!tokens.isEmpty()) {
+            tokenRepository.deleteAll(tokens);
+            tokenRepository.flush();
+        }
     }
 }
