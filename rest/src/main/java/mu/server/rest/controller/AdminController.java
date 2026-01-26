@@ -3,6 +3,7 @@ package mu.server.rest.controller;
 import lombok.RequiredArgsConstructor;
 import mu.server.service.dto.user.UserResponse;
 import mu.server.service.service.UserService;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,9 +18,10 @@ public class AdminController {
 
     private final UserService userService;
 
-    @PreAuthorize("hasRole('ADMIN') and hasAuthority('admin:read')")
     @GetMapping(value = "/{id}", version = "1.0")
-    ResponseEntity<UserResponse> findUserById(@PathVariable Long id) {
+    @PreAuthorize("hasRole('ADMIN') and hasAuthority('admin:read')")
+    @Cacheable(cacheNames = "adminCache", unless = "#result == null", condition = "#id != null", key = "#id")
+    public ResponseEntity<UserResponse> findUserById(@PathVariable Long id) {
         return ResponseEntity.ok(userService.findUserById(id));
     }
 }

@@ -16,7 +16,7 @@ public class scheduleToken {
     private final TokenRepository tokenRepository;
 
     @Transactional
-    @Scheduled(cron = "0 0 0 * * *")
+    @Scheduled(cron = "0 0 0 * * *", zone = "UTC")
     public void tokenDeletion() {
         List<Token> tokens = tokenRepository.findTokensWhereExpiredAndRevokedIsTrue()
                 .stream()

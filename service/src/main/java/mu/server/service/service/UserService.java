@@ -6,5 +6,5 @@ import mu.server.service.dto.user.UserResponse;
 public interface UserService {
     UserResponse findUserById(Long id);
 
-    void updateUser(UpdateUserRequest updateUserRequest, String username);
+    UpdateUserRequest updateUser(UpdateUserRequest updateUserRequest, String username);
 }

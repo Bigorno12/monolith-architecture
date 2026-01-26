@@ -24,7 +24,7 @@ spring:
     type: caffeine
     caffeine:
       spec: initialCapacity=50,maximumSize=10,expireAfterAccess=300s
-    cache-names: jsonPlaceHolder, userCache
+    cache-names: jsonPlaceHolder, userCache, todoCache, adminCache
 
 # swagger-ui custom path
 springdoc:
@@ -37,7 +37,7 @@ application:
       secret-key: ${WELLDEV.SECRET.KEY}
       expiration: 86400000
       refresh-token:
-        expiration: 604800000º
+        expiration: 604800000
 
 server:
   port: 8080

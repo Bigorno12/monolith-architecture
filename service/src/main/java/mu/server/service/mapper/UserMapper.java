@@ -24,6 +24,8 @@ public interface UserMapper extends UserProjection {
     @Mapping(target = "id", ignore = true)
     User updateUserFromDto(UpdateUserRequest dto, @MappingTarget User user);
 
+    UpdateUserRequest mapToUpdateUser(User user);
+
     @Mapping(source = "firstname", target = "firstName")
     @Mapping(source = "lastname", target = "lastName")
     UserResponse mapToUserResponse(User user);

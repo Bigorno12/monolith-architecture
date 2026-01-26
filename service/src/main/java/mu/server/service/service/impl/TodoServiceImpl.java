@@ -41,10 +41,13 @@ public class TodoServiceImpl implements TodoService {
     public Page<TodoUsernameResponse> findAllTodosByUsername(Pageable pageable, String username) {
         PagedList<Todo> todosByUsername = todoRepository.findTodosByUsername(username, pageable.getPageNumber(), pageable.getPageSize());
         log.info("todos: {}", todosByUsername);
-        return userRepository.findUserByUsername(username)
-                .map(_ -> todoRepository.findTodosByUser_Username(username, pageable))
-                .map(todos -> todos.map(todoMapper::mapToTodoUsernameResponse))
-                .orElseThrow(() -> new UsernameNotFoundException("Username does not exist"));
+
+        if (userRepository.findUserByUsername(username).isPresent()) {
+            return todoRepository.findAll(pageable)
+                    .map(todo -> todoMapper.mapToTodoUsernameResponse(todo, username));
+        }
+
+        throw new UsernameNotFoundException("User does not exists");
     }
 
     @Override

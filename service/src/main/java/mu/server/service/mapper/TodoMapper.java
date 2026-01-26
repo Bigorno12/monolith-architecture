@@ -17,8 +17,7 @@ public interface TodoMapper {
     @Mapping(target = "id", ignore = true)
     Todo mapToEntity(TodoRequest todoRequest);
 
-    @Mapping(target = "username", source = "todo.user.username")
-    TodoUsernameResponse mapToTodoUsernameResponse(Todo todo);
+    TodoUsernameResponse mapToTodoUsernameResponse(Todo todo, String username);
 
     @Mapping(target = "username", source = "todo.user.username")
     TodosResponse mapToTodosResponse(Todo todo);

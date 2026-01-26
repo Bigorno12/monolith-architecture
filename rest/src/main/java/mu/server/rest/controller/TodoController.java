@@ -4,9 +4,9 @@ import lombok.RequiredArgsConstructor;
 import mu.server.service.dto.todo.TodoUsernameResponse;
 import mu.server.service.dto.todo.TodosResponse;
 import mu.server.service.service.TodoService;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -36,16 +36,15 @@ public class TodoController {
                                                                              @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize,
                                                                              @PathVariable String username) {
         return ResponseEntity.ok()
-                .body(todoService.findAllTodosByUsername(PageRequest.of(pageNum, pageSize,
-                        Sort.by("username")), username)
-                );
+                .body(todoService.findAllTodosByUsername(PageRequest.of(pageNum, pageSize), username));
     }
 
-    @GetMapping(value = "/all-todos/", version = "1.0")
+    @GetMapping(value = "/all-todos", version = "1.0")
+    @Cacheable(cacheNames = "todoCache", unless = "#result == null")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN') and hasAnyAuthority('user:read', 'admin:read')")
     public ResponseEntity<Page<TodosResponse>> findAllTodos(@RequestParam(name = "pageNum", defaultValue = "0") Integer pageNum,
                                                             @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize) {
         return ResponseEntity.ok()
-                .body(todoService.findAllTodos(PageRequest.of(pageNum, pageSize, Sort.by("username"))));
+                .body(todoService.findAllTodos(PageRequest.of(pageNum, pageSize)));
     }
 }
