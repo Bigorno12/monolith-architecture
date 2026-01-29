@@ -14,9 +14,6 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface TodoMapper {
 
-    @Mapping(target = "id", ignore = true)
-    Todo mapToEntity(TodoRequest todoRequest);
-
     TodoUsernameResponse mapToTodoUsernameResponse(Todo todo, String username);
 
     @Mapping(target = "username", source = "todo.user.username")

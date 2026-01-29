@@ -1,9 +1,8 @@
 package mu.server.persistence.repository.blaze.impl;
 
 import com.blazebit.persistence.PagedList;
-import mu.server.persistence.entity.Todo;
-import org.jspecify.annotations.NonNull;
+import mu.server.persistence.repository.blaze.TodoView;
 
 public interface TodoCustomRepository {
-    PagedList<Todo> findTodosByUsername(@NonNull String username, int firstResult, int maxResult);
+    PagedList<TodoView> paginationTodos(int firstResult, int maxResult);
 }

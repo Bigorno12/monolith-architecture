@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 import mu.server.service.dto.user.UpdateUserRequest;
 import mu.server.service.service.LogoutService;
 import mu.server.service.service.UserService;
-import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -27,7 +27,7 @@ public class UserController {
 
     @PutMapping(value = "/update", version = "1.0")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN') and hasAnyAuthority('user:update', 'admin:update')")
-    @Cacheable(cacheNames = "userCache", unless = "#result == null", condition = "#updateUserRequest != null", key = "#updateUserRequest.username()")
+    @CachePut(cacheNames = "userCache", unless = "#result == null", condition = "#updateUserRequest != null", key = "#updateUserRequest.username()")
     public ResponseEntity<UpdateUserRequest> updateUser(@RequestBody UpdateUserRequest updateUserRequest, @RequestParam(name = "username") String username, HttpServletRequest request, HttpServletResponse response) {
         UpdateUserRequest updateUser = userService.updateUser(updateUserRequest, username);
         logoutService.logout(request, response, SecurityContextHolder.getContext().getAuthentication());

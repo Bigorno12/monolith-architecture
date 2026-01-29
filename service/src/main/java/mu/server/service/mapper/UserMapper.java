@@ -5,14 +5,13 @@ import mu.server.service.dto.user.UpdateUserRequest;
 import mu.server.service.dto.user.UserRequest;
 import mu.server.service.dto.user.UserResponse;
 import mu.server.service.mapper.component.PasswordEncoderQualifier;
-import mu.server.service.mapper.projection.UserProjection;
 import org.mapstruct.InheritInverseConfiguration;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
 @Mapper(componentModel = "spring", uses = {PasswordEncoderQualifier.class})
-public interface UserMapper extends UserProjection {
+public interface UserMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(source = "firstName", target = "firstname")
