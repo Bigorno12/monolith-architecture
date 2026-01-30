@@ -8,6 +8,7 @@ import com.blazebit.persistence.view.EntityViews;
 import com.blazebit.persistence.view.spi.EntityViewConfiguration;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.PersistenceUnit;
+import mu.server.persistence.repository.blaze.TodoView;
 import mu.server.persistence.repository.blaze.UserView;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Bean;
@@ -25,6 +26,7 @@ public class BlazeConfig {
     EntityViewConfiguration entityViewConfiguration() {
         EntityViewConfiguration cfg = EntityViews.createDefaultConfiguration();
         cfg.addEntityView(UserView.class);
+        cfg.addEntityView(TodoView.class);
         return cfg;
     }
 
