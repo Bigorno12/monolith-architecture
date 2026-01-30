@@ -20,6 +20,11 @@ spring:
       auto-commit: false
   main:
     lazy-initialization: true
+  cache:
+    type: caffeine
+    caffeine:
+      spec: initialCapacity=50,maximumSize=10,expireAfterAccess=300s
+    cache-names: jsonPlaceHolder, userCache, todoCache, adminCache
 
 # swagger-ui custom path
 springdoc:

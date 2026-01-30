@@ -2,13 +2,17 @@ package mu.server.persistence.repository.blaze;
 
 import com.blazebit.persistence.view.EntityView;
 import com.blazebit.persistence.view.IdMapping;
-import mu.server.persistence.entity.User;
+import mu.server.persistence.entity.Todo;
 
-@EntityView(User.class)
-public interface UserView {
+@EntityView(Todo.class)
+public interface TodoView {
 
     @IdMapping
     Long getId();
 
-    String getUsername();
+    String getTitle();
+
+    Boolean getCompleted();
+
+    UserView getUser();
 }
