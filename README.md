@@ -34,5 +34,34 @@ mvn clean package -Pdev
 ### TODOS
 1. Add projection using @Query
 ***
-### Virtual Threads and its pitfall
-- Note: Pining issue block virtual and platform thread (synchronized) 
+### PROJECTIONS SPRING BOOT
+```
+@Repository
+public interface UserRepository extends GenericRepository<User>, UserCustomRepository {
+    // Projections
+    NamesOnly findNamesOnlyById(Long id);
+
+    Page<NamesOnly> findNamesOnlyByFirstnameContainsIgnoreCase(Pageable pageable, String firstname);
+
+    // To remove boilerplate code
+    <T> T findById(Long id, Class<T> clazz);
+}
+
+
+public record NamesOnly(Long id, String firstname, String username) {
+    public NamesOnly {
+        if (firstname.isBlank()) {
+            throw new IllegalArgumentException("Name is empty");
+        }
+
+        if (username.isBlank()) {
+            throw new IllegalArgumentException("Username is empty");
+        }
+    }
+
+    public NamesOnly(String firstname, String username) {
+        this(1L, firstname, username);
+    }
+}
+
+```
