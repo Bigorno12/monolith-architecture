@@ -3,9 +3,10 @@ package mu.server.rest.controller;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import mu.server.service.dto.UpdateUserRequest;
+import mu.server.service.dto.user.UpdateUserRequest;
 import mu.server.service.service.LogoutService;
 import mu.server.service.service.UserService;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -18,7 +19,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@PreAuthorize("hasAnyRole('USER')")
 @RequestMapping(value = "/api/v1/mono/user", version = "1.0")
 public class UserController {
 
@@ -26,10 +26,11 @@ public class UserController {
     private final LogoutService logoutService;
 
     @PutMapping(value = "/update", version = "1.0")
-    @PreAuthorize("hasAnyAuthority('user:update')")
-    ResponseEntity<Void> updateUser(@RequestBody UpdateUserRequest updateUserRequest, @RequestParam(name = "username") String username, HttpServletRequest request, HttpServletResponse response) {
-        userService.updateUser(updateUserRequest, username);
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN') and hasAnyAuthority('user:update', 'admin:update')")
+    @CachePut(cacheNames = "userCache", unless = "#result == null", condition = "#updateUserRequest != null", key = "#updateUserRequest.username()")
+    public ResponseEntity<UpdateUserRequest> updateUser(@RequestBody UpdateUserRequest updateUserRequest, @RequestParam(name = "username") String username, HttpServletRequest request, HttpServletResponse response) {
+        UpdateUserRequest updateUser = userService.updateUser(updateUserRequest, username);
         logoutService.logout(request, response, SecurityContextHolder.getContext().getAuthentication());
-        return ResponseEntity.status(HttpStatus.OK).build();
+        return ResponseEntity.status(HttpStatus.OK).body(updateUser);
     }
 }

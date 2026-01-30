@@ -29,9 +29,10 @@ import static mu.server.persistence.enumeration.Permission.ADMIN_CREATE;
 import static mu.server.persistence.enumeration.Permission.ADMIN_DELETE;
 import static mu.server.persistence.enumeration.Permission.ADMIN_READ;
 import static mu.server.persistence.enumeration.Permission.ADMIN_UPDATE;
+import static mu.server.persistence.enumeration.Permission.USER_CREATE;
+import static mu.server.persistence.enumeration.Permission.USER_DELETE;
+import static mu.server.persistence.enumeration.Permission.USER_READ;
 import static mu.server.persistence.enumeration.Permission.USER_UPDATE;
-import static mu.server.persistence.enumeration.Role.ADMIN;
-import static mu.server.persistence.enumeration.Role.USER;
 import static org.springframework.data.web.config.EnableSpringDataWebSupport.PageSerializationMode.VIA_DTO;
 import static org.springframework.http.HttpMethod.DELETE;
 import static org.springframework.http.HttpMethod.GET;
@@ -79,9 +80,10 @@ public class SecurityConfig {
                         .requestMatchers(POST, path).hasAnyAuthority(ADMIN_CREATE.getPermission())
                         .requestMatchers(PUT, path).hasAnyAuthority(ADMIN_UPDATE.getPermission())
                         .requestMatchers(DELETE, path).hasAnyAuthority(ADMIN_DELETE.getPermission())
-                        .requestMatchers(path).hasAnyRole(ADMIN.name())
-                        .requestMatchers(PUT, userPath).hasAnyAuthority(USER_UPDATE.getPermission())
-                        .requestMatchers(userPath).hasAnyRole(USER.name())
+                        .requestMatchers(PUT, userPath).hasAnyAuthority(USER_UPDATE.getPermission(), ADMIN_UPDATE.getPermission())
+                        .requestMatchers(POST, userPath).hasAnyAuthority(USER_CREATE.getPermission(), ADMIN_CREATE.getPermission())
+                        .requestMatchers(GET, userPath).hasAnyAuthority(USER_READ.getPermission(), ADMIN_READ.getPermission())
+                        .requestMatchers(DELETE, userPath).hasAnyAuthority(USER_DELETE.getPermission(), ADMIN_DELETE.getPermission())
                         .anyRequest()
                         .authenticated()
                 )

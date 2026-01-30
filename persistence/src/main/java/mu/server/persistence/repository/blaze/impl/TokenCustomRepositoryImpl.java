@@ -32,4 +32,13 @@ public class TokenCustomRepositoryImpl implements TokenCustomRepository {
                 .endOr()
                 .getResultList();
     }
+
+    @Override
+    public List<Token> findTokensWhereExpiredAndRevokedIsTrue() {
+        return cbf.create(entityManager, Token.class)
+                .from(Token.class, "t")
+                .where("t.expired").eq(true)
+                .where("t.revoked").eq(true)
+                .getResultList();
+    }
 }
