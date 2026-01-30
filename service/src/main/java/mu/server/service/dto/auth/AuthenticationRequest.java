@@ -1,4 +1,4 @@
-package mu.server.service.dto;
+package mu.server.service.dto.auth;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
