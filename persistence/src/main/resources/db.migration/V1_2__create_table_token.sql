@@ -6,7 +6,5 @@ CREATE TABLE IF NOT EXISTS token
     revoked BOOLEAN NOT NULL,
     expired BOOLEAN NOT NULL,
     user_id BIGINT NOT NULL,
-    created_date TIMESTAMP(6) NOT NULL ,
-    last_modified_date TIMESTAMP(6) NOT NULL,
     FOREIGN KEY (user_id) REFERENCES _user(id)
 );

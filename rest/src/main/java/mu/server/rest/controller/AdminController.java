@@ -1,6 +1,7 @@
 package mu.server.rest.controller;
 
 import lombok.RequiredArgsConstructor;
+import mu.server.service.dto.Result;
 import mu.server.service.dto.user.UserResponse;
 import mu.server.service.service.UserService;
 import org.springframework.cache.annotation.Cacheable;
@@ -22,6 +23,10 @@ public class AdminController {
     @PreAuthorize("hasRole('ADMIN') and hasAuthority('admin:read')")
     @Cacheable(cacheNames = "adminCache", unless = "#result == null", condition = "#id != null", key = "#id")
     public ResponseEntity<UserResponse> findUserById(@PathVariable Long id) {
-        return ResponseEntity.ok(userService.findUserById(id));
+        Result<UserResponse> userById = userService.findUserById(id);
+        if (!userById.success()) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(userById.value());
     }
 }

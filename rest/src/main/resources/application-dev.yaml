@@ -1,7 +1,7 @@
 logging:
   level:
     org.flywaydb: WARN
-    org.hibernate.sql: WARM
+    org.hibernate.sql: WARN
     root: INFO
 
 spring:
