@@ -15,6 +15,25 @@ permissions:
   security-events: write
   statuses: write
 
+env:
+  POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+  POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+  POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+  MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
+  MYSQL_DATABASE: ${{ secrets.MYSQL_DATABASE }}
+  KEYCLOAK_ADMIN_PASSWORD: ${{ secrets.KEYCLOAK_ADMIN_PASSWORD }}
+  KEYCLOAK_ADMIN: ${{ secrets.KEYCLOAK_ADMIN }}
+  MAVEN_OPTS: >-
+    -Xms1g
+    -Xmx1g
+    -XX:+UseG1GC
+    -XX:MaxGCPauseMillis=200
+    -XX:+UseStringDeduplication
+    -XX:+HeapDumpOnOutOfMemoryError
+    -XX:HeapDumpPath=/var/log/heapdump.hprof
+    -XX:MaxMetaspaceSize=256m
+    -XX:+UseContainerSupport
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -73,7 +92,6 @@ jobs:
           PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
           git fetch --tags
-          # List all tags for this PR, sort by run number, keep all except the 3 most recent
           TAGS_TO_DELETE=$(git tag -l "pr-${PR_NUMBER}-run-*" | sort -t'-' -k4 -nr | head -n -3)
           if [ -n "$TAGS_TO_DELETE" ]; then
             for TAG in $TAGS_TO_DELETE; do
@@ -95,12 +113,3 @@ jobs:
       - name: Check build status
         run: exit 1
         if: ${{ failure() }}
-
-env:
-  POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-  POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-  POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
-  MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
-  MYSQL_DATABASE: ${{ secrets.MYSQL_DATABASE }}
-  KEYCLOAK_ADMIN_PASSWORD: ${{ secrets.KEYCLOAK_ADMIN_PASSWORD }}
-  KEYCLOAK_ADMIN: ${{ secrets.KEYCLOAK_ADMIN }}
