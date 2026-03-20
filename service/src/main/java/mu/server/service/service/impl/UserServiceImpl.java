@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import mu.server.persistence.entity.User;
 import mu.server.persistence.repository.UserRepository;
+import mu.server.service.dto.Result;
 import mu.server.service.dto.user.UpdateUserRequest;
 import mu.server.service.dto.user.UserResponse;
 import mu.server.service.exception.NoFoundException;
@@ -26,10 +27,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional(readOnly = true)
-    public UserResponse findUserById(Long id) {
+    public Result<UserResponse> findUserById(Long id) {
         return userRepository.findById(id)
                 .map(userMapper::mapToUserResponse)
-                .orElseThrow(() -> new NoFoundException("User does not exist!"));
+                .map(Result::ok)
+                .orElse(Result.failure("User not found: " + id));
     }
 
     @Override

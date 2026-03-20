@@ -1,87 +1,191 @@
 openapi: 3.0.3
 info:
-  title: Swagger Petstore - OpenAPI 3.0
+  title: Monolith Architecture - OpenAPI 3.0
   version: 1.0.11
 servers:
-  - url: https://jsonplaceholder.swagger.io/api/v3
+  - url: http://localhost:8080
+    description: Local Server
 tags:
+  - name: auth
+    description: Authentication
   - name: jsonplaceholder
     description: Get all dummy data from jsonplaceholder
   - name: user
     description: Operations about user
+security:
+  - bearerHttpAuthentication: []
 paths:
-  /jsonplaceholder/users:
-    get:
+  /api/v1/auth/register:
+    post:
       tags:
-        - jsonplaceholder
-      summary: Save all users from the jsonplaceholder api
-      operationId: retrieveUsers
-      responses:
-        201:
-          description: successful operation
-  /jsonplaceholder/todos:
-    get:
-      tags:
-        - jsonplaceholder
-      summary: Save all todos from the jsonplaceholder api
-      operationId: retrieveTodos
-      responses:
-        '200':
-          description: successful operation
-  /jsonplaceholder/posts:
-    get:
-      tags:
-        - jsonplaceholder
-      summary: Save all posts from the jsonplaceholder api
-      operationId: retrievePosts
-      responses:
-        '200':
-          description: successful operation
-  /jsonplaceholder/comments:
-    get:
-      tags:
-        - jsonplaceholder
-      summary: Save all comments from the jsonplaceholder api
-      operationId: retrieveComments
-      responses:
-        '200':
-          description: successful operation
-  /users/find-all-by-user-name:
-    get:
-      tags:
-        - user
-      summary: Find all users by user name
-      operationId: findAllByUserName
+        - auth
+      summary: "Register new user"
+      operationId: registerUser
       parameters:
-        - name: name
-          in: query
-          description: userName
-          required: true
-          schema:
-            type: string
-        - name: pageNum
-          in: query
-          description: pageNumber
-          required: false
-          schema:
-            type: integer
-            default: 0
-        - name: pageSize
-          in: query
-          description: pageSize
-          required: false
-          schema:
-            type: integer
-            default: 10
+        - $ref: '#/components/parameters/FingerprintHeader'
+        - $ref: '#/components/parameters/ApiVersionHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRequest'
       responses:
         '200':
-          description: successful operation
+          description: User Registered successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                type: object
+                properties:
+                  access_token:
+                    type: string
+                    nullable: false
+                  refresh_token:
+                    type: string
+                    nullable: false
+        '401':
+          description: Unauthorized
+
+  /api/v1/auth/authenticate:
+    post:
+      tags:
+        - auth
+      summary: "Authenticate User"
+      operationId: authenticateUser
+      parameters:
+        - $ref: '#/components/parameters/ApiVersionHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/authenticationRequest'
+      responses:
+        '200':
+          description: User authenticate successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access_token:
+                    type: string
+                    nullable: false
+                  refresh_token:
+                    type: string
+                    nullable: false
+        '401':
+          description: Unauthorized
+  /api/v1/refresh-token:
+    post:
+      tags:
+        - auth
+      summary: "Refresh Token"
+      operationId: refreshToken
+      parameters:
+        - $ref: '#/components/parameters/ApiVersionHeader'
+      responses:
+        '200':
+          description: Refresh token Successful
+        '401':
+          description: Unauthorized
+  /api/v1/logout:
+    post:
+      tags:
+        - auth
+      summary: logout
+      parameters:
+        - $ref: '#/components/parameters/ApiVersionHeader'
+      responses:
+        '200':
+          description: "Logout Successful"
+        '401':
+          description: Unauthorized
+
 components:
+  securitySchemes:
+    bearerHttpAuthentication:
+      description: Bearer token using a JWT
+      type: http
+      scheme: Bearer
+      bearerFormat: JWT
+  parameters:
+    ApiVersionHeader:
+      name: X-API-Version
+      in: header
+      required: true
+      schema:
+        type: string
+        default: "1.0"
+        example: "1.0"
+    FingerprintHeader:
+      name: X-Fingerprint
+      in: header
+      required: false
+      schema:
+        type: string
+        example: "abc123fingerprint"
   schemas:
+    UserRequest:
+      type: object
+      properties:
+        firstName:
+          title: Firstname
+          type: string
+          nullable: false
+          maxLength: 50
+          example: John
+        lastName:
+          title: Lastname
+          type: string
+          nullable: false
+          maxLength: 50
+          example: Doe
+        age:
+          title: Age
+          type: integer
+          nullable: false
+          format: int32
+          maximum: 16
+          exclusiveMinimum: false
+          example: 16
+        email:
+          title: E-mail
+          type: string
+          format: email
+          nullable: false
+        username:
+          title: Username
+          type: string
+          nullable: false
+          example: test
+        role:
+          title: Role
+          type: string
+          enum:
+            - ADMIN
+            - USER
+          nullable: false
+          example: USER
+        password:
+          title: Password
+          type: string
+          nullable: false
+          example: P@ssW0rd%
+    authenticationRequest:
+      type: object
+      properties:
+        username:
+          title: Username
+          type: string
+          nullable: false
+          example: test
+        password:
+          title: Password
+          type: string
+          nullable: false
+          example: P@ssW0rd%
     User:
       type: object
       properties:

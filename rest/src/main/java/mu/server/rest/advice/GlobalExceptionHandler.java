@@ -1,6 +1,7 @@
 package mu.server.rest.advice;
 
 import lombok.Builder;
+import mu.server.service.exception.UsernameExistException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,6 +36,19 @@ public class GlobalExceptionHandler {
                 .timestamp(LocalDateTime.now())
                 .message(ex.getMessage())
                 .description(ex.getDetailMessageCode())
+                .build();
+
+        return new ResponseEntity<>(errorMessage, HttpStatus.NOT_FOUND);
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(UsernameExistException.class)
+    public ResponseEntity<ErrorMessage> mapUsernameExistException(UsernameExistException ex) {
+        var errorMessage = ErrorMessage.builder()
+                .statusCode(HttpStatus.NOT_FOUND.value())
+                .timestamp(LocalDateTime.now())
+                .message(ex.getMessage())
+                .description(ex.getCause().getMessage())
                 .build();
 
         return new ResponseEntity<>(errorMessage, HttpStatus.NOT_FOUND);
