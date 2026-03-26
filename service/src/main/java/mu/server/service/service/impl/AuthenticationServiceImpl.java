@@ -80,14 +80,14 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
-        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.username(), request.password()));
+        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
 
-        User user = userRepository.findUserByUsername(request.username())
-                .orElseThrow(() -> new UsernameNotFoundException(request.username()));
+        User user = userRepository.findUserByUsername(request.getUsername())
+                .orElseThrow(() -> new UsernameNotFoundException(request.getUsername()));
 
         String jwtToken = jwtService.generateToken(user);
         String refreshToken = jwtService.generateRefreshToken(user);
-        revokeAllUserTokens(request.username());
+        revokeAllUserTokens(request.getUsername());
         saveTokenUser(user, jwtToken);
 
         return AuthenticationResponse.builder()

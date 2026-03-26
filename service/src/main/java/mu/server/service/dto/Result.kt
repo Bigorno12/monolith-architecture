@@ -1,16 +1,9 @@
-package mu.server.service.dto;
+package mu.server.service.dto
 
-import lombok.Builder;
-import org.jspecify.annotations.Nullable;
+data class Result<T>(val result: T? = null, val error: String? = null, val success: Boolean) {
+    companion object {
+        fun <T> ok(value: T): Result<T> = Result(value, null, true)
 
-@Builder
-public record Result<T>(@Nullable T value, @Nullable String error, boolean success) {
-
-    public static <T> Result<T> ok(T value) {
-        return new Result<>(value, null, true);
-    }
-
-    public static <T> Result<T> failure(String error) {
-        return new Result<>(null, error, false);
+        fun <T> failure(error: String): Result<T> = Result(null, error, false)
     }
 }

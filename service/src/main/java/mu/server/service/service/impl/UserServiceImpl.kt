@@ -1,53 +1,44 @@
-package mu.server.service.service.impl;
+package mu.server.service.service.impl
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import mu.server.persistence.entity.User;
-import mu.server.persistence.repository.UserRepository;
-import mu.server.service.dto.Result;
-import mu.server.service.dto.user.UpdateUserRequest;
-import mu.server.service.dto.user.UserResponse;
-import mu.server.service.exception.NoFoundException;
-import mu.server.service.exception.UsernameExistException;
-import mu.server.service.mapper.UserMapper;
-import mu.server.service.service.UserService;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
+import mu.server.persistence.entity.User
+import mu.server.persistence.repository.UserRepository
+import mu.server.service.dto.Result
+import mu.server.service.dto.user.UpdateUserRequest
+import mu.server.service.dto.user.UserResponse
+import mu.server.service.exception.NoFoundException
+import mu.server.service.mapper.UserMapper
+import mu.server.service.service.UserService
+import org.slf4j.LoggerFactory
+import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Propagation
+import org.springframework.transaction.annotation.Transactional
 
-import java.util.Optional;
-
-@Slf4j
 @Service
-@RequiredArgsConstructor
-public class UserServiceImpl implements UserService {
+class UserServiceImpl(private val userRepository: UserRepository, private val userMapper: UserMapper) : UserService {
 
-    private final UserRepository userRepository;
-    private final UserMapper userMapper;
-
-    @Override
-    @Transactional(readOnly = true)
-    public Result<UserResponse> findUserById(Long id) {
-        return userRepository.findById(id)
-                .map(userMapper::mapToUserResponse)
-                .map(Result::ok)
-                .orElse(Result.failure("User not found: " + id));
+    companion object {
+        private val LOG = LoggerFactory.getLogger(UserServiceImpl::class.java)
     }
 
-    @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public UpdateUserRequest updateUser(UpdateUserRequest updateUserRequest, String username) {
-        User userName = Optional.ofNullable(userRepository.findByUsername(username))
-                .orElseThrow(() -> new NoFoundException("Username not Found!!!"));
+    @Transactional(readOnly = true)
+    override fun findUserById(id: Long): Result<UserResponse>? = userRepository.findById(id)
+        .map { userMapper.mapToUserResponse(it) }
+        .map { Result.ok(it) }
+        .orElse(Result.failure("User Not Found $id"))
 
-        if (!userName.getUsername().equals(updateUserRequest.username())) {
-            userRepository.findUserByUsername(updateUserRequest.username())
-                    .ifPresent(_ -> {
-                                throw new UsernameExistException("Username already exists!!");
-                            }
-                    );
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    override fun updateUser(
+        updateUserRequest: UpdateUserRequest,
+        username: String
+    ): UpdateUserRequest {
+        val user: User = userRepository.findByUsername(username) ?: throw NoFoundException("User $username not found")
+
+        if (user.username.equals(updateUserRequest.username, ignoreCase = true)) {
+            userRepository.findUserByUsername(user.username)
+                ?: throw NoFoundException("Username $username already exists!!")
         }
-        userRepository.save(userMapper.updateUserFromDto(updateUserRequest, userName));
-        return userMapper.mapToUpdateUser(userName);
+
+        userRepository.save(userMapper.updateUserFromDto(updateUserRequest, user))
+        return userMapper.mapToUpdateUser(user)
     }
 }

@@ -1,11 +1,11 @@
-package mu.server.service.service;
+package mu.server.service.service
 
-import mu.server.service.dto.Result;
-import mu.server.service.dto.user.UpdateUserRequest;
-import mu.server.service.dto.user.UserResponse;
+import mu.server.service.dto.Result
+import mu.server.service.dto.user.UpdateUserRequest
+import mu.server.service.dto.user.UserResponse
 
-public interface UserService {
-    Result<UserResponse> findUserById(Long id);
+interface UserService {
+    fun findUserById(id: Long): Result<UserResponse>?
 
-    UpdateUserRequest updateUser(UpdateUserRequest updateUserRequest, String username);
+    fun updateUser(updateUserRequest: UpdateUserRequest, username: String): UpdateUserRequest
 }
