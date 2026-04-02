@@ -28,11 +28,12 @@
         <org.openapi-generator-maven-plugin.version>7.21.0</org.openapi-generator-maven-plugin.version>
         <jakarta.validation-api.version>3.1.1</jakarta.validation-api.version>
         <swagger-annotations.version>2.2.45</swagger-annotations.version>
-        <springdoc-openapi-starter-webmvc-ui.version>3.0.1</springdoc-openapi-starter-webmvc-ui.version>
+        <springdoc-openapi-starter-webmvc-ui.version>3.0.2</springdoc-openapi-starter-webmvc-ui.version>
         <build-helper-maven-plugin.version>3.5.0</build-helper-maven-plugin.version>
         <blaze-persistence.version>1.6.18</blaze-persistence.version>
         <commons-lang3.version>3.18.0</commons-lang3.version>
         <io.jsonwebtoken.version>0.13.0</io.jsonwebtoken.version>
+        <commons-lang3.version>3.20.0</commons-lang3.version>
     </properties>
 
     <modules>

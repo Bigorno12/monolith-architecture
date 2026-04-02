@@ -35,6 +35,7 @@ spring:
       connection-timeout: 30000
       validation-timeout: 5000
       leak-detection-threshold: 2000
+      connection-test-query: SELECT 1
   flyway:
     user: root
     password: root
