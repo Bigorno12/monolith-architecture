@@ -15,25 +15,6 @@ permissions:
   security-events: write
   statuses: write
 
-env:
-  POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-  POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-  POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
-  MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
-  MYSQL_DATABASE: ${{ secrets.MYSQL_DATABASE }}
-  KEYCLOAK_ADMIN_PASSWORD: ${{ secrets.KEYCLOAK_ADMIN_PASSWORD }}
-  KEYCLOAK_ADMIN: ${{ secrets.KEYCLOAK_ADMIN }}
-  MAVEN_OPTS: >-
-    -Xms1g
-    -Xmx1g
-    -XX:+UseG1GC
-    -XX:MaxGCPauseMillis=200
-    -XX:+UseStringDeduplication
-    -XX:+HeapDumpOnOutOfMemoryError
-    -XX:HeapDumpPath=/var/log/heapdump.hprof
-    -XX:MaxMetaspaceSize=256m
-    -XX:+UseContainerSupport
-
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -60,6 +41,17 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
       - name: Build with Maven
+        env:
+          MAVEN_OPTS: >-
+            -Xms1g
+            -Xmx1g
+            -XX:+UseG1GC
+            -XX:MaxGCPauseMillis=200
+            -XX:+UseStringDeduplication
+            -XX:+HeapDumpOnOutOfMemoryError
+            -XX:HeapDumpPath=/var/log/heapdump.hprof
+            -XX:MaxMetaspaceSize=256m
+            -XX:+UseContainerSupport
         run: mvn -B package --file pom.xml
       - name: Run Unit test
         run: mvn test
@@ -113,3 +105,12 @@ jobs:
       - name: Check build status
         run: exit 1
         if: ${{ failure() }}
+
+env:
+  POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+  POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+  POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+  MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
+  MYSQL_DATABASE: ${{ secrets.MYSQL_DATABASE }}
+  KEYCLOAK_ADMIN_PASSWORD: ${{ secrets.KEYCLOAK_ADMIN_PASSWORD }}
+  KEYCLOAK_ADMIN: ${{ secrets.KEYCLOAK_ADMIN }}
