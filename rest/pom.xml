@@ -14,7 +14,7 @@
     <artifactId>rest</artifactId>
 
     <properties>
-        <kotlin.version>2.2.20</kotlin.version>
+        <kotlin.version>2.3.20</kotlin.version>
     </properties>
 
     <dependencies>
