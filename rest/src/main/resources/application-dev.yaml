@@ -48,4 +48,4 @@ spring:
 management:
   tracing:
     sampling:
-      probability: 0.1
+      probability: 1.0
