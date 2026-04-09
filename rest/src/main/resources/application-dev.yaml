@@ -44,3 +44,8 @@ spring:
     locations: classpath:db.migration
   jackson:
     default-property-inclusion: non_null
+
+management:
+  tracing:
+    sampling:
+      probability: 0.1

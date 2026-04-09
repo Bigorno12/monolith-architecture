@@ -26,3 +26,8 @@ spring:
     password: root
     url: jdbc:h2:mem:testdb
     enabled: false
+
+management:
+  tracing:
+    sampling:
+      probability: 0.1
