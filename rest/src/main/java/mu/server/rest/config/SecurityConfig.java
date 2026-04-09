@@ -3,6 +3,7 @@ package mu.server.rest.config;
 import lombok.RequiredArgsConstructor;
 import mu.server.rest.filter.FingerprintFilter;
 import mu.server.rest.filter.JwtAuthenticationFilter;
+import mu.server.rest.filter.TraceIdFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.web.config.EnableSpringDataWebSupport;
@@ -61,7 +62,8 @@ public class SecurityConfig {
             "/webjars/**",
             "/swagger-ui.html",
             "/h2-console/**",
-            "/jsonplaceholder.typicode.com/**"
+            "/jsonplaceholder.typicode.com/**",
+            "/actuator/**"
     };
     private static final String path = "/api/v1/mono/admin/**";
     private static final String userPath = "/api/v1/mono/**";
@@ -70,6 +72,7 @@ public class SecurityConfig {
     private final FingerprintFilter fingerprintFilter;
     private final AuthenticationProvider authenticationProvider;
     private final LogoutHandler logoutHandler;
+    private final TraceIdFilter traceIdFilter;
 
     @Bean
     public SecurityFilterChain configure(HttpSecurity http) {
@@ -93,6 +96,7 @@ public class SecurityConfig {
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterAfter(fingerprintFilter, JwtAuthenticationFilter.class)
+                .addFilterAfter(traceIdFilter, FingerprintFilter.class)
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
                 .httpBasic(Customizer.withDefaults())
                 .logout(logout -> logout.logoutUrl("/api/v1/auth/logout")
