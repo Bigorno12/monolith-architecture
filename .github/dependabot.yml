@@ -23,33 +23,6 @@ updates:
     reviewers:
       - "Bigorno"
 
-  - package-ecosystem: "maven"
-    directory: "/persistence"
-    schedule:
-      interval: "weekly"
-    open-pull-requests-limit: 5
-    labels:
-      - "dependencies"
-      - "persistence"
-
-  - package-ecosystem: "maven"
-    directory: "/rest"
-    schedule:
-      interval: "weekly"
-    open-pull-requests-limit: 5
-    labels:
-      - "dependencies"
-      - "rest"
-
-  - package-ecosystem: "maven"
-    directory: "/service"
-    schedule:
-      interval: "weekly"
-    open-pull-requests-limit: 5
-    labels:
-      - "dependencies"
-      - "service"
-
 
   - package-ecosystem: "docker"
     directory: "/infra"

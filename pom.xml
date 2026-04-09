@@ -34,6 +34,9 @@
         <commons-lang3.version>3.18.0</commons-lang3.version>
         <io.jsonwebtoken.version>0.13.0</io.jsonwebtoken.version>
         <commons-lang3.version>3.20.0</commons-lang3.version>
+        <opentelemetry-logback-appender-1.0.version>2.26.1-alpha</opentelemetry-logback-appender-1.0.version>
+        <io.opentelemetry-semconv.version>1.40.0</io.opentelemetry-semconv.version>
+        <kotlin.version>2.3.20</kotlin.version>
     </properties>
 
     <modules>
@@ -129,6 +132,15 @@
                 <artifactId>tomcat-embed-core</artifactId>
                 <version>${tomcat.version}</version>
             </dependency>
+
+            <!-- Kotlin -->
+            <dependency>
+                <groupId>org.jetbrains.kotlin</groupId>
+                <artifactId>kotlin-bom</artifactId>
+                <version>${kotlin.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -158,6 +170,11 @@
         <dependency>
             <groupId>com.github.ben-manes.caffeine</groupId>
             <artifactId>caffeine</artifactId>
+        </dependency>
+        <!-- Metrics -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-opentelemetry</artifactId>
         </dependency>
     </dependencies>
 
@@ -305,6 +322,42 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-site-plugin</artifactId>
                     <version>3.21.0</version>
+                </plugin>
+                <!-- Kotlin -->
+                <plugin>
+                    <groupId>org.jetbrains.kotlin</groupId>
+                    <artifactId>kotlin-maven-plugin</artifactId>
+                    <version>${kotlin.version}</version>
+                    <extensions>true</extensions>
+                    <configuration>
+                        <compilerPlugins>
+                            <plugin>spring</plugin>
+                        </compilerPlugins>
+                        <jvmTarget>24</jvmTarget>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <id>compile</id>
+                            <phase>compile</phase>
+                            <goals>
+                                <goal>compile</goal>
+                            </goals>
+                        </execution>
+                        <execution>
+                            <id>test-compile</id>
+                            <phase>test-compile</phase>
+                            <goals>
+                                <goal>test-compile</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                    <dependencies>
+                        <dependency>
+                            <groupId>org.jetbrains.kotlin</groupId>
+                            <artifactId>kotlin-maven-allopen</artifactId>
+                            <version>${kotlin.version}</version>
+                        </dependency>
+                    </dependencies>
                 </plugin>
             </plugins>
         </pluginManagement>
