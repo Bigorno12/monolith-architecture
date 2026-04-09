@@ -34,7 +34,7 @@
         <commons-lang3.version>3.18.0</commons-lang3.version>
         <io.jsonwebtoken.version>0.13.0</io.jsonwebtoken.version>
         <commons-lang3.version>3.20.0</commons-lang3.version>
-        <opentelemetry-logback-appender-1.0.version>2.21.0-alpha</opentelemetry-logback-appender-1.0.version>
+        <opentelemetry-logback-appender-1.0.version>2.26.1-alpha</opentelemetry-logback-appender-1.0.version>
         <kotlin.version>2.3.20</kotlin.version>
     </properties>
 
