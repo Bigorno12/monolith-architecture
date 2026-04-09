@@ -39,7 +39,6 @@
             <groupId>io.opentelemetry.instrumentation</groupId>
             <artifactId>opentelemetry-logback-appender-1.0</artifactId>
             <version>${opentelemetry-logback-appender-1.0.version}</version>
-            <scope>runtime</scope>
         </dependency>
     </dependencies>
 
