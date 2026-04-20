@@ -1,6 +1,5 @@
 package mu.server.service.service.impl
 
-import mu.server.persistence.entity.User
 import mu.server.persistence.repository.UserRepository
 import mu.server.service.dto.Result
 import mu.server.service.dto.user.UpdateUserRequest
