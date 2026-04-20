@@ -1,21 +1,20 @@
-package mu.server.service.service;
+package mu.server.service.service
 
-import com.blazebit.persistence.PagedList;
-import mu.server.persistence.repository.blaze.TodoView;
-import mu.server.service.dto.todo.TodoRequest;
-import mu.server.service.dto.todo.TodoUsernameResponse;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import com.blazebit.persistence.PagedList
+import mu.server.persistence.repository.blaze.TodoView
+import mu.server.service.dto.todo.TodoRequest
+import mu.server.service.dto.todo.TodoUsernameResponse
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 
-import java.util.List;
+interface TodoService {
 
-public interface TodoService {
+    fun save(todoRequest: List<TodoRequest>?, username: String?)
 
-    void save(List<TodoRequest> todoRequest, String username);
+    fun saveByUserId(userId: Long?)
 
-    void saveByUserId(Long userId);
+    fun findAllTodosByUsername(pageable: Pageable?, username: String?): Page<TodoUsernameResponse>?
 
-    Page<TodoUsernameResponse> findAllTodosByUsername(Pageable pageable, String username);
+    fun findAllTodos(pageable: Pageable): PagedList<TodoView>?
 
-    PagedList<TodoView> findAllTodos(Pageable pageable);
 }

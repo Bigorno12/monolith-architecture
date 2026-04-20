@@ -35,7 +35,7 @@
         <io.jsonwebtoken.version>0.13.0</io.jsonwebtoken.version>
         <commons-lang3.version>3.20.0</commons-lang3.version>
         <opentelemetry-logback-appender-1.0.version>2.21.0-alpha</opentelemetry-logback-appender-1.0.version>
-        <jackson.version>3.1.1</jackson.version>
+        <jackson.version>3.1.2</jackson.version>
         <kotlin.version>2.3.20</kotlin.version>
     </properties>
 
@@ -346,6 +346,10 @@
                             <goals>
                                 <goal>compile</goal>
                             </goals>
+                            <configuration>
+                                <sourceDirs>${project.build.directory}/scr/main/kotlin</sourceDirs>
+                                <sourceDirs>${project.build.directory}/scr/main/java</sourceDirs>
+                            </configuration>
                         </execution>
                         <execution>
                             <id>test-compile</id>
@@ -353,6 +357,10 @@
                             <goals>
                                 <goal>test-compile</goal>
                             </goals>
+                            <configuration>
+                                <sourceDirs>${project.build.directory}/scr/main/kotlin</sourceDirs>
+                                <sourceDirs>${project.build.directory}/scr/main/java</sourceDirs>
+                            </configuration>
                         </execution>
                     </executions>
                     <dependencies>
@@ -383,7 +391,7 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <properties>
-                <spring.profiles.active>test</spring.profiles.active>
+                <spring.profiles.active>dev</spring.profiles.active>
             </properties>
         </profile>
     </profiles>

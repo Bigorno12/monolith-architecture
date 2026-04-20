@@ -1,8 +1,8 @@
-package mu.server.persistence.repository.blaze.impl;
+package mu.server.persistence.repository.blaze.impl
 
-import com.blazebit.persistence.PagedList;
-import mu.server.persistence.repository.blaze.TodoView;
+import com.blazebit.persistence.PagedList
+import mu.server.persistence.repository.blaze.TodoView
 
-public interface TodoCustomRepository {
-    PagedList<TodoView> paginationTodos(int firstResult, int maxResult);
+interface TodoCustomRepository {
+    fun paginationTodos(firstResult: Int, maxResult: Int): PagedList<TodoView>?
 }
