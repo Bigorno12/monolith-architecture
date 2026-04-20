@@ -27,7 +27,7 @@
         <lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version>
         <org.openapi-generator-maven-plugin.version>7.21.0</org.openapi-generator-maven-plugin.version>
         <jakarta.validation-api.version>3.1.1</jakarta.validation-api.version>
-        <swagger-annotations.version>2.2.45</swagger-annotations.version>
+        <swagger-annotations.version>2.2.47</swagger-annotations.version>
         <springdoc-openapi-starter-webmvc-ui.version>3.0.2</springdoc-openapi-starter-webmvc-ui.version>
         <build-helper-maven-plugin.version>3.5.0</build-helper-maven-plugin.version>
         <blaze-persistence.version>1.6.18</blaze-persistence.version>
@@ -35,6 +35,7 @@
         <io.jsonwebtoken.version>0.13.0</io.jsonwebtoken.version>
         <commons-lang3.version>3.20.0</commons-lang3.version>
         <opentelemetry-logback-appender-1.0.version>2.21.0-alpha</opentelemetry-logback-appender-1.0.version>
+        <jackson.version>3.1.2</jackson.version>
         <kotlin.version>2.3.20</kotlin.version>
     </properties>
 
@@ -174,6 +175,10 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-opentelemetry</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
     </dependencies>
 
@@ -341,6 +346,10 @@
                             <goals>
                                 <goal>compile</goal>
                             </goals>
+                            <configuration>
+                                <sourceDirs>${project.build.directory}/scr/main/kotlin</sourceDirs>
+                                <sourceDirs>${project.build.directory}/scr/main/java</sourceDirs>
+                            </configuration>
                         </execution>
                         <execution>
                             <id>test-compile</id>
@@ -348,6 +357,10 @@
                             <goals>
                                 <goal>test-compile</goal>
                             </goals>
+                            <configuration>
+                                <sourceDirs>${project.build.directory}/scr/main/kotlin</sourceDirs>
+                                <sourceDirs>${project.build.directory}/scr/main/java</sourceDirs>
+                            </configuration>
                         </execution>
                     </executions>
                     <dependencies>
@@ -378,7 +391,7 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <properties>
-                <spring.profiles.active>test</spring.profiles.active>
+                <spring.profiles.active>dev</spring.profiles.active>
             </properties>
         </profile>
     </profiles>
