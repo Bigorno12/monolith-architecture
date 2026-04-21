@@ -49,14 +49,21 @@ management:
       export:
         otlp:
           endpoint: http://localhost:4318/v1/traces
+  otlp:
     metrics:
       export:
-        otlp:
-          url: http://localhost:4318/v1/metrics
+        url: http://localhost:4318/v1/metrics
+  endpoints:
+    web:
+      exposure:
+        include: health, info, prometheus
   prometheus:
     metrics:
       export:
-        enabled: false
+        enabled: true
+  metrics:
+    tags:
+      application: MonolithArchitecture
 
 server:
   port: 8080
