@@ -35,6 +35,8 @@
         <io.jsonwebtoken.version>0.13.0</io.jsonwebtoken.version>
         <commons-lang3.version>3.20.0</commons-lang3.version>
         <opentelemetry-logback-appender-1.0.version>2.21.0-alpha</opentelemetry-logback-appender-1.0.version>
+        <jackson.version>3.1.2</jackson.version>
+        <tomcat.version>11.0.21</tomcat.version>
         <kotlin.version>2.3.20</kotlin.version>
     </properties>
 
@@ -158,11 +160,6 @@
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-cache</artifactId>
         </dependency>
@@ -174,6 +171,20 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-opentelemetry</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.opentelemetry.instrumentation</groupId>
+            <artifactId>opentelemetry-logback-appender-1.0</artifactId>
+            <version>${opentelemetry-logback-appender-1.0.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-prometheus</artifactId>
+            <scope>runtime</scope>
         </dependency>
     </dependencies>
 
@@ -341,6 +352,10 @@
                             <goals>
                                 <goal>compile</goal>
                             </goals>
+                            <configuration>
+                                <sourceDirs>${project.build.directory}/scr/main/kotlin</sourceDirs>
+                                <sourceDirs>${project.build.directory}/scr/main/java</sourceDirs>
+                            </configuration>
                         </execution>
                         <execution>
                             <id>test-compile</id>
@@ -348,6 +363,10 @@
                             <goals>
                                 <goal>test-compile</goal>
                             </goals>
+                            <configuration>
+                                <sourceDirs>${project.build.directory}/scr/main/kotlin</sourceDirs>
+                                <sourceDirs>${project.build.directory}/scr/main/java</sourceDirs>
+                            </configuration>
                         </execution>
                     </executions>
                     <dependencies>
@@ -378,7 +397,7 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <properties>
-                <spring.profiles.active>test</spring.profiles.active>
+                <spring.profiles.active>dev</spring.profiles.active>
             </properties>
         </profile>
     </profiles>

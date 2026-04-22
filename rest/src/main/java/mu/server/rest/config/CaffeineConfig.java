@@ -1,7 +1,9 @@
 package mu.server.rest.config;
 
 import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.Scheduler;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
@@ -13,6 +15,7 @@ import java.util.List;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.TimeUnit;
 
+@Slf4j
 @Configuration
 @EnableCaching
 @RequiredArgsConstructor
@@ -25,6 +28,9 @@ public class CaffeineConfig {
                 .initialCapacity(50)
                 .executor(ForkJoinPool.commonPool())
                 .expireAfterWrite(300, TimeUnit.SECONDS)
+                .evictionListener((key, _, cause) -> log.info("Key {} was evicted {}", key, cause))
+                .removalListener((key, _, cause) -> log.info("Key {} was removed {}", key, cause))
+                .scheduler(Scheduler.systemScheduler())
                 .recordStats();
     }
 
