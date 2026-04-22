@@ -1,6 +1,5 @@
 package mu.server.service.service.impl
 
-import mu.server.persistence.entity.User
 import mu.server.persistence.repository.UserRepository
 import mu.server.service.dto.Result
 import mu.server.service.dto.user.UpdateUserRequest
@@ -31,14 +30,13 @@ class UserServiceImpl(private val userRepository: UserRepository, private val us
         updateUserRequest: UpdateUserRequest,
         username: String
     ): UpdateUserRequest {
-        val user: User = userRepository.findByUsername(username) ?: throw NoFoundException("User $username not found")
+        return userRepository.findByUsername(username)
+            .also {
+                if (it.username == updateUserRequest.username())
+                    userRepository.findUserByUsername(it.username) ?: throw NoFoundException("User $username found")
 
-        if (user.username.equals(updateUserRequest.username, ignoreCase = true)) {
-            userRepository.findUserByUsername(user.username)
-                ?: throw NoFoundException("Username $username already exists!!")
-        }
-
-        userRepository.save(userMapper.updateUserFromDto(updateUserRequest, user))
-        return userMapper.mapToUpdateUser(user)
+            }
+            .let { userMapper.updateUserFromDto(updateUserRequest, it) }
+            .let { userMapper.mapToUpdateUser(it) } ?: throw NoFoundException("User $username not found")
     }
 }

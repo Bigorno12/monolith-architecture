@@ -8,6 +8,8 @@ servers:
 tags:
   - name: auth
     description: Authentication
+  - name: admin
+    description: Admin operations
   - name: jsonplaceholder
     description: Get all dummy data from jsonplaceholder
   - name: user
@@ -22,7 +24,6 @@ paths:
       summary: "Register new user"
       operationId: registerUser
       parameters:
-        - $ref: '#/components/parameters/FingerprintHeader'
         - $ref: '#/components/parameters/ApiVersionHeader'
       requestBody:
         required: true
@@ -33,6 +34,11 @@ paths:
       responses:
         '200':
           description: User Registered successfully
+          headers:
+            X-Fingerprint:
+              description: Server-generated fingerprint
+              schema:
+                type: string
           content:
             application/json:
               schema:
@@ -64,6 +70,11 @@ paths:
       responses:
         '200':
           description: User authenticate successfully
+          headers:
+            X-Fingerprint:
+              description: Server-generated fingerprint
+              schema:
+                type: string
           content:
             application/json:
               schema:

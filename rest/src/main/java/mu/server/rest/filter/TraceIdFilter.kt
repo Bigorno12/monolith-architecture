@@ -16,7 +16,11 @@ class TraceIdFilter(val tracer: Tracer) : OncePerRequestFilter() {
         response: HttpServletResponse,
         filterChain: FilterChain
     ) {
-        getTraceId().also { response.setHeader("X-Trace-Id", it) }
+        val traceId = getTraceId()
+
+        if (traceId != null) {
+            request.setAttribute("X-Trace-Id", traceId)
+        }
         filterChain.doFilter(request, response)
     }
 
