@@ -40,30 +40,36 @@ application:
         expiration: 604800000
 
 management:
-  opentelemetry:
-    logging:
-      export:
-        otlp:
-          endpoint: http://localhost:4318/v1/logs
-    tracing:
-      export:
-        otlp:
-          endpoint: http://localhost:4318/v1/traces
+  endpoints:
+    web:
+      exposure:
+        include: health,env,prometheus
+  endpoint:
+    health:
+      show-details: always
+      probes:
+        enabled: true # Enable liveness and readiness probes
+  health:
+    # Enable liveness & readiness states
+    livenessstate:
+      enabled: true
+    readinessstate:
+      enabled: true
+
+  # Observability
   otlp:
     metrics:
       export:
         url: http://localhost:4318/v1/metrics
-  endpoints:
-    web:
-      exposure:
-        include: health, info, prometheus
-  prometheus:
-    metrics:
+  opentelemetry:
+    tracing:
       export:
-        enabled: true
-  metrics:
-    tags:
-      application: MonolithArchitecture
+        otlp:
+          endpoint: http://localhost:4318/v1/traces
+    logging:
+      export:
+        otlp:
+          endpoint: http://localhost:4318/v1/logs
 
 server:
   port: 8080

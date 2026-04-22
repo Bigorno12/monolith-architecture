@@ -2,10 +2,11 @@
 <configuration>
     <include resource="org/springframework/boot/logging/logback/base.xml"/>
 
-    <appender name="MONOLITHARCHITECTURE" class="io.opentelemetry.instrumentation.logback.appender.v1_0.OpenTelemetryAppender">
+    <appender name="OTEL" class="io.opentelemetry.instrumentation.logback.appender.v1_0.OpenTelemetryAppender">
     </appender>
 
     <root level="INFO">
-        <appender-ref ref="MONOLITHARCHITECTURE"/>
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="OTEL"/>
     </root>
 </configuration>
