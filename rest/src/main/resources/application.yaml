@@ -40,23 +40,36 @@ application:
         expiration: 604800000
 
 management:
-  opentelemetry:
-    logging:
+  endpoints:
+    web:
+      exposure:
+        include: health,env,prometheus
+  endpoint:
+    health:
+      show-details: always
+      probes:
+        enabled: true # Enable liveness and readiness probes
+  health:
+    # Enable liveness & readiness states
+    livenessstate:
+      enabled: true
+    readinessstate:
+      enabled: true
+
+  # Observability
+  otlp:
+    metrics:
       export:
-        otlp:
-          endpoint: http://localhost:4318/v1/logs
+        url: http://localhost:4318/v1/metrics
+  opentelemetry:
     tracing:
       export:
         otlp:
           endpoint: http://localhost:4318/v1/traces
-    metrics:
+    logging:
       export:
         otlp:
-          url: http://localhost:4318/v1/metrics
-  prometheus:
-    metrics:
-      export:
-        enabled: false
+          endpoint: http://localhost:4318/v1/logs
 
 server:
   port: 8080
