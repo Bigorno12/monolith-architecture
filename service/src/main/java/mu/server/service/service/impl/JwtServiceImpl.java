@@ -44,6 +44,7 @@ public class JwtServiceImpl implements JwtService {
     public String generateToken(UserDetails userDetails) {
         var claims = new HashMap<String, Object>();
         return Jwts.builder()
+                .claim("type", "ACCESS")
                 .claims(claims)
                 .subject(userDetails.getUsername())
                 .issuedAt(new Date(System.currentTimeMillis()))
@@ -56,6 +57,7 @@ public class JwtServiceImpl implements JwtService {
     public String generateRefreshToken(UserDetails userDetails) {
         var claims = new HashMap<String, Object>();
         return Jwts.builder()
+                .claim("type", "REFRESH")
                 .claims(claims)
                 .subject(userDetails.getUsername())
                 .issuedAt(new Date(System.currentTimeMillis()))
