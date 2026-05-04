@@ -6,15 +6,17 @@ logging:
 
 spring:
   jpa:
-    show-sql: true
+    show-sql: false
     properties:
       hibernate:
         jdbc:
           batch_size: 50
           fetch_size: 100
           batch_versioned_data: true
+          time_zone: UTC
         format_sql: true
         order_updates: true
+        order_inserts: true
         default_batch_fetch_size: 32
         generate_statistics: true
         cache:
@@ -36,6 +38,13 @@ spring:
       validation-timeout: 5000
       leak-detection-threshold: 2000
       connection-test-query: SELECT 1
+      data-source-properties:
+        useServerPrepStmts: false
+        cachePrepStmts: true
+        prepStmtCacheSize: 500
+        prepStmtCacheSqlLimit: 1024
+      transaction-isolation: TRANSACTION_READ_COMMITTED
+
   flyway:
     user: root
     password: root
