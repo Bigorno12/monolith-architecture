@@ -12,7 +12,8 @@ import org.springframework.stereotype.Service;
 import javax.crypto.SecretKey;
 import java.security.Key;
 import java.util.Date;
-import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 @Service
 public class JwtServiceImpl implements JwtService {
@@ -42,10 +43,9 @@ public class JwtServiceImpl implements JwtService {
 
     @Override
     public String generateToken(UserDetails userDetails) {
-        var claims = new HashMap<String, Object>();
         return Jwts.builder()
                 .claim("type", "ACCESS")
-                .claims(claims)
+                .claims(Map.of("Roles", Set.of("ADMIN", "USER")))
                 .subject(userDetails.getUsername())
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + jwtExpiration))
@@ -55,10 +55,9 @@ public class JwtServiceImpl implements JwtService {
 
     @Override
     public String generateRefreshToken(UserDetails userDetails) {
-        var claims = new HashMap<String, Object>();
         return Jwts.builder()
                 .claim("type", "REFRESH")
-                .claims(claims)
+                .claims(Map.of("Roles", Set.of("ADMIN", "USER")))
                 .subject(userDetails.getUsername())
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + refreshExpirations))

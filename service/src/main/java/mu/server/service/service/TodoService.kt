@@ -11,7 +11,7 @@ interface TodoService {
 
     fun save(todoRequest: List<TodoRequest>?, username: String?)
 
-    fun saveByUserId(userId: Long?)
+    fun saveByUserId(username: String?)
 
     fun findAllTodosByUsername(pageable: Pageable?, username: String?): Page<TodoUsernameResponse>?
 

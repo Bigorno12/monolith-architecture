@@ -10,6 +10,7 @@ import mu.server.persistence.repository.TokenRepository;
 import mu.server.persistence.repository.UserRepository;
 import mu.server.service.dto.auth.AuthenticationRequest;
 import mu.server.service.dto.auth.AuthenticationResponse;
+import mu.server.service.dto.auth.TokenResponse;
 import mu.server.service.dto.user.UserRequest;
 import mu.server.service.exception.UsernameExistException;
 import mu.server.service.mapper.TokenMapper;
@@ -45,34 +46,31 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .ifPresent(_ -> {
                     throw new UsernameExistException("Username already exists " + request.username());
                 });
+
         User user = userRepository.save(userMapper.mapToUser(request));
 
-        String jwtToken = jwtService.generateToken(user);
-        String refreshToken = jwtService.generateRefreshToken(user);
+        TokenResponse tokenResponse = generateToken(user);
 
-        tokenRepository.save(tokenMapper.mapToEntity(user, jwtToken, BEARER));
+        saveToken(user, tokenResponse.getAccessToken());
 
         return AuthenticationResponse.builder()
-                .accessToken(jwtToken)
-                .refreshToken(refreshToken)
+                .accessToken(tokenResponse.getAccessToken())
+                .refreshToken(tokenResponse.getRefreshToken())
                 .build();
     }
 
     @Override
     public void refreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
         final String authorizationHeader = request.getHeader("Authorization");
-        final String refreshToken;
-        final String username;
-
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-            refreshToken = authorizationHeader.substring(7);
-            username = jwtService.extractUsername(refreshToken);
+            final String refreshToken = authorizationHeader.substring(7);
+            final String username = jwtService.extractUsername(refreshToken);
 
-            userRepository.findUserByUsername(username).ifPresent(u -> {
-                if (jwtService.isTokenValid(refreshToken, u)) {
-                    String accessToken = jwtService.generateToken(u);
+            userRepository.findUserByUsername(username).ifPresent(user -> {
+                if (jwtService.isTokenValid(refreshToken, user)) {
+                    String accessToken = jwtService.generateToken(user);
                     revokeAllUserTokens(username);
-                    saveTokenUser(u, accessToken);
+                    tokenRepository.save(tokenMapper.mapToEntity(user, accessToken, BEARER));
                 }
             });
         }
@@ -85,18 +83,18 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         User user = userRepository.findUserByUsername(request.getUsername())
                 .orElseThrow(() -> new UsernameNotFoundException(request.getUsername()));
 
-        String jwtToken = jwtService.generateToken(user);
-        String refreshToken = jwtService.generateRefreshToken(user);
+        TokenResponse tokenResponse = generateToken(user);
+
         revokeAllUserTokens(request.getUsername());
-        saveTokenUser(user, jwtToken);
+        saveToken(user, tokenResponse.getAccessToken());
 
         return AuthenticationResponse.builder()
-                .accessToken(jwtToken)
-                .refreshToken(refreshToken)
+                .accessToken(tokenResponse.getAccessToken())
+                .refreshToken(tokenResponse.getRefreshToken())
                 .build();
     }
 
-    public void revokeAllUserTokens(String username) {
+    private void revokeAllUserTokens(String username) {
         List<Token> validUsernameToken = tokenRepository.findTokenByUsernameWhereExpiredOrRevokedIsFalse(
                 username
         );
@@ -111,7 +109,14 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         }
     }
 
-    public void saveTokenUser(User user, String jwtToken) {
-        tokenRepository.save(tokenMapper.mapToEntity(user, jwtToken, BEARER));
+    private TokenResponse generateToken(User user) {
+        String jwtToken = jwtService.generateToken(user);
+        String refreshToken = jwtService.generateRefreshToken(user);
+
+        return new TokenResponse(jwtToken, refreshToken);
+    }
+
+    private void saveToken(User user, String accessToken) {
+        tokenRepository.save(tokenMapper.mapToEntity(user, accessToken, BEARER));
     }
 }
