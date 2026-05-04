@@ -35,8 +35,6 @@
         <io.jsonwebtoken.version>0.13.0</io.jsonwebtoken.version>
         <commons-lang3.version>3.20.0</commons-lang3.version>
         <opentelemetry-logback-appender-1.0.version>2.21.0-alpha</opentelemetry-logback-appender-1.0.version>
-        <jackson.version>3.1.2</jackson.version>
-        <tomcat.version>11.0.21</tomcat.version>
         <kotlin.version>2.3.21</kotlin.version>
     </properties>
 
@@ -142,6 +140,8 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+
+            <!-- Rate Limiter -->
         </dependencies>
     </dependencyManagement>
 
@@ -353,8 +353,8 @@
                                 <goal>compile</goal>
                             </goals>
                             <configuration>
-                                <sourceDirs>${project.build.directory}/scr/main/kotlin</sourceDirs>
-                                <sourceDirs>${project.build.directory}/scr/main/java</sourceDirs>
+                                <sourceDirs>${project.basedir}/src/main/kotlin</sourceDirs>
+                                <sourceDirs>${project.basedir}/src/main/java</sourceDirs>
                             </configuration>
                         </execution>
                         <execution>
@@ -364,8 +364,8 @@
                                 <goal>test-compile</goal>
                             </goals>
                             <configuration>
-                                <sourceDirs>${project.build.directory}/scr/main/kotlin</sourceDirs>
-                                <sourceDirs>${project.build.directory}/scr/main/java</sourceDirs>
+                                <sourceDirs>${project.basedir}/src/main/kotlin</sourceDirs>
+                                <sourceDirs>${project.basedir}/src/main/java</sourceDirs>
                             </configuration>
                         </execution>
                     </executions>

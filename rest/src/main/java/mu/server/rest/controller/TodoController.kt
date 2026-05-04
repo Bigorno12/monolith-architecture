@@ -22,10 +22,10 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping(version = "1.0", value = ["/api/v1/mono/todo"], produces = ["application/json"])
 class TodoController(private val todoService: TodoService) {
 
-    @PostMapping(value = ["/{userId}"], version = "1.0")
+    @PostMapping(value = ["/{username}"], version = "1.0")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN') and hasAnyAuthority('user:create', 'admin:create')")
-    fun save(@PathVariable userId: Long?): ResponseEntity<Void> {
-        todoService.saveByUserId(userId)
+    fun save(@PathVariable username: String?): ResponseEntity<Void> {
+        todoService.saveByUserId(username)
         return ResponseEntity.ok().build()
     }
 
