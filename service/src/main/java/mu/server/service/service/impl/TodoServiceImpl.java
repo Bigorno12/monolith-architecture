@@ -9,9 +9,13 @@ import mu.server.persistence.repository.UserRepository;
 import mu.server.persistence.repository.blaze.TodoView;
 import mu.server.service.dto.todo.TodoRequest;
 import mu.server.service.dto.todo.TodoUsernameResponse;
+import mu.server.service.exception.InvalidCallException;
+import mu.server.service.exception.JsonPlaceHolderException;
+import mu.server.service.exception.NotFoundException;
 import mu.server.service.mapper.TodoMapper;
 import mu.server.service.service.TodoService;
 import mu.server.service.service.http.JsonPlaceHolderService;
+import org.jspecify.annotations.Nullable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -45,11 +49,18 @@ public class TodoServiceImpl implements TodoService {
 
     @Override
     @Transactional
-    public void saveByUserId(Long userId) {
-        userRepository.findById(userId)
-                .map(user -> todoMapper.mapTodoRequestAndUserToTodo(jsonPlaceHolderService.todo(userId), user))
-                .map(todoRepository::saveAll)
-                .orElseThrow(() -> new UsernameNotFoundException("User Does not exists"));
+    public void saveByUserId(@Nullable String username) {
+        userRepository.findUserByUsername(username)
+                .ifPresentOrElse(user -> {
+                    List<TodoRequest> todoRequests = retrieveTodoByUserId(user.getId());
+                    if (!todoRequests.isEmpty()) {
+                        List<Todo> todos = todoMapper.mapTodoRequestAndUserToTodo(todoRequests, user);
+                        todoRepository.saveAll(todos);
+                    }
+                }, () -> {
+                    log.error("User does not exist: {}", username);
+                    throw new UsernameNotFoundException("User Does not exists");
+                });
     }
 
     @Override
@@ -67,5 +78,14 @@ public class TodoServiceImpl implements TodoService {
     @Transactional(readOnly = true)
     public PagedList<TodoView> findAllTodos(Pageable pageable) {
         return todoRepository.paginationTodos(pageable.getPageNumber(), pageable.getPageSize());
+    }
+
+    private List<TodoRequest> retrieveTodoByUserId(Long userId) {
+        try {
+            return jsonPlaceHolderService.todo(userId);
+        } catch (NotFoundException | InvalidCallException | JsonPlaceHolderException e) {
+            log.error("Error message when retrieving todos api: {}", e.getMessage());
+            return List.of();
+        }
     }
 }

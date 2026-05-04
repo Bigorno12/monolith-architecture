@@ -4,7 +4,7 @@ import mu.server.persistence.repository.UserRepository
 import mu.server.service.dto.Result
 import mu.server.service.dto.user.UpdateUserRequest
 import mu.server.service.dto.user.UserResponse
-import mu.server.service.exception.NoFoundException
+import mu.server.service.exception.NotFoundException
 import mu.server.service.mapper.UserMapper
 import mu.server.service.service.UserService
 import org.slf4j.LoggerFactory
@@ -33,10 +33,10 @@ class UserServiceImpl(private val userRepository: UserRepository, private val us
         return userRepository.findByUsername(username)
             .also {
                 if (it.username == updateUserRequest.username())
-                    userRepository.findUserByUsername(it.username) ?: throw NoFoundException("User $username found")
+                    userRepository.findUserByUsername(it.username) ?: throw NotFoundException("User $username found")
 
             }
             .let { userMapper.updateUserFromDto(updateUserRequest, it) }
-            .let { userMapper.mapToUpdateUser(it) } ?: throw NoFoundException("User $username not found")
+            .let { userMapper.mapToUpdateUser(it) } ?: throw NotFoundException("User $username not found")
     }
 }
