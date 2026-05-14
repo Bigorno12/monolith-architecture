@@ -1,6 +1,7 @@
 package mu.server.persistence.entity;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -14,6 +15,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import mu.server.persistence.audit.Auditable;
+import mu.server.persistence.converter.EncryptionConverter;
 import mu.server.persistence.enumeration.Gender;
 import mu.server.persistence.enumeration.Role;
 import org.jspecify.annotations.NonNull;
@@ -52,6 +54,7 @@ public class User extends Auditable implements UserDetails {
     private String username;
 
     @Column(name = "email", nullable = false)
+    @Convert(converter = EncryptionConverter.class)
     private String email;
 
     @Column(name = "password", nullable = false)
