@@ -1,9 +1,4 @@
 spring:
-  mvc:
-    apiversion:
-      use:
-        header: X-API-Version
-
   application:
     name: "MonolithArchitecture"
   profiles:
@@ -25,12 +20,16 @@ spring:
     caffeine:
       spec: initialCapacity=50,maximumSize=10,expireAfterAccess=300s
     cache-names: jsonPlaceHolder, userCache, todoCache, adminCache
-
-# swagger-ui custom path
+  mvc:
+    apiversion:
+      use:
+        header: X-API-Version
+  security:
+    filter:
+      dispatcher-types: async, error, request
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
-
 application:
   security:
     jwt:
@@ -38,39 +37,8 @@ application:
       expiration: 86400000
       refresh-token:
         expiration: 604800000
-
-management:
-  endpoints:
-    web:
-      exposure:
-        include: health,env,prometheus
-  endpoint:
-    health:
-      show-details: always
-      probes:
-        enabled: true # Enable liveness and readiness probes
-  health:
-    # Enable liveness & readiness states
-    livenessstate:
-      enabled: true
-    readinessstate:
-      enabled: true
-
-  # Observability
-  otlp:
-    metrics:
-      export:
-        url: http://localhost:4318/v1/metrics
-  opentelemetry:
-    tracing:
-      export:
-        otlp:
-          endpoint: http://localhost:4318/v1/traces
-    logging:
-      export:
-        otlp:
-          endpoint: http://localhost:4318/v1/logs
-
+  aes:
+    secret-key: ${WELLDEV.AES.SECRET.KEY}
 server:
   port: 8080
   tomcat:
@@ -87,8 +55,3 @@ server:
     enabled: true
     mime-types: application/json, application/xml, text/xml, text/plain
     min-response-size: 1024
-
-logging:
-  structured:
-    format:
-      console: ecs
