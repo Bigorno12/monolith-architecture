@@ -37,6 +37,8 @@ application:
       expiration: 86400000
       refresh-token:
         expiration: 604800000
+  aes:
+    secret-key: ${WELLDEV.AES.SECRET.KEY}
 server:
   port: 8080
   tomcat:
