@@ -48,6 +48,15 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
                     <mainClass>${app.main.class}</mainClass>
+                    <image>
+                        <builder>paketobuildpacks/builder-jammy-base:latest</builder>
+                        <name>piomin/sample-spring-k8s-ch1:buildpacks</name>
+                    </image>
+                    <environmentVariables>
+                        <BP_JVM_VERSION>25</BP_JVM_VERSION>
+                        <BP_JVM_TYPE>JDK</BP_JVM_TYPE>
+                    </environmentVariables>
+                    <publish>false</publish>
                 </configuration>
                 <executions>
                     <execution>
