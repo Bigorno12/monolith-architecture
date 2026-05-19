@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
+@Deprecated
 public interface TokenRepository extends GenericRepository<Token>, TokenCustomRepository {
     Optional<Token> findByToken(String token);
 }

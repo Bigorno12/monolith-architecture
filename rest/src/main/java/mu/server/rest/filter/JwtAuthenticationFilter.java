@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.util.Optional;
 
 @Component
+@Deprecated
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
