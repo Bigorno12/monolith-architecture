@@ -57,6 +57,10 @@ public class User extends Auditable implements UserDetails {
     @Convert(converter = EncryptionConverter.class)
     private String email;
 
+    @Column(name = "keycloak_id", nullable = false, unique = true)
+    private String keycloakId;
+
+    @Deprecated
     @Column(name = "password", nullable = false)
     private String password;
 
@@ -64,17 +68,20 @@ public class User extends Auditable implements UserDetails {
     @Column(name = "role", nullable = false)
     private Role role;
 
+    @Deprecated
     @OneToMany(mappedBy = "user")
     private List<Token> tokens;
 
+    @Deprecated
     public User(String username, String email, String password) {
         this.username = username;
         this.email = email;
         this.password = password;
     }
 
-    @Override
     @NonNull
+    @Override
+    @Deprecated
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return role.getGrantedAuthorities();
     }

@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping(version = "1.0", value = ["/api/v1/auth"], produces = ["application/json"])
+@Deprecated(message = "Using keycloak", replaceWith = ReplaceWith("AuthenticationControllerV2"), level = DeprecationLevel.HIDDEN)
 class AuthenticationController(
     private val authenticationService: AuthenticationService,
     private val logoutService: LogoutService

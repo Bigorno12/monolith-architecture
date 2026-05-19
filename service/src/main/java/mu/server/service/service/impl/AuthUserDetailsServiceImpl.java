@@ -10,6 +10,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 @Service
+@Deprecated
 @RequiredArgsConstructor
 public class AuthUserDetailsServiceImpl implements AuthUserDetailsService {
 

@@ -2,6 +2,7 @@ package mu.server.service.service;
 
 import org.springframework.security.core.userdetails.UserDetails;
 
+@Deprecated
 public interface JwtService {
 
     String extractUsername(String token);

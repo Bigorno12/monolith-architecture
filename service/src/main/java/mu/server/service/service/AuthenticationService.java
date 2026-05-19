@@ -7,6 +7,7 @@ import mu.server.service.dto.auth.AuthenticationRequest;
 import mu.server.service.dto.auth.AuthenticationResponse;
 import mu.server.service.dto.user.UserRequest;
 
+@Deprecated
 public interface AuthenticationService {
     AuthenticationResponse register(UserRequest request);
 

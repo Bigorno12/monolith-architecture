@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.Set;
 
 @Service
+@Deprecated
 public class JwtServiceImpl implements JwtService {
 
     private final String secretKey;

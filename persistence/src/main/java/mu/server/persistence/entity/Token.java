@@ -20,6 +20,7 @@ import mu.server.persistence.enumeration.TokenType;
 @Getter
 @Setter
 @Entity
+@Deprecated
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "token")

@@ -9,6 +9,7 @@ import org.mapstruct.Named;
 
 import java.util.Optional;
 
+@Deprecated
 @Mapper(componentModel = "spring")
 public interface TokenMapper {
 

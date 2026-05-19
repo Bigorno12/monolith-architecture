@@ -31,6 +31,7 @@ public class UserDetailServiceConfig {
     }
 
     @Bean
+    @Deprecated
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider(userDetailsService());
         daoAuthenticationProvider.setPasswordEncoder(passwordEncoder());
@@ -38,6 +39,7 @@ public class UserDetailServiceConfig {
     }
 
     @Bean
+    @Deprecated
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }

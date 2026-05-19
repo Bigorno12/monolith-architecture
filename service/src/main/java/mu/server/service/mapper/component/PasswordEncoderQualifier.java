@@ -6,6 +6,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 @Component
+@Deprecated
 @RequiredArgsConstructor
 public class PasswordEncoderQualifier {
     private final PasswordEncoder passwordEncoder;

@@ -28,6 +28,7 @@ import java.util.List;
 import static mu.server.persistence.enumeration.TokenType.BEARER;
 
 @Service
+@Deprecated
 @RequiredArgsConstructor
 public class AuthenticationServiceImpl implements AuthenticationService {
 
