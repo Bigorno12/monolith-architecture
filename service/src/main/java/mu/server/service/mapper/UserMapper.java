@@ -4,7 +4,6 @@ import mu.server.persistence.entity.User;
 import mu.server.service.dto.user.UpdateUserRequest;
 import mu.server.service.dto.user.UserRequest;
 import mu.server.service.dto.user.UserResponse;
-import mu.server.service.mapper.component.PasswordEncoderQualifier;
 import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.mapstruct.InheritInverseConfiguration;
@@ -14,13 +13,12 @@ import org.mapstruct.MappingTarget;
 
 import java.util.Collections;
 
-@Mapper(componentModel = "spring", uses = {PasswordEncoderQualifier.class}, imports = {Collections.class})
+@Mapper(componentModel = "spring", imports = {Collections.class})
 public interface UserMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(source = "firstName", target = "firstname")
     @Mapping(source = "lastName", target = "lastname")
-    @Mapping(source = "password", target = "password", qualifiedByName = "encodePassword")
     User mapToUser(UserRequest userRequest);
 
     @Deprecated

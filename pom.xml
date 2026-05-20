@@ -32,7 +32,6 @@
         <build-helper-maven-plugin.version>3.5.0</build-helper-maven-plugin.version>
         <blaze-persistence.version>1.6.18</blaze-persistence.version>
         <commons-lang3.version>3.18.0</commons-lang3.version>
-        <io.jsonwebtoken.version>0.13.0</io.jsonwebtoken.version>
         <commons-lang3.version>3.20.0</commons-lang3.version>
         <opentelemetry-logback-appender-1.0.version>2.21.0-alpha</opentelemetry-logback-appender-1.0.version>
         <kotlin.version>2.3.21</kotlin.version>
@@ -108,24 +107,6 @@
                 <version>${blaze-persistence.version}</version>
                 <scope>runtime</scope>
             </dependency>
-            <!-- JWT Token -->
-            <dependency>
-                <groupId>io.jsonwebtoken</groupId>
-                <artifactId>jjwt-api</artifactId>
-                <version>${io.jsonwebtoken.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>io.jsonwebtoken</groupId>
-                <artifactId>jjwt-impl</artifactId>
-                <version>${io.jsonwebtoken.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>io.jsonwebtoken</groupId>
-                <artifactId>jjwt-jackson</artifactId>
-                <version>${io.jsonwebtoken.version}</version>
-            </dependency>
 
             <!-- Tomcat Core -->
             <dependency>
@@ -148,6 +129,13 @@
                 <groupId>com.bucket4j</groupId>
                 <artifactId>bucket4j_jdk17-core</artifactId>
                 <version>${bucket.version}</version>
+            </dependency>
+
+            <!-- RestEasy -->
+            <dependency>
+                <groupId>org.jboss.resteasy</groupId>
+                <artifactId>resteasy-client</artifactId>
+                <version>7.0.2.Final</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

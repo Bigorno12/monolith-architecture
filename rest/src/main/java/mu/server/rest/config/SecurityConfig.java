@@ -41,6 +41,7 @@ public class SecurityConfig {
     private static final String[] WHITELISTED_PATHS = {
             "/api/v1/auth/**",
             "/api/v2/auth/**",
+            "/error",
             "/v2/api-docs",
             "/v3/api-docs",
             "/v3/api-docs/**",
@@ -67,7 +68,7 @@ public class SecurityConfig {
     @Order(1)
     public SecurityFilterChain resourceServerSecurityFilterChain(
             HttpSecurity http,
-            JwtAuthenticationConverter jwtAuthenticationConverter) throws Exception {
+            JwtAuthenticationConverter jwtAuthenticationConverter) {
         return http
                 .securityMatcher("/api/v1/mono/**")
                 .csrf(AbstractHttpConfigurer::disable)
@@ -97,7 +98,7 @@ public class SecurityConfig {
     @Order(2)
     public SecurityFilterChain clientSecurityFilterChain(
             HttpSecurity http,
-            ClientRegistrationRepository clientRegistrationRepository) throws Exception {
+            ClientRegistrationRepository clientRegistrationRepository) {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
@@ -108,12 +109,11 @@ public class SecurityConfig {
                     oidcLogoutHandler.setPostLogoutRedirectUri("{baseUrl}/");
 
                     logout.logoutUrl("/api/v1/auth/logout")
-                            .invalidateHttpSession(true) // Now this actually works!
+                            .invalidateHttpSession(true)
                             .logoutSuccessHandler(oidcLogoutHandler)
                             .deleteCookies("JSESSIONID", "XSRF-TOKEN");
                 })
                 .authorizeHttpRequests(auth -> auth
-                        // Whitelisted paths (including /api/v1/auth/register) are permitted here.
                         .requestMatchers(WHITELISTED_PATHS).permitAll()
                         .anyRequest().authenticated()
                 )

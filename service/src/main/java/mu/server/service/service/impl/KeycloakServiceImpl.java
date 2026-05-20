@@ -5,9 +5,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import mu.server.persistence.entity.User;
 import mu.server.persistence.repository.UserRepository;
+import mu.server.service.dto.auth.TokenResponse;
 import mu.server.service.dto.user.UserRequest;
 import mu.server.service.mapper.UserMapper;
 import mu.server.service.service.KeycloakService;
+import mu.server.service.service.KeycloakTokenProvider;
 import mu.server.service.util.Credentials;
 import org.keycloak.admin.client.resource.UsersResource;
 import org.keycloak.representations.idm.CredentialRepresentation;
@@ -26,17 +28,20 @@ public class KeycloakServiceImpl implements KeycloakService {
     private final UsersResource usersResource;
     private final UserRepository userRepository;
     private final UserMapper userMapper;
-
+    private final KeycloakTokenProvider keycloakTokenProvider;
 
     @Override
     @Transactional
-    public void register(UserRequest request) {
+    public TokenResponse register(UserRequest request) {
         CredentialRepresentation credentialRepresentation = Credentials.INSTANCE.createCredentialRepresentation(request.password());
         UserRepresentation userRepresentation = userMapper.mapToUserRepresentation(request, credentialRepresentation);
 
         try (Response response = usersResource.create(userRepresentation)) {
             if (response.getStatus() != 201) {
-                throw new RuntimeException();
+                String errorResponse = response.hasEntity() ? response.readEntity(String.class) : "No explicit details provided";
+                log.error("Keycloak registration failed! Status: {}, Details: {}", response.getStatus(), errorResponse);
+
+                throw new RuntimeException("Failed to create user in Keycloak. Status: " + response.getStatus() + " Details: " + errorResponse);
             }
 
             String keycloakId = response.getLocation().getPath()
@@ -57,9 +62,11 @@ public class KeycloakServiceImpl implements KeycloakService {
             user.setKeycloakId(keycloakId);
 
             userRepository.save(user);
+            log.info("Username {} successfully created with keycloakId: {}", user.getUsername(), keycloakId);
 
-            log.info("Username {} created with keycloakId: {}", user.getUsername(), keycloakId);
+            return keycloakTokenProvider.getToken(request.username(), request.password());
         }
 
     }
+
 }
