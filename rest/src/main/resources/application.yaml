@@ -19,7 +19,7 @@ spring:
     type: caffeine
     caffeine:
       spec: initialCapacity=50,maximumSize=10,expireAfterAccess=300s
-    cache-names: jsonPlaceHolder, userCache, todoCache, adminCache
+    cache-names: jsonPlaceHolder, userCache, todoCache, adminCache, fingerprintCache
   mvc:
     apiversion:
       use:
@@ -31,32 +31,30 @@ spring:
       client:
         provider:
           monolith-keycloak:
-            issuer-uri: http://localhost:7080/realms/monolith-keycloak
+            issuer-uri: ${WELLDEV.KEYCLOAK.ISSUER-URI}
         registration:
           keycloak:
-            provider: monolith-keycloak
+            provider: ${WELLDEV.KEYCLOAK.REALM}
             authorization-grant-type: authorization_code
-            client-id: monolith-keycloak-confidential
-            client-secret: uf11tJwT6RkgTkfkv6C7HDHENZzz15Jf
+            client-id: ${WELLDEV.KEYCLOAK.CLIENT-ID}
+            client-secret: ${WELLDEV.KEYCLOAK.CLIENT-SECRET}
             scope:
               - openid
-              - email
-              - profile
       resourceserver:
         jwt:
-          jwk-set-uri: http://localhost:7080/realms/monolith-keycloak
+          jwk-set-uri: http://localhost:7080/realms/monolith-keycloak/protocol/openid-connect/certs
+          issuer-uri: http://localhost:7080/realms/monolith-keycloak
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
 application:
-  security:
-    jwt:
-      secret-key: ${WELLDEV.SECRET.KEY:404E635266556A586E3272357538782F413F4428472B4B6250645367566B59703373367639792442264529482B4D6251655468576D5A7134743777217A25432A462948404D635166546A576E5A7234753778214125442A472D4B614E645267556B58703273357638792F423F4528482B4D6251655368566D597133743677397A24432646294A404E}
-      expiration: 86400000
-      refresh-token:
-        expiration: 604800000
+  keycloak:
+    server-url: ${WELLDEV.KEYCLOAK.SERVER.URL}
+    realm: ${WELLDEV.KEYCLOAK.REALM}
+    client-id: ${WELLDEV.KEYCLOAK.CLIENT-ID}
+    client-secret: ${WELLDEV.KEYCLOAK.CLIENT-SECRET}
   aes:
-    secret-key: ${WELLDEV.AES.SECRET.KEY:1fac5fc2206462a2a530eef8ea07cb4c148f20ac980b0b5be4d8df83816c912f}
+    secret-key: ${WELLDEV.AES.SECRET.KEY}
 server:
   port: 8080
   tomcat:
@@ -73,11 +71,3 @@ server:
     enabled: true
     mime-types: application/json, application/xml, text/xml, text/plain
     min-response-size: 1024
-
-keycloak:
-  server-url: http://localhost:7080
-  realm: monolith-keycloak
-  client-id: monolith-keycloak-confidential
-  client-secret: uf11tJwT6RkgTkfkv6C7HDHENZzz15Jf
-  username: admin
-  password: password
