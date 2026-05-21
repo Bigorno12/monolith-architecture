@@ -23,14 +23,14 @@ import org.springframework.web.bind.annotation.RestController
 class TodoController(private val todoService: TodoService) {
 
     @PostMapping(value = ["/{username}"], version = "1.0")
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN') and hasAnyAuthority('user:create', 'admin:create')")
+    @PreAuthorize("hasAnyAuthority('user:create', 'admin:create')")
     fun save(@PathVariable username: String?): ResponseEntity<Void> {
         todoService.saveByUserId(username)
         return ResponseEntity.ok().build()
     }
 
     @PostMapping(value = ["/save/{username}"], version = "1.0")
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN') and hasAnyAuthority('user:create', 'admin:create')")
+    @PreAuthorize("hasAnyAuthority('user:create', 'admin:create')")
     @Cacheable(
         cacheNames = ["todoCache"],
         unless = "#result == null",
@@ -46,7 +46,7 @@ class TodoController(private val todoService: TodoService) {
     }
 
     @GetMapping(value = ["/all-todos/{username}"], version = "1.0")
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN') and hasAnyAuthority('user:read', 'admin:read')")
+    @PreAuthorize("hasAnyAuthority('user:read', 'admin:read')")
     fun findAllTodosByUsername(
         @RequestParam(name = "pageNum", defaultValue = "0") pageNum: Int,
         @RequestParam(name = "pageSize", defaultValue = "10") pageSize: Int,
@@ -56,7 +56,7 @@ class TodoController(private val todoService: TodoService) {
 
     @GetMapping(value = ["/all-todos"], version = "1.0")
     @Cacheable(cacheNames = ["todoCache"], unless = "#result == null")
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN') and hasAnyAuthority('user:read', 'admin:read')")
+    @PreAuthorize("hasAnyAuthority('user:read', 'admin:read')")
     fun findAllTodos(
         @RequestParam(name = "pageNum", defaultValue = "0") pageNum: Int,
         @RequestParam(name = "pageSize", defaultValue = "10") pageSize: Int

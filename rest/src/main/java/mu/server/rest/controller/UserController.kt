@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController
 class UserController(private val userService: UserService) {
 
     @PutMapping(path = ["/update"], version = "1.0")
-    @PreAuthorize(value = "hasAnyRole('USER', 'ADMIN') and hasAnyAuthority('user:update', 'admin:update')")
+    @PreAuthorize(value = "hasAnyAuthority('user:update', 'admin:update')")
     @CachePut(
         cacheNames = ["userCache"],
         unless = "#result == null",
