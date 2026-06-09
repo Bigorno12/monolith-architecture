@@ -122,7 +122,7 @@ services:
     volumes:
       - ./keycloak/:/opt/keycloak/data/import/
     depends_on:
-      mysql:
+      postgres:
         condition: service_healthy
     networks:
       - observability
