@@ -7,7 +7,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.data.web.config.EnableSpringDataWebSupport;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -19,21 +18,30 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.List;
 
-import static mu.server.persistence.enumeration.Permission.*;
+import static mu.server.persistence.enumeration.Permission.ADMIN_CREATE;
+import static mu.server.persistence.enumeration.Permission.ADMIN_DELETE;
+import static mu.server.persistence.enumeration.Permission.ADMIN_READ;
+import static mu.server.persistence.enumeration.Permission.ADMIN_UPDATE;
+import static mu.server.persistence.enumeration.Permission.USER_CREATE;
+import static mu.server.persistence.enumeration.Permission.USER_DELETE;
+import static mu.server.persistence.enumeration.Permission.USER_READ;
+import static mu.server.persistence.enumeration.Permission.USER_UPDATE;
 import static org.springframework.data.web.config.EnableSpringDataWebSupport.PageSerializationMode.VIA_DTO;
-import static org.springframework.http.HttpMethod.*;
+import static org.springframework.http.HttpMethod.DELETE;
+import static org.springframework.http.HttpMethod.GET;
+import static org.springframework.http.HttpMethod.POST;
+import static org.springframework.http.HttpMethod.PUT;
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
 @Configuration
 @RequiredArgsConstructor
-@EnableWebSecurity(debug = true)
+@EnableWebSecurity
 @EnableSpringDataWebSupport(pageSerializationMode = VIA_DTO)
 @EnableMethodSecurity(jsr250Enabled = true, securedEnabled = true)
 public class SecurityConfig {

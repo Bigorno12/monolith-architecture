@@ -40,6 +40,7 @@ spring:
             client-secret: ${WELLDEV.KEYCLOAK.CLIENT-SECRET}
             scope:
               - openid
+              - profile
       resourceserver:
         jwt:
           jwk-set-uri: http://localhost:7080/realms/monolith-keycloak/protocol/openid-connect/certs

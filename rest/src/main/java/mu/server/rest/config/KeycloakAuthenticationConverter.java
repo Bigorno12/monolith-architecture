@@ -1,5 +1,6 @@
 package mu.server.rest.config;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.core.GrantedAuthority;
@@ -14,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+@Slf4j
 @Configuration
 public class KeycloakAuthenticationConverter {
 
@@ -21,6 +23,7 @@ public class KeycloakAuthenticationConverter {
     public JwtAuthenticationConverter authenticationConverter(AuthoritiesConverter converter) {
         var authenticateConverter = new JwtAuthenticationConverter();
         authenticateConverter.setJwtGrantedAuthoritiesConverter(jwt -> converter.convert(jwt.getClaims()));
+        authenticateConverter.setPrincipalClaimName("preferred_username");
         return authenticateConverter;
     }
 
@@ -42,11 +45,15 @@ public class KeycloakAuthenticationConverter {
         return claims -> {
             Optional<Map<String, Object>> realmAccess = Optional.ofNullable((Map<String, Object>) claims.get("realm_access"));
             Optional<List<String>> roles = realmAccess.flatMap(role -> Optional.ofNullable((List<String>) role.get("roles")));
-            return roles.stream()
+            List<GrantedAuthority> grantedAuthorities = roles.stream()
                     .flatMap(Collection::stream)
                     .map(SimpleGrantedAuthority::new)
                     .map(GrantedAuthority.class::cast)
                     .toList();
+
+            log.info("Granted Authorities: {}", grantedAuthorities);
+
+            return grantedAuthorities;
         };
     }
 }

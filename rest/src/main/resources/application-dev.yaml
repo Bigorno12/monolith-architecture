@@ -24,10 +24,10 @@ spring:
           use_query_cache: false
     generate-ddl: false
   datasource:
-    url: jdbc:mysql://localhost:3306/jsonplaceholder
-    username: root
+    url: ${WELLDEV_URL}
+    username: ${WELLDEV_USERNAME}
     driverClassName: com.mysql.cj.jdbc.Driver
-    password: root
+    password: ${WELLDEV_PASSWORD}
     hikari:
       pool-name: HikariPool
       maximum-pool-size: 20
@@ -46,16 +46,11 @@ spring:
       transaction-isolation: TRANSACTION_READ_COMMITTED
 
   flyway:
-    user: root
-    password: root
-    url: jdbc:mysql://localhost:3306/jsonplaceholder
+    user: ${WELLDEV_USERNAME}
+    password: ${WELLDEV_PASSWORD}
+    url: ${WELLDEV_URL}
     enabled: true
     locations: classpath:db.migration
     baseline-on-migrate: true
   jackson:
     default-property-inclusion: non_null
-
-management:
-  tracing:
-    sampling:
-      probability: 1.0

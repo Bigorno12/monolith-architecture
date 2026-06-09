@@ -15,8 +15,8 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping(version = "1.0", value = ["/api/v1/mono/admin"], produces = ["application/json"])
 class AdminController(private val userService: UserService) {
 
+    @PreAuthorize(value = "hasAnyAuthority('admin:read')")
     @GetMapping(value = ["/{id}"], version = "1.0", produces = ["application/json"])
-    @PreAuthorize(value = "hasRole('ADMIN') and hasAuthority('admin:read')")
     @Cacheable(
         cacheNames = ["adminCache"],
         unless = "#result == null",
