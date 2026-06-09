@@ -5,7 +5,7 @@ import mu.server.service.dto.Result
 import mu.server.service.dto.user.UpdateUserRequest
 import mu.server.service.dto.user.UserResponse
 import mu.server.service.exception.NotFoundException
-import mu.server.service.mapper.UserMapper
+import mu.server.service.mapper.user.UserMapper
 import mu.server.service.service.UserService
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service

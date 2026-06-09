@@ -8,7 +8,7 @@ import mu.server.persistence.entity.User;
 import mu.server.persistence.repository.UserRepository;
 import mu.server.service.dto.auth.TokenResponse;
 import mu.server.service.dto.user.UserRequest;
-import mu.server.service.mapper.UserMapper;
+import mu.server.service.mapper.user.UserMapper;
 import mu.server.service.service.KeycloakService;
 import mu.server.service.service.KeycloakTokenProvider;
 import mu.server.service.util.Credentials;

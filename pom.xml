@@ -33,12 +33,11 @@
         <blaze-persistence.version>1.6.18</blaze-persistence.version>
         <commons-lang3.version>3.18.0</commons-lang3.version>
         <commons-lang3.version>3.20.0</commons-lang3.version>
-        <opentelemetry-logback-appender-1.0.version>2.21.0-alpha</opentelemetry-logback-appender-1.0.version>
+        <commons-io.version>2.19.0</commons-io.version>
         <kotlin.version>2.3.21</kotlin.version>
         <bucket.version>8.18.0</bucket.version>
         <keycloak.version>26.0.9</keycloak.version>
         <resteasy.version>7.0.2.Final</resteasy.version>
-        <commons-io.version>2.19.0</commons-io.version>
     </properties>
 
     <modules>
