@@ -14,5 +14,5 @@ interface TodoRepository : GenericRepository<Todo>, TodoCustomRepository {
     @Query("""
         DELETE FROM Todo t WHERE t.user.id = :userId
     """)
-    fun deleteByUserId(@Param("userId") userId: String)
+    fun deleteByUserId(@Param("userId") userId: Long)
 }

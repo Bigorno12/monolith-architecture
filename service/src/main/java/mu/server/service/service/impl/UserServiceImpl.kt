@@ -34,7 +34,6 @@ class UserServiceImpl(private val userRepository: UserRepository, private val us
             .also {
                 if (it.username == updateUserRequest.username())
                     userRepository.findUserByUsername(it.username) ?: throw NotFoundException("User $username found")
-
             }
             .let { userMapper.updateUserFromDto(updateUserRequest, it) }
             .let { userMapper.mapToUpdateUser(it) } ?: throw NotFoundException("User $username not found")
