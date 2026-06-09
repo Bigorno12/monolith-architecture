@@ -152,6 +152,7 @@
                 <version>${resteasy.version}</version>
             </dependency>
 
+            <!-- commons -->
             <dependency>
                 <groupId>commons-io</groupId>
                 <artifactId>commons-io</artifactId>
