@@ -1,4 +1,4 @@
-package mu.server.service.mapper;
+package mu.server.service.mapper.todo;
 
 import mu.server.persistence.entity.Todo;
 import mu.server.persistence.entity.User;
