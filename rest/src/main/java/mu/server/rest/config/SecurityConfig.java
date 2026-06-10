@@ -118,7 +118,7 @@ public class SecurityConfig {
                     var oidcLogoutHandler = new OidcClientInitiatedLogoutSuccessHandler(clientRegistrationRepository);
                     oidcLogoutHandler.setPostLogoutRedirectUri("{baseUrl}/");
 
-                    logout.logoutUrl("/api/v1/auth/logout")
+                    logout.logoutUrl("/api/v2/auth/logout")
                             .invalidateHttpSession(true)
                             .logoutSuccessHandler(oidcLogoutHandler)
                             .deleteCookies("JSESSIONID", "XSRF-TOKEN");
