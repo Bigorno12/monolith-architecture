@@ -1,0 +1,2 @@
+ALTER TABLE _user
+    ADD COLUMN keycloak_id VARCHAR(255) NOT NULL UNIQUE;

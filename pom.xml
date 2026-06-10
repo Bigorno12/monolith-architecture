@@ -125,6 +125,12 @@
                 <scope>import</scope>
             </dependency>
 
+            <dependency>
+                <groupId>org.jetbrains.kotlin</groupId>
+                <artifactId>kotlin-reflect</artifactId>
+                <version>${kotlin.version}</version>
+            </dependency>
+
             <!-- Rate Limiter -->
             <dependency>
                 <groupId>com.bucket4j</groupId>
