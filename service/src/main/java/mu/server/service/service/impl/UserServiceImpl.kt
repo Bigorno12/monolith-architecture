@@ -5,7 +5,7 @@ import mu.server.service.dto.Result
 import mu.server.service.dto.user.UpdateUserRequest
 import mu.server.service.dto.user.UserResponse
 import mu.server.service.exception.NotFoundException
-import mu.server.service.mapper.UserMapper
+import mu.server.service.mapper.user.UserMapper
 import mu.server.service.service.UserService
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -34,7 +34,6 @@ class UserServiceImpl(private val userRepository: UserRepository, private val us
             .also {
                 if (it.username == updateUserRequest.username())
                     userRepository.findUserByUsername(it.username) ?: throw NotFoundException("User $username found")
-
             }
             .let { userMapper.updateUserFromDto(updateUserRequest, it) }
             .let { userMapper.mapToUpdateUser(it) } ?: throw NotFoundException("User $username not found")

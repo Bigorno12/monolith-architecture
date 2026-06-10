@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import mu.server.service.util.FingerprintUtil;
 import org.jspecify.annotations.NonNull;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -17,21 +19,36 @@ import java.io.IOException;
 @Component
 @RequiredArgsConstructor
 public class FingerprintFilter extends OncePerRequestFilter {
-    private static final String FINGERPRINT_HEADER = "X-Fingerprint";
+
+    private final CacheManager cacheManager;
 
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain) throws ServletException, IOException {
-        String fingerPrint = FingerprintUtil.generateFingerprint(request);
-        request.setAttribute("fingerPrint", fingerPrint);
+        final String authorizationHeader = request.getHeader("Authorization");
+        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+           filterChain.doFilter(request, response);
+           return;
+        }
 
-        response.setHeader(FINGERPRINT_HEADER, fingerPrint);
+        final String accessToken = authorizationHeader.substring(7);
+        Cache fingerprintCache = cacheManager.getCache("fingerprintCache");
 
-        String clientFingerprint = request.getHeader(FINGERPRINT_HEADER);
-        if (clientFingerprint != null && !clientFingerprint.equals(fingerPrint)) {
-            log.warn("Fingerprint mismatch for URI: {} - Client: {}, Server: {}", request.getRequestURI(), clientFingerprint, fingerPrint);
-            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+        if (fingerprintCache == null) {
+            filterChain.doFilter(request, response);
             return;
         }
+
+        String cachedFingerprint = fingerprintCache.get(accessToken, String.class);
+        if (cachedFingerprint != null) {
+            String actualFingerprint = FingerprintUtil.generateFingerprint(request);
+            if (!actualFingerprint.equals(cachedFingerprint)) {
+                log.warn("CRITICAL SECURITY ALERT: Hijacked token detected for URI: {}!", request.getRequestURI());
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.getWriter().write("Session hijacking detected. Access denied.");
+                return;
+            }
+        }
+
         filterChain.doFilter(request, response);
     }
 }
