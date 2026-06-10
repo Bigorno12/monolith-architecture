@@ -12,7 +12,7 @@ import mu.server.service.dto.todo.TodoUsernameResponse;
 import mu.server.service.exception.InvalidCallException;
 import mu.server.service.exception.JsonPlaceHolderException;
 import mu.server.service.exception.NotFoundException;
-import mu.server.service.mapper.TodoMapper;
+import mu.server.service.mapper.todo.TodoMapper;
 import mu.server.service.service.TodoService;
 import mu.server.service.service.http.JsonPlaceHolderService;
 import org.jspecify.annotations.Nullable;

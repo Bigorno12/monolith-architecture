@@ -74,6 +74,12 @@
             <groupId>com.blazebit</groupId>
             <artifactId>blaze-persistence-entity-view-impl-jakarta</artifactId>
         </dependency>
+
+        <!-- Kotlin -->
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-reflect</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

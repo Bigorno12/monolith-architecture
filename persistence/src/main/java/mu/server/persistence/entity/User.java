@@ -8,7 +8,6 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -18,12 +17,6 @@ import mu.server.persistence.audit.Auditable;
 import mu.server.persistence.converter.EncryptionConverter;
 import mu.server.persistence.enumeration.Gender;
 import mu.server.persistence.enumeration.Role;
-import org.jspecify.annotations.NonNull;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-
-import java.util.Collection;
-import java.util.List;
 
 @Getter
 @Setter
@@ -31,7 +24,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "_user")
-public class User extends Auditable implements UserDetails {
+public class User extends Auditable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -57,25 +50,11 @@ public class User extends Auditable implements UserDetails {
     @Convert(converter = EncryptionConverter.class)
     private String email;
 
-    @Column(name = "password", nullable = false)
-    private String password;
+    @Column(name = "keycloak_id", nullable = false, unique = true)
+    private String keycloakId;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false)
     private Role role;
 
-    @OneToMany(mappedBy = "user")
-    private List<Token> tokens;
-
-    public User(String username, String email, String password) {
-        this.username = username;
-        this.email = email;
-        this.password = password;
-    }
-
-    @Override
-    @NonNull
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return role.getGrantedAuthorities();
-    }
 }
