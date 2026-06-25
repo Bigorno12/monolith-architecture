@@ -33,7 +33,7 @@
         <blaze-persistence.version>1.6.18</blaze-persistence.version>
         <commons-lang3.version>3.18.0</commons-lang3.version>
         <commons-lang3.version>3.20.0</commons-lang3.version>
-        <commons-io.version>2.19.0</commons-io.version>
+        <commons-io.version>2.22.0</commons-io.version>
         <kotlin.version>2.4.0</kotlin.version>
         <bucket.version>8.19.0</bucket.version>
         <keycloak.version>26.0.9</keycloak.version>
