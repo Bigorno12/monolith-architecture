@@ -5,7 +5,4 @@ public class InvalidCallException extends RuntimeException {
         super(message);
     }
 
-    public InvalidCallException(String message, Throwable cause) {
-        super(message, cause);
-    }
 }
