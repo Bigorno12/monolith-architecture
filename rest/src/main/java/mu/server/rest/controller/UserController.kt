@@ -8,6 +8,8 @@ import org.springframework.cache.annotation.CachePut
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
+import org.springframework.web.bind.annotation.DeleteMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -28,13 +30,17 @@ class UserController(private val userService: UserService) {
     )
     fun updateUser(
         @RequestBody updateUserRequest: UpdateUserRequest,
-        @RequestParam(name = "username") username: String,
-        request: HttpServletRequest,
-        response: HttpServletResponse
+        @RequestParam(name = "username") username: String
     ): ResponseEntity<UpdateUserRequest> {
         val updateUser: UpdateUserRequest = userService.updateUser(updateUserRequest, username)
         return ResponseEntity.status(HttpStatus.OK).body(updateUser)
     }
 
+    @PreAuthorize(value = "hasAnyAuthority('user:delete', 'admin:delete')")
+    @DeleteMapping(path = ["/delete/{username}"], produces = ["application/json"], version = "1.0")
+    fun deleteUserById(@PathVariable username: String): ResponseEntity<Void> {
+        userService.deleteUser(username)
+        return ResponseEntity.status(HttpStatus.OK).build()
+    }
 
 }
