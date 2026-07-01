@@ -23,6 +23,11 @@ public class FingerprintFilter extends OncePerRequestFilter {
     private final CacheManager cacheManager;
 
     @Override
+    protected boolean shouldNotFilter(@NonNull HttpServletRequest request) {
+        return !request.getRequestURI().startsWith("/api/v1/mono/");
+    }
+
+    @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain) throws ServletException, IOException {
         final String authorizationHeader = request.getHeader("Authorization");
         if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
