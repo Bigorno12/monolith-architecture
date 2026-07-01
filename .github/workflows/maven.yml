@@ -14,14 +14,25 @@ concurrency:
 permissions:
   contents: write
   security-events: write
+
 env:
+  WELLDEV_URL: jdbc:mysql://localhost:3306/${{ secrets.MYSQL_DATABASE }}
+  WELLDEV_USERNAME: ${{ secrets.MYSQL_USER }}
+  WELLDEV_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
+
+  WELLDEV.KEYCLOAK.SERVER.URL: http://localhost:7080
+  WELLDEV.KEYCLOAK.REALM: ${{ secrets.KEYCLOAK_REALM }}
+  WELLDEV.KEYCLOAK.CLIENT-ID: ${{ secrets.KEYCLOAK_CLIENT_ID }}
+  WELLDEV.KEYCLOAK.CLIENT-SECRET: ${{ secrets.KEYCLOAK_CLIENT_SECRET }}
+
+  WELLDEV.KEYCLOAK.ISSUER-URI: http://localhost:7080/realms/${{ secrets.KEYCLOAK_REALM }}
+  WELLDEV.RESOURCESERVER.JWT.SET.URI: http://localhost:7080/realms/${{ secrets.KEYCLOAK_REALM }}/protocol/openid-connect/certs
+  WELLDEV.RESOURCESERVER.JWT.ISSUER.URI: http://localhost:7080/realms/${{ secrets.KEYCLOAK_REALM }}
+  WELLDEV.AES.SECRET.KEY: ${{ secrets.AES_SECRET_KEY }}
+
   POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
   POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
   POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
-  MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
-  MYSQL_DATABASE: ${{ secrets.MYSQL_DATABASE }}
-  KEYCLOAK_ADMIN_PASSWORD: ${{ secrets.KEYCLOAK_ADMIN_PASSWORD }}
-  KEYCLOAK_ADMIN: ${{ secrets.KEYCLOAK_ADMIN }}
 
 jobs:
   build:
@@ -46,6 +57,20 @@ jobs:
             echo "$ENV_FILES"
             exit 1
           fi
+
+      - name: Start Docker Containers
+        run: docker compose -f infra/docker-compose.yaml up -d --wait
+        env:
+          MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
+          MYSQL_DATABASE: ${{ secrets.MYSQL_DATABASE }}
+          MYSQL_USER: ${{ secrets.MYSQL_USER }}
+          MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
+          POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          KEYCLOAK_HOSTNAME: localhost
+          KEYCLOAK_ADMIN: ${{ secrets.KEYCLOAK_ADMIN }}
+          KEYCLOAK_ADMIN_PASSWORD: ${{ secrets.KEYCLOAK_ADMIN_PASSWORD }}
 
       - name: Set up JDK 25
         uses: actions/setup-java@v4
