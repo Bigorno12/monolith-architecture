@@ -92,7 +92,7 @@ jobs:
           languages: java-kotlin
 
       - name: Compile for CodeQL
-        run: mvn clean compile -DskipTests
+        run: mvn clean compile -Dkotlin.version=2.3.30 -DskipTests
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
