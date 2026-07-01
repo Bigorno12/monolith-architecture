@@ -28,8 +28,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:
-      contents: read
+      contents: write
       security-events: write
+      checks: write
+      pull-requests: write
     steps:
       - uses: actions/checkout@v7
         with:
@@ -66,6 +68,51 @@ jobs:
         if: github.event_name == 'push'
         uses: advanced-security/maven-dependency-submission-action@v5
 
+  codeql:
+    name: CodeQL Security Scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up JDK 25
+        uses: actions/setup-java@v4
+        with:
+          java-version: '25'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: java-kotlin
+
+      - name: Compile for CodeQL
+        run: mvn clean compile -DskipTests
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+
+  gitleaks:
+    name: Gitleaks Security Scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Run Gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   tag-pr:
     needs: build
     if: success() && github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'main'
@@ -76,7 +123,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          fetch-tags: true # Explicitly pull tags for accurate cleanup
+          fetch-tags: true
           persist-credentials: true
 
       - name: Tag PR build
@@ -105,13 +152,16 @@ jobs:
           fi
 
   build-gate:
-    needs: [build, tag-pr]
+    needs: [build, tag-pr, codeql, gitleaks]
     runs-on: ubuntu-latest
     if: always()
     steps:
-      - name: Check build result
+      - name: Check pipeline result
         run: |
-          if [ "${{ needs.build.result }}" == "failure" ] || [ "${{ needs.tag-pr.result }}" == "failure" ]; then
+          if [ "${{ needs.build.result }}" == "failure" ] || \
+             [ "${{ needs.codeql.result }}" == "failure" ] || \
+             [ "${{ needs.tag-pr.result }}" == "failure" ] || \
+             [ "${{ needs.gitleaks.result}} == "failure" ]; then
             echo "Pipeline failed"
             exit 1
           fi
