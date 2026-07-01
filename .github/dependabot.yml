@@ -5,6 +5,9 @@ updates:
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 10
+    commit-message:
+      prefix: "chore"
+      include: "scope"
     groups:
       spring:
         patterns:
@@ -22,6 +25,8 @@ updates:
     # Recommend reviewers for PRs
     reviewers:
       - "Bigorno"
+    assignees:
+      - "Bigorno"
 
 
   - package-ecosystem: "docker"
@@ -29,6 +34,9 @@ updates:
     schedule:
       interval: "monthly"
     open-pull-requests-limit: 3
+    commit-message:
+      prefix: "chore"
+      include: "scope"
     labels:
       - "dependencies"
       - "docker"
@@ -38,6 +46,9 @@ updates:
     schedule:
       interval: "monthly"
     open-pull-requests-limit: 5
+    commit-message:
+      prefix: "chore"
+      include: "scope"
     labels:
       - "dependencies"
       - "github-actions"
