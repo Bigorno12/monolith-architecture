@@ -8,4 +8,6 @@ interface UserService {
     fun findUserById(id: Long): Result<UserResponse>?
 
     fun updateUser(updateUserRequest: UpdateUserRequest, username: String): UpdateUserRequest
+
+    fun deleteUser(username: String)
 }
