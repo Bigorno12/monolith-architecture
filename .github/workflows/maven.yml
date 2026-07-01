@@ -120,7 +120,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
           fetch-tags: true
@@ -161,7 +161,7 @@ jobs:
           if [ "${{ needs.build.result }}" == "failure" ] || \
              [ "${{ needs.codeql.result }}" == "failure" ] || \
              [ "${{ needs.tag-pr.result }}" == "failure" ] || \
-             [ "${{ needs.gitleaks.result}} == "failure" ]; then
+             [ "${{ needs.gitleaks.result}}" == "failure" ]; then
             echo "Pipeline failed"
             exit 1
           fi
