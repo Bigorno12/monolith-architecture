@@ -38,7 +38,16 @@ public class CaffeineConfig {
     public CacheManager cacheManager() {
         CaffeineCacheManager caffeineCacheManager = new CaffeineCacheManager();
         caffeineCacheManager.setCaffeine(caffeine());
-        caffeineCacheManager.setCacheNames(List.of("jsonPlaceHolder", "userCache", "todoCache", "adminCache", "fingerprintCache"));
+        caffeineCacheManager.setCacheNames(List.of("jsonPlaceHolder", "userCache", "todoCache", "adminCache"));
+
+        caffeineCacheManager.registerCustomCache("fingerprintCache",
+                Caffeine.newBuilder()
+                        .maximumSize(1000)
+                        .expireAfterWrite(30, TimeUnit.MINUTES)
+                        .executor(ForkJoinPool.commonPool())
+                        .scheduler(Scheduler.systemScheduler())
+                        .evictionListener((key, _, cause) -> log.info("Fingerprint evicted for token {} reason: {}", key, cause))
+                        .build());
 
         return caffeineCacheManager;
     }

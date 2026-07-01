@@ -16,6 +16,8 @@ class AsyncConfig : AsyncConfigurer {
             maxPoolSize = 10
             queueCapacity = 25
             setThreadNamePrefix("ForkJoinPool-")
+            setWaitForTasksToCompleteOnShutdown(true)
+            setAwaitTerminationSeconds(10)
             initialize()
         }
     }

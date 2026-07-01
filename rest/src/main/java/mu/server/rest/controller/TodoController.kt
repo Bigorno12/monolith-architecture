@@ -8,6 +8,7 @@ import mu.server.service.service.TodoService
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Sort
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.GetMapping
@@ -52,7 +53,12 @@ class TodoController(private val todoService: TodoService) {
         @RequestParam(name = "pageSize", defaultValue = "10") pageSize: Int,
         @PathVariable username: String?
     ): ResponseEntity<Page<TodoUsernameResponse>> = ResponseEntity.ok()
-        .body(todoService.findAllTodosByUsername(PageRequest.of(pageNum, pageSize), username))
+        .body(
+            todoService.findAllTodosByUsername(
+                PageRequest.of(pageNum, pageSize, Sort.by("username").ascending()),
+                username
+            )
+        )
 
     @GetMapping(value = ["/all-todos"], version = "1.0")
     @Cacheable(cacheNames = ["todoCache"], unless = "#result == null")

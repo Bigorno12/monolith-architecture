@@ -1,6 +1,9 @@
 package mu.server.rest.advice;
 
 import lombok.Builder;
+import mu.server.service.exception.JsonPlaceHolderException;
+import mu.server.service.exception.KeycloakException;
+import mu.server.service.exception.NotFoundException;
 import mu.server.service.exception.UsernameExistException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -54,6 +57,46 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorMessage, HttpStatus.NOT_FOUND);
     }
 
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ExceptionHandler(KeycloakException.class)
+    public ResponseEntity<ErrorMessage> mapKeycloakException(KeycloakException ex) {
+        var errorMessage = ErrorMessage.builder()
+                .statusCode(HttpStatus.NOT_FOUND.value())
+                .timestamp(LocalDateTime.now())
+                .message(ex.getMessage())
+                .description(ex.getCause().getMessage())
+                .build();
+
+        return new ResponseEntity<>(errorMessage, HttpStatus.NOT_FOUND);
+    }
+
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<ErrorMessage> mapNotFoundException(NotFoundException ex) {
+        var errorMessage = ErrorMessage.builder()
+                .statusCode(HttpStatus.NOT_FOUND.value())
+                .timestamp(LocalDateTime.now())
+                .message(ex.getMessage())
+                .description(ex.getCause().getMessage())
+                .build();
+
+        return new ResponseEntity<>(errorMessage, HttpStatus.NOT_FOUND);
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(JsonPlaceHolderException.class)
+    public ResponseEntity<ErrorMessage> mapJsonPlaceHolderException(JsonPlaceHolderException ex) {
+        var errorMessage = ErrorMessage.builder()
+                .statusCode(HttpStatus.NOT_FOUND.value())
+                .timestamp(LocalDateTime.now())
+                .message(ex.getMessage())
+                .description(ex.getCause().getMessage())
+                .build();
+
+        return new ResponseEntity<>(errorMessage, HttpStatus.NOT_FOUND);
+    }
+
     @Builder
-    public record ErrorMessage(int statusCode, LocalDateTime timestamp, String message, String description) { }
+    public record ErrorMessage(int statusCode, LocalDateTime timestamp, String message, String description) {
+    }
 }
