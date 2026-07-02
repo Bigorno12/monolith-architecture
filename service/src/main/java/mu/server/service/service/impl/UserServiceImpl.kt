@@ -14,6 +14,9 @@ import mu.server.service.mapper.user.UserMapper
 import mu.server.service.service.UserService
 import org.keycloak.admin.client.resource.UsersResource
 import org.slf4j.LoggerFactory
+import org.springframework.cache.annotation.CacheEvict
+import org.springframework.cache.annotation.CachePut
+import org.springframework.cache.annotation.Cacheable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
@@ -30,12 +33,25 @@ class UserServiceImpl(
     }
 
     @Transactional(readOnly = true)
+    @Cacheable(
+        cacheNames = ["adminCache"],
+        unless = "#result == null",
+        condition = "#result != null && #id != null",
+        key = "#id"
+    )
     override fun findUserById(id: Long): Result<UserResponse>? = userRepository.findById(id)
         .map { userMapper.mapToUserResponse(it) }
         .map { Result.ok(it) }
         .orElse(Result.failure("User Not Found $id"))
 
+    @CircuitBreaker(name = "userService", fallbackMethod = "fallbackUpdateUser")
     @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = [NotFoundException::class])
+    @CachePut(
+        cacheNames = ["userCache", "keycloakCache"],
+        unless = "#result == null",
+        condition = "#updateUserRequest != null",
+        key = "#updateUserRequest.username()"
+    )
     override fun updateUser(
         updateUserRequest: UpdateUserRequest,
         username: String
@@ -51,6 +67,11 @@ class UserServiceImpl(
 
     @CircuitBreaker(name = "keycloakService", fallbackMethod = "fallbackDeleteUser")
     @Transactional(rollbackFor = [NotFoundException::class, KeycloakException::class])
+    @CacheEvict(
+        key = "#username",
+        cacheNames = ["userCache", "keycloakCache"],
+        condition = "#username != null OR #result != null"
+    )
     override fun deleteUser(username: String) {
         val user: User = userRepository.findUserByUsername(username)
             .orElseThrow { NotFoundException("User $username not found") }
@@ -77,6 +98,14 @@ class UserServiceImpl(
         LOG.error(
             "Circuit breaker triggered for deleteUser with username: {} and error message: {}",
             username,
+            ex.message
+        )
+    }
+
+    fun fallbackUpdateUser(updateUserRequest: UpdateUserRequest, ex: Throwable) {
+        LOG.error(
+            "Circuit breaker triggered for updateUser: {} and error message: {}",
+            updateUserRequest,
             ex.message
         )
     }

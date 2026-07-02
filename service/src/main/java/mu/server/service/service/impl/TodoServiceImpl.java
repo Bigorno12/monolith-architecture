@@ -40,6 +40,12 @@ public class TodoServiceImpl implements TodoService {
 
     @Override
     @Transactional
+    @Cacheable(
+            cacheNames = "todoCache",
+            unless = "#result == null",
+            key = "#username",
+            condition = "#username != null OR todoRequest != null"
+    )
     public void save(List<TodoRequest> todoRequest, String username) {
         User user = userRepository.findUserByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Username not found: " + username));
@@ -53,6 +59,7 @@ public class TodoServiceImpl implements TodoService {
 
     @Override
     @Transactional
+    @Cacheable(cacheNames = "todoCache", unless = "#result == null", key = "#username", condition = "#username != null")
     public void saveByUserId(@Nullable String username) {
         User user = userRepository.findUserByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User Does not exists: " + username));
@@ -80,6 +87,7 @@ public class TodoServiceImpl implements TodoService {
 
     @Override
     @Transactional(readOnly = true)
+    @Cacheable(cacheNames = "todoCache", unless = "#result == null")
     public PagedList<TodoView> findAllTodos(Pageable pageable) {
         return todoRepository.paginationTodos(pageable.getPageNumber(), pageable.getPageSize());
     }
