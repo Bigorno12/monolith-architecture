@@ -1,13 +1,12 @@
 package mu.server.rest.controller
 
-import jakarta.servlet.http.HttpServletRequest
-import jakarta.servlet.http.HttpServletResponse
 import mu.server.service.dto.user.UpdateUserRequest
 import mu.server.service.service.UserService
-import org.springframework.cache.annotation.CachePut
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
+import org.springframework.web.bind.annotation.DeleteMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -19,22 +18,20 @@ import org.springframework.web.bind.annotation.RestController
 class UserController(private val userService: UserService) {
 
     @PutMapping(path = ["/update"], version = "1.0")
-    @PreAuthorize(value = "hasAnyAuthority('user:update', 'admin:update')")
-    @CachePut(
-        cacheNames = ["userCache"],
-        unless = "#result == null",
-        condition = "#updateUserRequest != null",
-        key = "#updateUserRequest.username()"
-    )
+    @PreAuthorize(value = "hasAuthority('user:delete') AND #username == authentication.name")
     fun updateUser(
         @RequestBody updateUserRequest: UpdateUserRequest,
-        @RequestParam(name = "username") username: String,
-        request: HttpServletRequest,
-        response: HttpServletResponse
+        @RequestParam(name = "username") username: String
     ): ResponseEntity<UpdateUserRequest> {
         val updateUser: UpdateUserRequest = userService.updateUser(updateUserRequest, username)
         return ResponseEntity.status(HttpStatus.OK).body(updateUser)
     }
 
+    @PreAuthorize(value = "hasAuthority('user:delete') AND #username == authentication.name")
+    @DeleteMapping(path = ["/delete/{username}"], produces = ["application/json"], version = "1.0")
+    fun deleteUserById(@PathVariable username: String): ResponseEntity<Void> {
+        userService.deleteUser(username)
+        return ResponseEntity.status(HttpStatus.OK).build()
+    }
 
 }
