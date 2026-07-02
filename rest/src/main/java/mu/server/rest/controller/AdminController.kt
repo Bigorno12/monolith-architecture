@@ -3,7 +3,6 @@ package mu.server.rest.controller
 import mu.server.service.dto.Result
 import mu.server.service.dto.user.UserResponse
 import mu.server.service.service.UserService
-import org.springframework.cache.annotation.Cacheable
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.GetMapping
@@ -17,12 +16,6 @@ class AdminController(private val userService: UserService) {
 
     @PreAuthorize(value = "hasAnyAuthority('admin:read')")
     @GetMapping(value = ["/{id}"], version = "1.0", produces = ["application/json"])
-    @Cacheable(
-        cacheNames = ["adminCache"],
-        unless = "#result == null",
-        condition = "#result != null && #id != null",
-        key = "#id"
-    )
     fun findUserById(@PathVariable id: Long): ResponseEntity<UserResponse>? {
         val result: Result<UserResponse>? = userService.findUserById(id)
         return result?.let { user ->
