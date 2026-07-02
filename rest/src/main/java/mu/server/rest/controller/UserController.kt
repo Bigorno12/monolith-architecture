@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController
 class UserController(private val userService: UserService) {
 
     @PutMapping(path = ["/update"], version = "1.0")
-    @PreAuthorize(value = "(hasAuthority('admin:delete') OR hasAnyAuthority('user:delete')) AND #username == authentication.name")
+    @PreAuthorize(value = "hasAuthority('user:delete') AND #username == authentication.name")
     fun updateUser(
         @RequestBody updateUserRequest: UpdateUserRequest,
         @RequestParam(name = "username") username: String
@@ -27,7 +27,7 @@ class UserController(private val userService: UserService) {
         return ResponseEntity.status(HttpStatus.OK).body(updateUser)
     }
 
-    @PreAuthorize(value = "(hasAuthority('admin:delete') OR hasAnyAuthority('user:delete')) AND #username == authentication.name")
+    @PreAuthorize(value = "hasAuthority('user:delete') AND #username == authentication.name")
     @DeleteMapping(path = ["/delete/{username}"], produces = ["application/json"], version = "1.0")
     fun deleteUserById(@PathVariable username: String): ResponseEntity<Void> {
         userService.deleteUser(username)
