@@ -30,9 +30,6 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - name: Start Docker Containers
-        run: docker compose -f infra/docker-compose.yaml up -d --wait
-
       - name: Setup Java Environment
         uses: ./.github/setup-java-env
 

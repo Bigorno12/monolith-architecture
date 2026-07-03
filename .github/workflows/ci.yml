@@ -37,12 +37,18 @@ jobs:
     needs: build
     uses: ./.github/workflows/security.yml
 
+  tag:
+    needs: [build, unit-tests, integration-tests, security]
+    if: github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'main'
+    uses: ./.github/workflows/tag.yml
+
   build-gate:
     needs:
       - build
       - unit-tests
       - integration-tests
       - security
+      - tag
     runs-on: ubuntu-latest
     if: always()
     steps:
@@ -51,7 +57,8 @@ jobs:
           if [ "${{ needs.build.result }}" == "failure" ] || \
              [ "${{ needs.unit-tests.result }}" == "failure" ] || \
              [ "${{ needs.integration-tests.result }}" == "failure" ] || \
-             [ "${{ needs.security.result}}" == "failure" ]; then
+             [ "${{ needs.security.result}}" == "failure" ] || \
+             [ "${{ needs.tag.result }}" == "failure" ]; then
             echo "Pipeline failed"
             exit 1
           fi
