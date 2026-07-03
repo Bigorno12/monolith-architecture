@@ -23,14 +23,14 @@ import org.springframework.web.bind.annotation.RestController
 class TodoController(private val todoService: TodoService) {
 
     @PostMapping(value = ["/{username}"], version = "1.0")
-    @PreAuthorize(value = "hasAuthority('user:delete') AND #username == authentication.name")
+    @PreAuthorize(value = "hasAuthority('user:create') AND #username == authentication.name")
     fun save(@PathVariable username: String?): ResponseEntity<Void> {
         todoService.saveByUserId(username)
         return ResponseEntity.ok().build()
     }
 
     @PostMapping(value = ["/save/{username}"], version = "1.0")
-    @PreAuthorize(value = "hasAnyAuthority('user:delete') AND #username == authentication.name")
+    @PreAuthorize(value = "hasAnyAuthority('user:create') AND #username == authentication.name")
     fun save(
         @RequestBody todoRequests: MutableList<TodoRequest>,
         @PathVariable username: String?
@@ -40,7 +40,7 @@ class TodoController(private val todoService: TodoService) {
     }
 
     @GetMapping(value = ["/all-todos/{username}"], version = "1.0")
-    @PreAuthorize(value = "hasAuthority('user:delete') AND #username == authentication.name")
+    @PreAuthorize(value = "hasAuthority('user:read') AND #username == authentication.name")
     fun findAllTodosByUsername(
         @RequestParam(name = "pageNum", defaultValue = "0") pageNum: Int,
         @RequestParam(name = "pageSize", defaultValue = "10") pageSize: Int,
@@ -53,7 +53,7 @@ class TodoController(private val todoService: TodoService) {
             )
         )
 
-    @PreAuthorize(value = "hasAuthority('user:delete')")
+    @PreAuthorize(value = "hasAuthority('user:read')")
     fun findAllTodos(
         @RequestParam(name = "pageNum", defaultValue = "0") pageNum: Int,
         @RequestParam(name = "pageSize", defaultValue = "10") pageSize: Int

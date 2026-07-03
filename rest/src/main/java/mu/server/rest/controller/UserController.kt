@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController
 class UserController(private val userService: UserService) {
 
     @PutMapping(path = ["/update"], version = "1.0")
-    @PreAuthorize(value = "hasAuthority('user:delete') AND #username == authentication.name")
+    @PreAuthorize(value = "hasAuthority('user:update') AND #username == authentication.name")
     fun updateUser(
         @RequestBody updateUserRequest: UpdateUserRequest,
         @RequestParam(name = "username") username: String
