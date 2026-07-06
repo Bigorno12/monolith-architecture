@@ -5,9 +5,9 @@ import mu.server.persistence.repository.blaze.TodoView
 import mu.server.service.dto.todo.TodoRequest
 import mu.server.service.dto.todo.TodoUsernameResponse
 import mu.server.service.service.TodoService
-import org.springframework.cache.annotation.Cacheable
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Sort
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.GetMapping
@@ -23,20 +23,14 @@ import org.springframework.web.bind.annotation.RestController
 class TodoController(private val todoService: TodoService) {
 
     @PostMapping(value = ["/{username}"], version = "1.0")
-    @PreAuthorize("hasAnyAuthority('user:create', 'admin:create')")
+    @PreAuthorize(value = "hasAuthority('user:create') AND #username == authentication.name")
     fun save(@PathVariable username: String?): ResponseEntity<Void> {
         todoService.saveByUserId(username)
         return ResponseEntity.ok().build()
     }
 
     @PostMapping(value = ["/save/{username}"], version = "1.0")
-    @PreAuthorize("hasAnyAuthority('user:create', 'admin:create')")
-    @Cacheable(
-        cacheNames = ["todoCache"],
-        unless = "#result == null",
-        key = "#username",
-        condition = "#username != null"
-    )
+    @PreAuthorize(value = "hasAnyAuthority('user:create') AND #username == authentication.name")
     fun save(
         @RequestBody todoRequests: MutableList<TodoRequest>,
         @PathVariable username: String?
@@ -46,23 +40,26 @@ class TodoController(private val todoService: TodoService) {
     }
 
     @GetMapping(value = ["/all-todos/{username}"], version = "1.0")
-    @PreAuthorize("hasAnyAuthority('user:read', 'admin:read')")
+    @PreAuthorize(value = "hasAuthority('user:read') AND #username == authentication.name")
     fun findAllTodosByUsername(
         @RequestParam(name = "pageNum", defaultValue = "0") pageNum: Int,
         @RequestParam(name = "pageSize", defaultValue = "10") pageSize: Int,
         @PathVariable username: String?
     ): ResponseEntity<Page<TodoUsernameResponse>> = ResponseEntity.ok()
-        .body(todoService.findAllTodosByUsername(PageRequest.of(pageNum, pageSize), username))
+        .body(
+            todoService.findAllTodosByUsername(
+                PageRequest.of(pageNum, pageSize, Sort.by("id").ascending()),
+                username
+            )
+        )
 
-    @GetMapping(value = ["/all-todos"], version = "1.0")
-    @Cacheable(cacheNames = ["todoCache"], unless = "#result == null")
-    @PreAuthorize("hasAnyAuthority('user:read', 'admin:read')")
+    @PreAuthorize(value = "hasAuthority('user:read')")
     fun findAllTodos(
         @RequestParam(name = "pageNum", defaultValue = "0") pageNum: Int,
         @RequestParam(name = "pageSize", defaultValue = "10") pageSize: Int
     ): ResponseEntity<PagedList<TodoView>> {
         return ResponseEntity.ok()
-            .body(todoService.findAllTodos(PageRequest.of(pageNum, pageSize)))
+            .body(todoService.findAllTodos(PageRequest.of(pageNum, pageSize, Sort.by("id").ascending())))
     }
 
 }

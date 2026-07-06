@@ -64,7 +64,6 @@ public class SecurityConfig {
             "/swagger-ui.html",
             "/h2-console/**",
             "/jsonplaceholder.typicode.com/**",
-            "/actuator/**",
             "/login/oauth2/code/**"
     };
 
@@ -125,6 +124,7 @@ public class SecurityConfig {
                 })
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(WHITELISTED_PATHS).permitAll()
+                        .requestMatchers("/actuator/**").hasAnyAuthority(ADMIN_READ.getPermission())
                         .anyRequest().authenticated()
                 )
                 .build();

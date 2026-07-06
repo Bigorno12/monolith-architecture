@@ -1,0 +1,37 @@
+name: Integration Tests Module
+
+on:
+  workflow_call:
+
+env:
+  WELLDEV_URL: jdbc:mysql://localhost:3306/${{ secrets.MYSQL_DATABASE }}
+  WELLDEV_USERNAME: ${{ secrets.MYSQL_USER }}
+  WELLDEV_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
+
+  WELLDEV.KEYCLOAK.SERVER.URL: http://localhost:7080
+  WELLDEV.KEYCLOAK.REALM: ${{ secrets.KEYCLOAK_REALM }}
+  WELLDEV.KEYCLOAK.CLIENT-ID: ${{ secrets.KEYCLOAK_CLIENT_ID }}
+  WELLDEV.KEYCLOAK.CLIENT-SECRET: ${{ secrets.KEYCLOAK_CLIENT_SECRET }}
+
+  WELLDEV.KEYCLOAK.ISSUER-URI: http://localhost:7080/realms/${{ secrets.KEYCLOAK_REALM }}
+  WELLDEV.RESOURCESERVER.JWT.SET.URI: http://localhost:7080/realms/${{ secrets.KEYCLOAK_REALM }}/protocol/openid-connect/certs
+  WELLDEV.RESOURCESERVER.JWT.ISSUER.URI: http://localhost:7080/realms/${{ secrets.KEYCLOAK_REALM }}
+  WELLDEV.AES.SECRET.KEY: ${{ secrets.AES_SECRET_KEY }}
+
+  POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+  POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+  POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+
+jobs:
+  integration-tests:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Setup Java Environment
+        uses: ./.github/setup-java-env
+
+      - name: Run Integration Tests
+        run: mvn -B -T 1C verify -Dsurefire.skip=true --file pom.xml
