@@ -36,7 +36,7 @@
         <commons-io.version>2.22.0</commons-io.version>
         <kotlin.version>2.4.0</kotlin.version>
         <bucket.version>8.19.0</bucket.version>
-        <keycloak.version>26.0.9</keycloak.version>
+        <keycloak.version>26.0.10</keycloak.version>
         <resteasy.version>7.0.2.Final</resteasy.version>
     </properties>
 
