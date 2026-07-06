@@ -115,6 +115,7 @@ The entry point and HTTP layer. Depends on `service`. Contains all Spring Boot c
 | Security | Spring Security OAuth2 RS + Client | Boot-managed |
 | Caching | Caffeine | Boot-managed |
 | Rate Limiting | Bucket4j | 8.19.0 |
+| Fault Tolerance | Resilience4j (circuit breakers) + Spring `@Retryable` | 2.4.0 |
 | Object Mapping | MapStruct | 1.6.3 |
 | Boilerplate | Lombok | Boot-managed |
 | API Docs | SpringDoc / Swagger UI | 3.0.3 |
@@ -220,37 +221,105 @@ On startup, Keycloak automatically imports the realm configuration from the `inf
 
 ---
 
+## Resilience — Circuit Breakers & Retries
+
+The project uses **Resilience4j** (`resilience4j-spring-boot3`) for fault tolerance around the two least-reliable external dependencies: **Keycloak** (admin API calls) and the internal **user update path**.
+
+### Circuit Breakers (`UserServiceImpl`)
+
+| Method | Circuit Breaker Name | Fallback Method | Purpose |
+|---|---|---|---|
+| `UserServiceImpl.updateUser()` | `userService` | `fallbackUpdateUser(request, ex)` — logs the error | Protects the user-update transaction path |
+| `UserServiceImpl.deleteUser()` | `keycloakService` | `fallbackDeleteUser(username, ex)` — logs the error | Protects calls to the Keycloak Admin Client (`UsersResource.delete`) |
+
+Both instances share the same threshold configuration, defined in `rest/src/main/resources/application.properties`:
+
+| Property | Value | Meaning |
+|---|---|---|
+| `sliding-window-type` | `count_based` | Failure rate is computed over a fixed number of calls |
+| `sliding-window-size` | `10` | Last 10 calls are evaluated |
+| `minimum-number-of-calls` | `5` | Circuit won't trip until at least 5 calls have been recorded |
+| `failure-rate-threshold` | `50` (%) | Circuit opens if ≥ 50% of the last window's calls failed |
+| `wait-duration-in-open-state` | `10s` | Time before transitioning from `OPEN` → `HALF_OPEN` |
+| `permitted-number-of-calls-in-half-open-state` | `3` | Trial calls allowed while `HALF_OPEN` before deciding to close or re-open |
+| `register-health-indicator` | `true` | Exposes circuit state via `/actuator/health` |
+| `event-consumer-buffer-size` | `10` | Ring buffer size for circuit breaker event history |
+
+`keycloakService` additionally sets `ignore-exceptions=mu.server.service.exception.NotFoundException`, so a legitimate "user not found" doesn't count as a circuit-tripping failure.
+
+### Retry (`JsonPlaceHolderService`)
+
+The declarative HTTP client `JsonPlaceHolderService.todo()` is annotated with Spring's `@Retryable` (not Resilience4j) for transient failures against the external JSONPlaceholder API:
+
+| Setting | Value |
+|---|---|
+| `maxRetries` | 4 |
+| `delay` | 2000 ms initial delay |
+| `multiplier` | ×2.0 backoff |
+| `maxDelay` | 4000 ms cap |
+
+### Authentication is unchanged
+
+⚠️ Note: the stateless **JWT Bearer-token resource server chain via Keycloak is still active** and has **not** been removed — it remains `@Order(1)` in `SecurityConfig`, matching `/api/v1/mono/**`, with `FingerprintFilter` and `RateLimitFilter` chained after `BearerTokenAuthenticationFilter`. If the intent is to move away from Bearer JWT for these endpoints, that change hasn't landed in the code yet — let me know if you'd like help implementing it.
+
+---
+
+## Configuration Profiles
+
+Two Spring profiles are provided under `rest/src/main/resources/`, selected via `-P<profile>` at build time (Maven resource filtering sets `spring.profiles.active`).
+
+| Aspect | `dev` (`application-dev.properties`) | `test` (`application-test.properties`) |
+|---|---|---|
+| Database | MySQL 8.4 (`com.mysql.cj.jdbc.Driver`), URL/user/password from `WELLDEV_*` env vars | H2 in-memory (`jdbc:h2:mem:testdb`), user `sa` / no password |
+| Flyway | **Enabled** — runs migrations from `classpath:db.migration`, `baseline-on-migrate=true` | **Disabled** |
+| Connection pool | HikariCP fully tuned (max-pool-size 20, min-idle 10, prepared-statement caching, `TRANSACTION_READ_COMMITTED`) | No pool tuning — H2 default |
+| SQL logging | `spring.jpa.show-sql=false`, Hibernate SQL log level `warn` | `spring.jpa.show-sql=true`, Hibernate SQL log level `info` |
+| Schema | Managed by Flyway | `spring.jpa.generate-ddl=true` (Hibernate generates the schema) |
+| H2 Console | N/A | Enabled at `/h2-console` |
+| Requires | MySQL + Keycloak (via `docker-compose`) | Nothing external — fully self-contained, ideal for CI/unit-style runs |
+
+Build/run with a given profile:
+
+```bash
+mvn clean package -Pdev    # MySQL-backed
+mvn clean package -Ptest   # H2 in-memory, no external DB needed
+```
+
+---
+
 ## API Endpoints
 
-All secured endpoints require a `Bearer` JWT in the `Authorization` header and `X-API-Version: 1.0` header.
+All secured endpoints require a `Bearer` JWT in the `Authorization` header. Requests are routed by Spring's built-in **API versioning** (`@RequestMapping(version = "...")`), matched against the `X-API-Version` header — `1.0` for `/api/v1/mono/**` controllers, `2.0` for the `v2` auth controller.
 
-### Authentication (`v2`, public)
+### `AuthenticationControllerV2` — `/api/v2/auth` (public, `X-API-Version: 2.0`)
 
 | Method | Path | Description |
 |---|---|---|
-| `POST` | `/api/v2/auth/register` | Register a new user in Keycloak + local DB. Returns `TokenResponse`. |
-| `POST` | `/api/v2/auth/login` | Authenticate via Keycloak. Returns `TokenResponse` (access + refresh token). |
+| `POST` | `/api/v2/auth/register` | Registers a new user in Keycloak + local DB (`UserRequest` body). Returns `TokenResponse`. |
+| `POST` | `/api/v2/auth/login` | Authenticates via Keycloak (`AuthenticationRequest` body). Returns `TokenResponse` (access + refresh token). |
 
-### User
-
-| Method | Path | Required Authority | Description |
-|---|---|---|---|
-| `PUT` | `/api/v1/mono/user/update` | `user:update` | Update the authenticated user's profile. |
-
-### Todos
+### `UserController` — `/api/v1/mono/user` (`X-API-Version: 1.0`)
 
 | Method | Path | Required Authority | Description |
 |---|---|---|---|
-| `POST` | `/api/v1/mono/todo/{username}` | `user:create` | Fetch todos from JSONPlaceholder for the given user and persist them. |
-| `POST` | `/api/v1/mono/todo/save/{username}` | `user:create` | Save a custom list of todos for the given user. Response is cached. |
-| `GET` | `/api/v1/mono/todo/all-todos/{username}` | `user:read` | Paginated list of todos for a specific user. |
-| `GET` | `/api/v1/mono/todo/all-todos` | `user:read` | Paginated list of all todos (Blaze Persistence entity view). Response is cached. |
+| `PUT` | `/api/v1/mono/user/update?username={username}` | `user:update` + must match `authentication.name` | Updates the authenticated user's profile (`UpdateUserRequest` body). |
+| `DELETE` | `/api/v1/mono/user/delete/{username}` | `user:delete` + must match `authentication.name` | Deletes the authenticated user's account. |
 
-### Admin
+### `TodoController` — `/api/v1/mono/todo` (`X-API-Version: 1.0`)
 
 | Method | Path | Required Authority | Description |
 |---|---|---|---|
-| `GET` | `/api/v1/mono/admin/{id}` | `admin:read` | Retrieve a user by ID (admin projection). |
+| `POST` | `/api/v1/mono/todo/{username}` | `user:create` + must match `authentication.name` | Fetches todos from JSONPlaceholder for the given user and persists them. |
+| `POST` | `/api/v1/mono/todo/save/{username}` | `user:create` + must match `authentication.name` | Saves a custom list of todos (`TodoRequest[]` body) for the given user. |
+| `GET` | `/api/v1/mono/todo/all-todos/{username}` | `user:read` + must match `authentication.name` | Paginated list (`TodoUsernameResponse`) of todos for a specific user. Response is cached (`todoCache`). |
+
+> **Note:** `TodoController.findAllTodos` (a Blaze Persistence `TodoView` projection guarded by `user:read`) currently has no `@GetMapping`/route annotation and is therefore not yet reachable over HTTP — it needs a mapping annotation (e.g. `@GetMapping("/all-todos")`) before it can serve the paginated "all todos" use case described by the `adminCache`/`todoCache` design.
+
+### `AdminController` — `/api/v1/mono/admin` (`X-API-Version: 1.0`)
+
+| Method | Path | Required Authority | Description |
+|---|---|---|---|
+| `GET` | `/api/v1/mono/admin/{id}` | `admin:read` | Retrieves a user by ID (`UserResponse` admin projection). Returns 404 if not found. |
 
 ### Pagination
 
@@ -387,6 +456,58 @@ Five named caches with a 300-second TTL and a maximum of 10 entries each:
 
 ---
 
+## CI/CD Pipeline
+
+The project uses a **modular GitHub Actions pipeline** — a single orchestrator workflow that calls out to focused, reusable workflows for each concern. This keeps individual jobs small, parallelizable, and independently testable, instead of one monolithic workflow file.
+
+```
+                        ┌────────────────────┐
+                        │   ci.yml (Main CI  │
+                        │     Orchestrator)  │
+                        └─────────┬──────────┘
+                                  │
+                 ┌────────────────┼────────────────┬──────────────┐
+                 ▼                ▼                ▼              ▼
+            build.yml      unit-tests.yml  integration-tests.yml  security.yml
+          (compile & pkg)   (mvn test)        (mvn verify)     (CodeQL + Gitleaks)
+                 │                │                │                │
+                 └────────────────┴────────┬───────┴────────────────┘
+                                            ▼
+                                     tag.yml (PR only)
+                                            │
+                                            ▼
+                                      build-gate
+                                (aggregates all results)
+```
+
+### Trigger Strategy
+
+| Event | Scope |
+|---|---|
+| `push` | Any branch except `dependabot/**` |
+| `pull_request` | Targeting `main` |
+
+Concurrency is scoped per-workflow-per-ref (`cancel-in-progress: true`), so pushing new commits to the same branch/PR automatically cancels any in-flight run for that ref.
+
+### Workflow Modules
+
+| Workflow | Trigger | Responsibility |
+|---|---|---|
+| `ci.yml` | `push` / `pull_request` | Orchestrator — wires up all reusable workflows and computes the final gate |
+| `build.yml` | `workflow_call` | Rejects tracked `.env` files, compiles & packages with `mvn verify -DskipTests`, submits the Maven dependency graph on `push` |
+| `unit-tests.yml` | `workflow_call` | Runs `mvn test` |
+| `integration-tests.yml` | `workflow_call` | Runs `mvn verify -Dsurefire.skip=true` against MySQL/Postgres/Keycloak-backed integration tests |
+| `security.yml` | `workflow_call` | Runs CodeQL (Java/Kotlin) static analysis and Gitleaks secret scanning in parallel |
+| `tag.yml` | `workflow_call` (PR → `main` only) | Tags the PR build (`pr-<number>-run-<run_number>`) and prunes older tags for the same PR, keeping the latest 4 |
+
+All Java setup (JDK 25, Maven caching, `MAVEN_OPTS`) is centralized in the composite action `.github/setup-java-env`, so every workflow module configures the toolchain identically.
+
+### `build-gate` — Single Source of Truth
+
+`build-gate` is the only job branch protection should require. It waits on `build`, `unit-tests`, `integration-tests`, `security`, and `tag`, then fails only if any of them explicitly report `failure` — a `skipped` result (e.g. `tag` skipping outside of PR-to-`main` context) is treated as passing. This avoids the classic GitHub Actions pitfall where a conditionally-skipped required check permanently blocks merging.
+
+---
+
 ## Getting Started
 
 ### Prerequisites
@@ -395,22 +516,55 @@ Five named caches with a 300-second TTL and a maximum of 10 entries each:
 - Maven 3.9.9
 - Docker & Docker Compose
 
-### Run
+### 1. Start Infrastructure First (required for the `dev` profile)
+
+The application (in `dev` profile) depends on MySQL and Keycloak (backed by PostgreSQL) already running before it starts — Flyway migrations run on boot and will fail if the database isn't reachable.
 
 ```bash
-# 1. Start infrastructure (MySQL, PostgreSQL, Keycloak)
-cd infra && docker-compose up -d && cd ..
+cd infra
 
-# 2. Build and run — dev profile (MySQL) — default
+# Copy the example env file and fill in real values (DB credentials, Keycloak admin, hostname, etc.)
+cp .env.example .env
+
+# Start MySQL, PostgreSQL, and Keycloak in the background
+docker-compose up -d
+
+cd ..
+```
+
+Required variables in `infra/.env` (see `.env.example`):
+
+| Variable | Used by |
+|---|---|
+| `MYSQL_ROOT_PASSWORD`, `MYSQL_DATABASE`, `MYSQL_USER`, `MYSQL_PASSWORD` | `mysql` service — the application's database |
+| `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB` | `postgres` service — Keycloak's backing store |
+| `KEYCLOAK_HOSTNAME`, `KEYCLOAK_ADMIN`, `KEYCLOAK_ADMIN_PASSWORD` | `keycloak` service |
+
+Startup order is enforced by the compose file: `keycloak` waits for `postgres` to report healthy (`depends_on: condition: service_healthy`) before starting; `mysql` starts independently. Check everything is healthy with:
+
+```bash
+docker-compose ps
+```
+
+- MySQL → `localhost:3306`
+- PostgreSQL → `localhost:5432`
+- Keycloak → `localhost:7080` (realm auto-imported from `infra/keycloak/`)
+
+### 2. Build and Run the Application
+
+```bash
+# dev profile (MySQL + Keycloak — requires step 1 above to be running)
 mvn clean package -Pdev
 java -jar rest/target/rest-1.0-SNAPSHOT.jar
 
-# 3. Or build and run — test profile (H2 in-memory)
+# — OR —
+
+# test profile (H2 in-memory — no docker-compose / external DB required)
 mvn clean package -Ptest
 java -jar rest/target/rest-1.0-SNAPSHOT.jar
 ```
 
-The `dev` profile is active by default. The `test` profile swaps the datasource for H2 and skips Flyway against MySQL.
+The `dev` profile is active by default and requires the infrastructure from step 1 to be up. The `test` profile swaps the datasource for H2 in-memory, disables Flyway, and needs **no external services** — useful for quick local runs or CI without Docker.
 
 ---
 
