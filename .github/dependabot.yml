@@ -29,7 +29,7 @@ updates:
       - "Bigorno"
 
 
-  - package-ecosystem: "docker"
+  - package-ecosystem: "docker-compose"
     directory: "/infra"
     schedule:
       interval: "monthly"
