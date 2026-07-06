@@ -1,0 +1,20 @@
+name: Unit Test Module
+
+on:
+  workflow_call:
+
+jobs:
+  unit-test:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Setup Java Environment
+        uses: ./.github/setup-java-env
+        with:
+          maven-opts: '-Xms1g -Xmx1g -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+UseStringDeduplication -XX:MaxMetaspaceSize=256m'
+
+      - name: Run Unit Test
+        run: mvn -B -T 1C test --file pom.xml

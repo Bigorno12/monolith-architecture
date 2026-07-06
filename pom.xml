@@ -38,6 +38,7 @@
         <bucket.version>8.19.0</bucket.version>
         <keycloak.version>26.0.10</keycloak.version>
         <resteasy.version>7.0.2.Final</resteasy.version>
+        <resilience4j-spring-boot3.version>2.4.0</resilience4j-spring-boot3.version>
     </properties>
 
     <modules>
@@ -162,10 +163,18 @@
                 <artifactId>commons-io</artifactId>
                 <version>${commons-io.version}</version>
             </dependency>
+
+            <!-- Circuit Breaker -->
+            <dependency>
+                <groupId>io.github.resilience4j</groupId>
+                <artifactId>resilience4j-spring-boot3</artifactId>
+                <version>${resilience4j-spring-boot3.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
     <dependencies>
+        <!-- Dev tools -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
@@ -175,6 +184,7 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-devtools</artifactId>
         </dependency>
+        <!-- Security -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
@@ -192,6 +202,7 @@
             <artifactId>keycloak-admin-client</artifactId>
             <version>${keycloak.version}</version>
         </dependency>
+        <!-- Caching -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-cache</artifactId>
@@ -199,6 +210,11 @@
         <dependency>
             <groupId>com.github.ben-manes.caffeine</groupId>
             <artifactId>caffeine</artifactId>
+        </dependency>
+        <!-- Metrics -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
     </dependencies>
 
@@ -358,9 +374,6 @@
                             <plugin>spring</plugin>
                         </compilerPlugins>
                         <jvmTarget>24</jvmTarget>
-                        <args>
-                            <arg>-Xannotation-default-target=param-property</arg>
-                        </args>
                     </configuration>
                     <executions>
                         <execution>

@@ -1,0 +1,23 @@
+name: Setup Java and Maven Environment
+description: Installs latest LTS JDK version, configures Maven caching, and sets MAVEN_OPTS"
+
+inputs:
+  maven-opts:
+    description: JVM options for Maven
+    required: false
+    default: "-Xms1g -Xmx1g -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+UseStringDeduplication -XX:MaxMetaspaceSize=256m"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Set up JDK 25
+      uses: actions/setup-java@v4
+      with:
+        java-version: '25'
+        distribution: 'temurin'
+        cache: maven
+
+    - name: Inject Global MAVEN_OPTS
+      shell: bash
+      run: |
+        echo "MAVEN_OPTS=${{ inputs.maven-opts }}" >> $GITHUB_ENV

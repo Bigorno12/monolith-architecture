@@ -1,0 +1,65 @@
+name: Main CI Orchestrator
+
+on:
+  push:
+    branches-ignore:
+      - 'dependabot/**'
+  pull_request:
+    branches: [ "main" ]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+  security-events: write
+  checks: write
+  pull-requests: write
+  actions: read
+
+jobs:
+  build:
+    uses: ./.github/workflows/build.yml
+    secrets: inherit
+
+  unit-tests:
+    needs: build
+    uses: ./.github/workflows/unit-tests.yml
+    secrets: inherit
+
+  integration-tests:
+    needs: build
+    uses: ./.github/workflows/integration-tests.yml
+    secrets: inherit
+
+  security:
+    needs: build
+    uses: ./.github/workflows/security.yml
+
+  tag:
+    needs: [build, unit-tests, integration-tests, security]
+    if: github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'main'
+    uses: ./.github/workflows/tag.yml
+
+  build-gate:
+    needs:
+      - build
+      - unit-tests
+      - integration-tests
+      - security
+      - tag
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Check pipeline result
+        run: |
+          if [ "${{ needs.build.result }}" == "failure" ] || \
+             [ "${{ needs.unit-tests.result }}" == "failure" ] || \
+             [ "${{ needs.integration-tests.result }}" == "failure" ] || \
+             [ "${{ needs.security.result}}" == "failure" ] || \
+             [ "${{ needs.tag.result }}" == "failure" ]; then
+            echo "Pipeline failed"
+            exit 1
+          fi
+          echo "Pipeline passed"
