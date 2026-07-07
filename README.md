@@ -186,7 +186,8 @@ Matches: all other paths
 - Full OIDC login flow via Keycloak (`authorization_code` grant)
 - Logout endpoint at `/api/v1/auth/logout` — invalidates the HTTP session, deletes `JSESSIONID` and `XSRF-TOKEN` cookies, and triggers an OIDC back-channel logout via `OidcClientInitiatedLogoutSuccessHandler`
 - CSRF protection is enabled with `CookieCsrfTokenRepository`
-- MFA is enabled via Spring Security's `@EnableMultiFactorAuthentication` (password + OTT factors)
+
+> **Note:** `@EnableMultiFactorAuthentication` (password + OTT factors) was intentionally **removed**. It's a class-level, application-wide feature — it requires Spring's internal `FACTOR_PASSWORD`/`FACTOR_OTT` granted authorities on *every* protected request across *both* filter chains, not just the OIDC session chain it was meant for. Since Keycloak-issued Bearer JWTs (Chain 1) never carry those internal factor markers, enabling it globally caused **all** `/api/v1/mono/**` requests to be denied with a `403 insufficient_scope` regardless of the caller's actual business authorities (e.g. `admin:read`). If step-up MFA is needed again, it must be scoped specifically to Chain 2 rather than declared at the `SecurityConfig` class level.
 
 ### CORS
 
