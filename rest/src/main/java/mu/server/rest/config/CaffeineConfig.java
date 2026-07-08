@@ -24,8 +24,8 @@ public class CaffeineConfig {
     @Bean
     public Caffeine<@NonNull Object, @NonNull Object> caffeine() {
         return Caffeine.newBuilder()
-                .maximumSize(10)
-                .initialCapacity(50)
+                .maximumSize(100)
+                .initialCapacity(10)
                 .executor(ForkJoinPool.commonPool())
                 .expireAfterWrite(300, TimeUnit.SECONDS)
                 .evictionListener((key, _, cause) -> log.info("Key {} was evicted {}", key, cause))
@@ -38,7 +38,7 @@ public class CaffeineConfig {
     public CacheManager cacheManager() {
         CaffeineCacheManager caffeineCacheManager = new CaffeineCacheManager();
         caffeineCacheManager.setCaffeine(caffeine());
-        caffeineCacheManager.setCacheNames(List.of("jsonPlaceHolder", "userCache", "todoCache", "adminCache"));
+        caffeineCacheManager.setCacheNames(List.of("jsonPlaceHolder", "userCache", "todoCache", "adminCache", "keycloakCache"));
 
         caffeineCacheManager.registerCustomCache("fingerprintCache",
                 Caffeine.newBuilder()
