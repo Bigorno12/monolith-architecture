@@ -34,11 +34,11 @@ jobs:
     secrets: inherit
 
   security:
-    needs: build
+    needs: [unit-tests, integration-tests]
     uses: ./.github/workflows/security.yml
 
   tag:
-    needs: [build, unit-tests, integration-tests, security]
+    needs: [security]
     if: github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'main'
     uses: ./.github/workflows/tag.yml
 
