@@ -110,7 +110,9 @@ public class SecurityConfig {
             HttpSecurity http,
             ClientRegistrationRepository clientRegistrationRepository) {
         return http
-                .csrf(csrf -> csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()))
+                .csrf(csrf -> csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                        .ignoringRequestMatchers(WHITELISTED_PATHS)
+                )
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin))
                 .oauth2Login(Customizer.withDefaults())
