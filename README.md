@@ -104,14 +104,14 @@ The entry point and HTTP layer. Depends on `service`. Contains all Spring Boot c
 |---|---|---|
 | Runtime | Java | 25 |
 | Language | Kotlin + Java (mixed) | Kotlin 2.4.0 |
-| Framework | Spring Boot | 4.0.6 |
+| Framework | Spring Boot | 4.1.0 |
 | Build | Maven | 3.9.9 |
 | ORM | Spring Data JPA / Hibernate | Boot-managed |
 | Advanced Queries | Blaze Persistence | 1.6.18 |
 | DB Migration | Flyway | Boot-managed |
 | Database (dev) | MySQL | 8.4 |
 | Database (test) | H2 in-memory | Boot-managed |
-| Identity Provider | Keycloak | 26.0.9 / 26.6.1 |
+| Identity Provider | Keycloak (server) / Keycloak Admin Client | `keycloak:26.6.1` (Docker) / `26.0.10` (admin client) |
 | Security | Spring Security OAuth2 RS + Client | Boot-managed |
 | Caching | Caffeine | Boot-managed |
 | Rate Limiting | Bucket4j | 8.19.0 |
@@ -120,7 +120,8 @@ The entry point and HTTP layer. Depends on `service`. Contains all Spring Boot c
 | Boilerplate | Lombok | Boot-managed |
 | API Docs | SpringDoc / Swagger UI | 3.0.3 |
 | HTTP Client | Spring RestClient `@HttpExchange` | Boot-managed |
-| Keycloak Admin | Admin Client + RESTEasy | 26.0.9 / 7.0.2.Final |
+| Keycloak Admin | Admin Client + RESTEasy | 26.0.10 / 7.0.2.Final |
+| OpenAPI Codegen | OpenAPI Generator Maven Plugin | 7.23.0 |
 | Concurrency | Java Virtual Threads | Java 25 |
 | Infra | Docker Compose | — |
 
@@ -186,7 +187,8 @@ Matches: all other paths
 - Full OIDC login flow via Keycloak (`authorization_code` grant)
 - Logout endpoint at `/api/v1/auth/logout` — invalidates the HTTP session, deletes `JSESSIONID` and `XSRF-TOKEN` cookies, and triggers an OIDC back-channel logout via `OidcClientInitiatedLogoutSuccessHandler`
 - CSRF protection is enabled with `CookieCsrfTokenRepository`
-- MFA is enabled via Spring Security's `@EnableMultiFactorAuthentication` (password + OTT factors)
+
+> **Note:** `@EnableMultiFactorAuthentication` (password + OTT factors) was intentionally **removed**. It's a class-level, application-wide feature — it requires Spring's internal `FACTOR_PASSWORD`/`FACTOR_OTT` granted authorities on *every* protected request across *both* filter chains, not just the OIDC session chain it was meant for. Since Keycloak-issued Bearer JWTs (Chain 1) never carry those internal factor markers, enabling it globally caused **all** `/api/v1/mono/**` requests to be denied with a `403 insufficient_scope` regardless of the caller's actual business authorities (e.g. `admin:read`). If step-up MFA is needed again, it must be scoped specifically to Chain 2 rather than declared at the `SecurityConfig` class level.
 
 ### CORS
 
@@ -201,10 +203,14 @@ Both chains share a single `CorsConfigurationSource`:
 
 ### Roles & Permissions
 
-| Role | Authorities |
+The `Permission` enum (`mu.server.persistence.enumeration.Permission`) defines the exact authority strings; `Role` maps each `Role` to a set of `Permission`s:
+
+| Role | Authorities (`Role.java`) |
 |---|---|
-| `USER` | `user:create`, `user:read`, `user:update`, `user:delete`, `admin:read` |
-| `ADMIN` | `admin:create`, `admin:read`, `admin:update`, `admin:delete` |
+| `USER` | `user:create`, `admin:read`, `user:delete`, `user:update` |
+| `ADMIN` | `admin:read`, `admin:create`, `admin:delete`, `admin:update` |
+
+All eight possible authority strings (`Permission.java`): `admin:read`, `admin:create`, `admin:update`, `admin:delete`, `user:read`, `user:create`, `user:update`, `user:delete`.
 
 Authorities are extracted from the Keycloak JWT using a custom `KeycloakAuthenticationConverter`, which reads the `realm_access.roles` claim and maps it to Spring Security `GrantedAuthority` objects.
 
@@ -257,12 +263,6 @@ The declarative HTTP client `JsonPlaceHolderService.todo()` is annotated with Sp
 | `delay` | 2000 ms initial delay |
 | `multiplier` | ×2.0 backoff |
 | `maxDelay` | 4000 ms cap |
-
-### Authentication is unchanged
-
-⚠️ Note: the stateless **JWT Bearer-token resource server chain via Keycloak is still active** and has **not** been removed — it remains `@Order(1)` in `SecurityConfig`, matching `/api/v1/mono/**`, with `FingerprintFilter` and `RateLimitFilter` chained after `BearerTokenAuthenticationFilter`. If the intent is to move away from Bearer JWT for these endpoints, that change hasn't landed in the code yet — let me know if you'd like help implementing it.
-
----
 
 ## Configuration Profiles
 
@@ -413,14 +413,15 @@ Migrations live in `persistence/src/main/resources/db.migration/` and run automa
 
 ### Caffeine Cache
 
-Five named caches with a 300-second TTL and a maximum of 10 entries each:
+Configured via `spring.cache.caffeine.spec=initialCapacity=10,maximumSize=100,expireAfterAccess=300s` (300-second TTL after last access, max 100 entries per cache). Declared cache names (`spring.cache.cache-names`): `jsonPlaceHolder`, `userCache`, `todoCache`, `adminCache`, `keycloakCache`. `fingerprintCache` (used by `FingerprintFilter`) is resolved dynamically via `CacheManager.getCache("fingerprintCache")` and isn't in the declared name list.
 
 | Cache | Used By |
 |---|---|
-| `fingerprintCache` | Token fingerprint storage in `FingerprintFilter` |
+| `fingerprintCache` | Token fingerprint storage in `FingerprintFilter` / `KeycloakServiceImpl` (anti-hijacking) |
 | `userCache` | User lookups |
-| `todoCache` | Todo list responses |
+| `todoCache` | `TodoServiceImpl` — `save()`, `saveByUserId()`, `findAllTodosByUsername()`, `findAllTodos()` (all keyed by `#username` where applicable) |
 | `adminCache` | Admin projection responses |
+| `keycloakCache` | Keycloak-related lookups |
 | `jsonPlaceHolder` | External API responses from JSONPlaceholder |
 
 ### Other
