@@ -34,7 +34,7 @@ jobs:
           maven-opts: '-Xms1g -Xmx1g -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+UseStringDeduplication -XX:MaxMetaspaceSize=256m'
 
       - name: Compile and Package
-        run: mvn -B -T 1C verify -DskipTests --file pom.xml
+        run: mvn -B clean package -DskipTests --file pom.xml
 
       - name: Update dependency graph
         if: github.event_name == 'push'
