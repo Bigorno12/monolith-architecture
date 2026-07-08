@@ -34,4 +34,4 @@ jobs:
         uses: ./.github/setup-java-env
 
       - name: Run Integration Tests
-        run: mvn -B -T 1C verify -Dsurefire.skip=true --file pom.xml
+        run: mvn -B verify -Dsurefire.skip=true --file pom.xml
