@@ -24,6 +24,7 @@ jobs:
         uses: github/codeql-action/init@v4
         with:
           languages: java-kotlin
+          build-mode: manual
 
       - name: Compile for CodeQL
         run: mvn clean compile -Dkotlin.version=2.3.21 -DskipTests

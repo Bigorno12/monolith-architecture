@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping(version = "1.0", value = ["/api/v1/mono/admin"], produces = ["application/json"])
 class AdminController(private val userService: UserService) {
 
-    @PreAuthorize(value = "hasAnyAuthority('admin:read')")
+    @PreAuthorize(value = "hasAuthority('admin:read')")
     @GetMapping(value = ["/{id}"], version = "1.0", produces = ["application/json"])
     fun findUserById(@PathVariable id: Long): ResponseEntity<UserResponse>? {
         val result: Result<UserResponse>? = userService.findUserById(id)
