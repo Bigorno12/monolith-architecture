@@ -21,7 +21,7 @@ runs:
     - name: Show cache status
       shell: bash
       run: |
-        echo "Cache hit: ${{ steps.setup-java.outputs.cache-hit}}
+        echo "Cache hit: ${{ steps.setup-java.outputs.cache-hit}}"
 
     - name: Inject Global MAVEN_OPTS
       shell: bash
