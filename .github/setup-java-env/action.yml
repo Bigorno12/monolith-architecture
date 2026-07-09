@@ -11,11 +11,17 @@ runs:
   using: "composite"
   steps:
     - name: Set up JDK 25
+      id: setup-java
       uses: actions/setup-java@v5.5.0
       with:
         java-version: '25'
         distribution: 'temurin'
         cache: maven
+
+    - name: Show cache status
+      shell: bash
+      run: |
+        echo "Cache hit: ${{ steps.setup-java.outputs.cache-hit}}
 
     - name: Inject Global MAVEN_OPTS
       shell: bash
