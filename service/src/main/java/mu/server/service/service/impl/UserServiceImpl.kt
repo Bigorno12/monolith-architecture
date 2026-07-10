@@ -10,6 +10,7 @@ import mu.server.service.dto.user.UpdateUserRequest
 import mu.server.service.dto.user.UserResponse
 import mu.server.service.exception.KeycloakException
 import mu.server.service.exception.NotFoundException
+import mu.server.service.exception.UsernameExistException
 import mu.server.service.mapper.user.UserMapper
 import mu.server.service.service.UserService
 import org.keycloak.admin.client.resource.UsersResource
@@ -18,7 +19,6 @@ import org.springframework.cache.annotation.CacheEvict
 import org.springframework.cache.annotation.CachePut
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
 
 @Service
@@ -32,6 +32,35 @@ class UserServiceImpl(
         private val LOG = LoggerFactory.getLogger(UserServiceImpl::class.java)
     }
 
+    @CircuitBreaker(name = "userService", fallbackMethod = "fallbackUpdateUser")
+    @Transactional(rollbackFor = [NotFoundException::class, UsernameExistException::class])
+    @CachePut(
+        cacheNames = ["userCache", "keycloakCache"],
+        unless = "#result == null",
+        condition = "#updateUserRequest != null",
+        key = "#updateUserRequest.username()"
+    )
+    override fun updateUser(
+        updateUserRequest: UpdateUserRequest,
+        username: String
+    ): UpdateUserRequest {
+        val checkUsernameExist: User? = userRepository.findUserByUsername(username)
+            .orElseThrow { NotFoundException("User $username found") }
+
+        if (updateUserRequest.username().equals(checkUsernameExist?.username)) {
+            val updateUser: User = userMapper.updateUserFromDto(updateUserRequest, checkUsernameExist)
+            userRepository.save(updateUser)
+            return userMapper.mapToUpdateUser(updateUser)
+        } else {
+            userRepository.findUserByUsername(updateUserRequest.username())
+                .ifPresent { throw UsernameExistException("User $username already exists!") }
+
+            val updateUserDifferentUsername: User? = userMapper.updateUserFromDto(updateUserRequest, checkUsernameExist)
+            userRepository.save(updateUserDifferentUsername)
+            return userMapper.mapToUpdateUser(updateUserDifferentUsername)
+        }
+    }
+
     @Transactional(readOnly = true)
     @Cacheable(
         cacheNames = ["adminCache"],
@@ -43,27 +72,6 @@ class UserServiceImpl(
         .map { userMapper.mapToUserResponse(it) }
         .map { Result.ok(it) }
         .orElse(Result.failure("User Not Found $id"))
-
-    @CircuitBreaker(name = "userService", fallbackMethod = "fallbackUpdateUser")
-    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = [NotFoundException::class])
-    @CachePut(
-        cacheNames = ["userCache", "keycloakCache"],
-        unless = "#result == null",
-        condition = "#updateUserRequest != null",
-        key = "#updateUserRequest.username()"
-    )
-    override fun updateUser(
-        updateUserRequest: UpdateUserRequest,
-        username: String
-    ): UpdateUserRequest {
-        return userRepository.findByUsername(username)
-            .also {
-                if (it.username == updateUserRequest.username())
-                    userRepository.findUserByUsername(it.username) ?: throw NotFoundException("User $username found")
-            }
-            .let { userMapper.updateUserFromDto(updateUserRequest, it) }
-            .let { userMapper.mapToUpdateUser(it) } ?: throw NotFoundException("User $username not found")
-    }
 
     @CircuitBreaker(name = "keycloakService", fallbackMethod = "fallbackDeleteUser")
     @Transactional(rollbackFor = [NotFoundException::class, KeycloakException::class])
