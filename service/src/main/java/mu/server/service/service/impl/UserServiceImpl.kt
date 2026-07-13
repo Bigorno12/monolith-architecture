@@ -8,16 +8,20 @@ import mu.server.persistence.repository.UserRepository
 import mu.server.service.dto.Result
 import mu.server.service.dto.user.UpdateUserRequest
 import mu.server.service.dto.user.UserResponse
+import mu.server.service.dto.user.ViewUserProfile
 import mu.server.service.exception.KeycloakException
 import mu.server.service.exception.NotFoundException
 import mu.server.service.exception.UsernameExistException
 import mu.server.service.mapper.user.UserMapper
 import mu.server.service.service.UserService
+import org.keycloak.admin.client.resource.UserResource
 import org.keycloak.admin.client.resource.UsersResource
+import org.keycloak.representations.idm.UserRepresentation
 import org.slf4j.LoggerFactory
 import org.springframework.cache.annotation.CacheEvict
 import org.springframework.cache.annotation.CachePut
 import org.springframework.cache.annotation.Cacheable
+import org.springframework.cache.annotation.Caching
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -34,11 +38,17 @@ class UserServiceImpl(
 
     @CircuitBreaker(name = "userService", fallbackMethod = "fallbackUpdateUser")
     @Transactional(rollbackFor = [NotFoundException::class, UsernameExistException::class])
-    @CachePut(
-        cacheNames = ["userCache", "keycloakCache"],
-        unless = "#result == null",
-        condition = "#updateUserRequest != null",
-        key = "#updateUserRequest.username()"
+    @Caching(
+        put = [CachePut(
+            cacheNames = ["userCache", "keycloakCache"],
+            key = "#updateUserRequest.username",
+            unless = "#result == null",
+            condition = "#updateUserRequest != null"
+        )],
+        evict = [CacheEvict(
+            cacheNames = ["profileCache"],
+            key = "#username",
+        )]
     )
     override fun updateUser(
         updateUserRequest: UpdateUserRequest,
@@ -50,6 +60,7 @@ class UserServiceImpl(
         if (updateUserRequest.username().equals(checkUsernameExist?.username)) {
             val updateUser: User = userMapper.updateUserFromDto(updateUserRequest, checkUsernameExist)
             userRepository.save(updateUser)
+            updateKeycloakUsername(checkUsernameExist?.keycloakId, updateUserRequest)
             return userMapper.mapToUpdateUser(updateUser)
         } else {
             userRepository.findUserByUsername(updateUserRequest.username())
@@ -57,6 +68,7 @@ class UserServiceImpl(
 
             val updateUserDifferentUsername: User? = userMapper.updateUserFromDto(updateUserRequest, checkUsernameExist)
             userRepository.save(updateUserDifferentUsername)
+            updateKeycloakUsername(checkUsernameExist?.keycloakId, updateUserRequest)
             return userMapper.mapToUpdateUser(updateUserDifferentUsername)
         }
     }
@@ -102,19 +114,47 @@ class UserServiceImpl(
         }
     }
 
+    @Transactional(readOnly = true, rollbackFor = [NotFoundException::class])
+    @CircuitBreaker(name = "userService", fallbackMethod = "fallbackUpdateUser")
+    @Cacheable(
+        key = "#username",
+        cacheNames = ["profileCache"],
+        condition = "#username != null OR #result != null",
+        unless = "#result == null"
+    )
+    override fun viewUserProfile(username: String): ViewUserProfile {
+        return userRepository.findUserByUsername(username)
+            .map { userMapper.mapToUserProfile(it) }
+            .orElseThrow { NotFoundException("User $username not found") }
+    }
+
     fun fallbackDeleteUser(username: String, ex: Throwable) {
         LOG.error(
             "Circuit breaker triggered for deleteUser with username: {} and error message: {}",
             username,
             ex.message
         )
+        throw ex
     }
 
-    fun fallbackUpdateUser(updateUserRequest: UpdateUserRequest, ex: Throwable) {
+    fun fallbackUpdateUser(updateUserRequest: UpdateUserRequest, username: String, ex: Throwable): UpdateUserRequest {
         LOG.error(
-            "Circuit breaker triggered for updateUser: {} and error message: {}",
+            "Circuit breaker triggered for updateUser: {} with username: {} and error message: {}",
+            username,
             updateUserRequest,
             ex.message
         )
+        throw ex
+    }
+
+    private fun updateKeycloakUsername(keycloakId: String?, updateUserRequest: UpdateUserRequest) {
+        try {
+            val keycloakUserResource: UserResource? = usersResource.get(keycloakId)
+            val userRepresentation: UserRepresentation? = updateUserRequest.let { userMapper.updateUserKeycloak(it) }
+            keycloakUserResource?.update(userRepresentation)
+        } catch (e: WebApplicationException) {
+            LOG.error("Keycloak API Error", e)
+            throw KeycloakException("Failed to sync user updates to Keycloak: ${e.response?.status}")
+        }
     }
 }
