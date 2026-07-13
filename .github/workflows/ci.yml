@@ -1,9 +1,6 @@
 name: Main CI Orchestrator
 
 on:
-  push:
-    branches-ignore:
-      - 'dependabot/**'
   pull_request:
     branches: [ "main" ]
 
