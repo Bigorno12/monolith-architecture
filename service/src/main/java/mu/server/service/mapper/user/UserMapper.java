@@ -4,6 +4,7 @@ import mu.server.persistence.entity.User;
 import mu.server.service.dto.user.UpdateUserRequest;
 import mu.server.service.dto.user.UserRequest;
 import mu.server.service.dto.user.UserResponse;
+import mu.server.service.dto.user.ViewUserProfile;
 import org.mapstruct.InheritInverseConfiguration;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -28,5 +29,9 @@ public interface UserMapper extends KeycloakMapper {
     @Mapping(source = "firstname", target = "firstName")
     @Mapping(source = "lastname", target = "lastName")
     UserResponse mapToUserResponse(User user);
+
+    @Mapping(source = "firstname", target = "firstName")
+    @Mapping(source = "lastname", target = "lastName")
+    ViewUserProfile mapToUserProfile(User user);
 
 }
