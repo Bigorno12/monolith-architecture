@@ -26,6 +26,7 @@
         <blaze-persistence.version>1.6.18</blaze-persistence.version>
         <bucket.version>8.19.0</bucket.version>
         <build-helper-maven-plugin.version>3.5.0</build-helper-maven-plugin.version>
+        <com.fasterxml.jackson.version>2.22.1</com.fasterxml.jackson.version>
         <commons-io.version>2.22.0</commons-io.version>
         <commons-lang3.version>3.18.0</commons-lang3.version>
         <commons-lang3.version>3.20.0</commons-lang3.version>
@@ -45,7 +46,6 @@
         <spotless.version>3.8.0</spotless.version>
         <springdoc-openapi-starter-webmvc-ui.version>3.0.3</springdoc-openapi-starter-webmvc-ui.version>
         <swagger-annotations.version>2.2.52</swagger-annotations.version>
-        <com.fasterxml.jackson.version>2.22.1</com.fasterxml.jackson.version>
     </properties>
 
     <dependencyManagement>
@@ -271,8 +271,7 @@
                                 <inputSpec>${project.basedir}/../openapi/json-api-holder.yaml</inputSpec>
                                 <generatorName>java</generatorName>
                                 <apiPackage>mu.server.rest.controller.api</apiPackage>
-                                <generateApis>false</generateApis>
-                                <generateApiTests>false</generateApiTests>
+                                <generateApis>false</generateApis>                                <generateApiTests>false</generateApiTests>
                                 <generateApiDocumentation>false</generateApiDocumentation>
                                 <modelPackage>mu.server.service.dto.api</modelPackage>
                                 <generateModels>false</generateModels>
