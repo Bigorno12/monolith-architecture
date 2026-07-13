@@ -15,14 +15,13 @@ class SchedulingConfig {
     }
 
     @Bean
-    fun taskScheduler(): TaskScheduler =
-        ThreadPoolTaskScheduler().apply {
-            poolSize = 4
-            setThreadNamePrefix("scheduler-")
-            isRemoveOnCancelPolicy = true
-            setAwaitTerminationSeconds(300)
-            setWaitForTasksToCompleteOnShutdown(true)
-            setErrorHandler { t -> LOGGER.error("Uncaught in scheduled pool tasks: ${t.message}") }
-            initialize()
-        }
+    fun taskScheduler(): TaskScheduler = ThreadPoolTaskScheduler().apply {
+        poolSize = 4
+        setThreadNamePrefix("scheduler-")
+        isRemoveOnCancelPolicy = true
+        setAwaitTerminationSeconds(300)
+        setWaitForTasksToCompleteOnShutdown(true)
+        setErrorHandler { t -> LOGGER.error("Uncaught in scheduled pool tasks: ${t.message}") }
+        initialize()
+    }
 }

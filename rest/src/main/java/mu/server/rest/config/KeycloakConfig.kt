@@ -20,16 +20,15 @@ class KeycloakConfig(
     @Value($$"${application.keycloak.client-secret}") val clientSecret: String,
 ) : KeycloakTokenProvider {
     @Bean
-    fun adminKeycloak(): Keycloak =
-        KeycloakBuilder
-            .builder()
-            .serverUrl(serverUrl)
-            .realm(realm)
-            .grantType(OAuth2Constants.CLIENT_CREDENTIALS)
-            .clientId(clientId)
-            .clientSecret(clientSecret)
-            .resteasyClient(ResteasyClientBuilder.newBuilder().build())
-            .build()
+    fun adminKeycloak(): Keycloak = KeycloakBuilder
+        .builder()
+        .serverUrl(serverUrl)
+        .realm(realm)
+        .grantType(OAuth2Constants.CLIENT_CREDENTIALS)
+        .clientId(clientId)
+        .clientSecret(clientSecret)
+        .resteasyClient(ResteasyClientBuilder.newBuilder().build())
+        .build()
 
     @Bean
     fun realmResource(keycloak: Keycloak): RealmResource = keycloak.realm(realm)

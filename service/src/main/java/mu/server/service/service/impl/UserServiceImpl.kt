@@ -86,12 +86,11 @@ class UserServiceImpl(
         condition = "#result != null && #id != null",
         key = "#id",
     )
-    override fun findUserById(id: Long): Result<UserResponse>? =
-        userRepository
-            .findById(id)
-            .map { userMapper.mapToUserResponse(it) }
-            .map { Result.ok(it) }
-            .orElse(Result.failure("User Not Found $id"))
+    override fun findUserById(id: Long): Result<UserResponse>? = userRepository
+        .findById(id)
+        .map { userMapper.mapToUserResponse(it) }
+        .map { Result.ok(it) }
+        .orElse(Result.failure("User Not Found $id"))
 
     @CircuitBreaker(name = "keycloakService", fallbackMethod = "fallbackDeleteUser")
     @Transactional(rollbackFor = [NotFoundException::class, KeycloakException::class])
@@ -132,11 +131,10 @@ class UserServiceImpl(
         condition = "#username != null OR #result != null",
         unless = "#result == null",
     )
-    override fun viewUserProfile(username: String): ViewUserProfile =
-        userRepository
-            .findUserByUsername(username)
-            .map { userMapper.mapToUserProfile(it) }
-            .orElseThrow { NotFoundException("User $username not found") }
+    override fun viewUserProfile(username: String): ViewUserProfile = userRepository
+        .findUserByUsername(username)
+        .map { userMapper.mapToUserProfile(it) }
+        .orElseThrow { NotFoundException("User $username not found") }
 
     fun fallbackDeleteUser(
         username: String,

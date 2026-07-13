@@ -418,8 +418,10 @@
                     <!-- Java -->
                     <java>
                         <toggleOffOn/>
-                        <importOrder/>
                         <removeUnusedImports/>
+                        <importOrder>
+                            <order>,javax,java,\#</order>
+                        </importOrder>
                         <includes>
                             <include>src/main/java/**/*.java</include>
                             <include>src/test/java/**/*.java</include>
@@ -431,7 +433,11 @@
                             <include>src/main/java/**/*.kt</include>
                             <include>src/test/java/**/*.kt</include>
                         </includes>
-                        <ktlint/>
+                        <ktlint>
+                            <editorConfigOverride>
+                                <ij_kotlin_imports_layout>*,java.**,javax.**,kotlin.**,^</ij_kotlin_imports_layout>
+                            </editorConfigOverride>
+                        </ktlint>
                     </kotlin>
                     <!-- POM -->
                     <pom>
@@ -454,7 +460,6 @@
                         <id>validate-code</id>
                         <goals>
                             <goal>check</goal>
-                            <goal>apply</goal>
                         </goals>
                         <phase>validate</phase>
                     </execution>

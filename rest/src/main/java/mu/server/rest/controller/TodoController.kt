@@ -48,22 +48,20 @@ class TodoController(
         @RequestParam(name = "pageNum", defaultValue = "0") pageNum: Int,
         @RequestParam(name = "pageSize", defaultValue = "10") pageSize: Int,
         @PathVariable username: String?,
-    ): ResponseEntity<Page<TodoUsernameResponse>> =
-        ResponseEntity
-            .ok()
-            .body(
-                todoService.findAllTodosByUsername(
-                    PageRequest.of(pageNum, pageSize, Sort.by("id").ascending()),
-                    username,
-                ),
-            )
+    ): ResponseEntity<Page<TodoUsernameResponse>> = ResponseEntity
+        .ok()
+        .body(
+            todoService.findAllTodosByUsername(
+                PageRequest.of(pageNum, pageSize, Sort.by("id").ascending()),
+                username,
+            ),
+        )
 
     @PreAuthorize(value = "hasAuthority('user:read')")
     fun findAllTodos(
         @RequestParam(name = "pageNum", defaultValue = "0") pageNum: Int,
         @RequestParam(name = "pageSize", defaultValue = "10") pageSize: Int,
-    ): ResponseEntity<PagedList<TodoView>> =
-        ResponseEntity
-            .ok()
-            .body(todoService.findAllTodos(PageRequest.of(pageNum, pageSize, Sort.by("id").ascending())))
+    ): ResponseEntity<PagedList<TodoView>> = ResponseEntity
+        .ok()
+        .body(todoService.findAllTodos(PageRequest.of(pageNum, pageSize, Sort.by("id").ascending())))
 }

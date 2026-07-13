@@ -1,6 +1,5 @@
 package mu.server.service.mapper.user;
 
-import java.util.Collections;
 import mu.server.persistence.entity.User;
 import mu.server.service.dto.user.UpdateUserRequest;
 import mu.server.service.dto.user.UserRequest;
@@ -10,8 +9,11 @@ import org.mapstruct.InheritInverseConfiguration;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
+import org.mapstruct.ReportingPolicy;
 
-@Mapper(componentModel = "spring", imports = {Collections.class})
+import java.util.Collections;
+
+@Mapper(componentModel = "spring", imports = {Collections.class}, unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface UserMapper extends KeycloakMapper {
 
     @Mapping(target = "id", ignore = true)

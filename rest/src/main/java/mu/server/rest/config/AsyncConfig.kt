@@ -9,14 +9,13 @@ import java.util.concurrent.Executor
 @EnableAsync
 @Configuration
 class AsyncConfig : AsyncConfigurer {
-    override fun getAsyncExecutor(): Executor =
-        ThreadPoolTaskExecutor().apply {
-            corePoolSize = 3
-            maxPoolSize = 10
-            queueCapacity = 25
-            setThreadNamePrefix("ForkJoinPool-")
-            setWaitForTasksToCompleteOnShutdown(true)
-            setAwaitTerminationSeconds(10)
-            initialize()
-        }
+    override fun getAsyncExecutor(): Executor = ThreadPoolTaskExecutor().apply {
+        corePoolSize = 3
+        maxPoolSize = 10
+        queueCapacity = 25
+        setThreadNamePrefix("ForkJoinPool-")
+        setWaitForTasksToCompleteOnShutdown(true)
+        setAwaitTerminationSeconds(10)
+        initialize()
+    }
 }

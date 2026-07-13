@@ -1,21 +1,5 @@
 package mu.server.rest.config;
 
-import static mu.server.persistence.enumeration.Permission.ADMIN_CREATE;
-import static mu.server.persistence.enumeration.Permission.ADMIN_DELETE;
-import static mu.server.persistence.enumeration.Permission.ADMIN_READ;
-import static mu.server.persistence.enumeration.Permission.ADMIN_UPDATE;
-import static mu.server.persistence.enumeration.Permission.USER_CREATE;
-import static mu.server.persistence.enumeration.Permission.USER_DELETE;
-import static mu.server.persistence.enumeration.Permission.USER_READ;
-import static mu.server.persistence.enumeration.Permission.USER_UPDATE;
-import static org.springframework.data.web.config.EnableSpringDataWebSupport.PageSerializationMode.VIA_DTO;
-import static org.springframework.http.HttpMethod.DELETE;
-import static org.springframework.http.HttpMethod.GET;
-import static org.springframework.http.HttpMethod.POST;
-import static org.springframework.http.HttpMethod.PUT;
-import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
-
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import mu.server.rest.filter.FingerprintFilter;
 import mu.server.rest.filter.RateLimitFilter;
@@ -40,6 +24,23 @@ import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.List;
+
+import static mu.server.persistence.enumeration.Permission.ADMIN_CREATE;
+import static mu.server.persistence.enumeration.Permission.ADMIN_DELETE;
+import static mu.server.persistence.enumeration.Permission.ADMIN_READ;
+import static mu.server.persistence.enumeration.Permission.ADMIN_UPDATE;
+import static mu.server.persistence.enumeration.Permission.USER_CREATE;
+import static mu.server.persistence.enumeration.Permission.USER_DELETE;
+import static mu.server.persistence.enumeration.Permission.USER_READ;
+import static mu.server.persistence.enumeration.Permission.USER_UPDATE;
+import static org.springframework.data.web.config.EnableSpringDataWebSupport.PageSerializationMode.VIA_DTO;
+import static org.springframework.http.HttpMethod.DELETE;
+import static org.springframework.http.HttpMethod.GET;
+import static org.springframework.http.HttpMethod.POST;
+import static org.springframework.http.HttpMethod.PUT;
+import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
 @Configuration
 @RequiredArgsConstructor

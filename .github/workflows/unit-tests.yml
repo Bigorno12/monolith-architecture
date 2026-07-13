@@ -22,6 +22,7 @@ jobs:
       - name: Publish Unit Tests Report
         uses: dorny/test-reporter@v3
         if: always()
+        continue-on-error: true
         with:
           name: Maven Unit Test
           path: "**/target/surefire-reports/TEST-*.xml"
