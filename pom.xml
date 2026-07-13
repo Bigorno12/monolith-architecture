@@ -45,6 +45,7 @@
         <spotless.version>3.8.0</spotless.version>
         <springdoc-openapi-starter-webmvc-ui.version>3.0.3</springdoc-openapi-starter-webmvc-ui.version>
         <swagger-annotations.version>2.2.52</swagger-annotations.version>
+        <com.fasterxml.jackson.version>2.22.1</com.fasterxml.jackson.version>
     </properties>
 
     <dependencyManagement>
