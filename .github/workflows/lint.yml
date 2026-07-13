@@ -1,0 +1,19 @@
+name: Linting Module
+
+on:
+  workflow_call:
+
+
+jobs:
+  spotless-check:
+    name: Code Formatting (Spotless & Ktlint)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7.0.0
+
+      - name: Stepup Java Environment
+        uses: ./.github/setup-java-env
+
+      - name: Verify Code Formatting
+        run: mvn spotless:check
