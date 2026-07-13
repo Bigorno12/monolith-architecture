@@ -443,7 +443,7 @@
                             <keepBlankLines>true</keepBlankLines>
                             <nrOfIndentSpace>4</nrOfIndentSpace>
                             <indentBlankLines>false</indentBlankLines>
-                            <indentSchemaLocation>true</indentSchemaLocation>
+                            <indentAttribute>schemaLocation</indentAttribute>
                             <expandEmptyElements>false</expandEmptyElements>
                             <sortProperties>true</sortProperties>
                         </sortPom>
