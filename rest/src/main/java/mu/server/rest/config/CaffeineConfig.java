@@ -38,7 +38,7 @@ public class CaffeineConfig {
     public CacheManager cacheManager() {
         CaffeineCacheManager caffeineCacheManager = new CaffeineCacheManager();
         caffeineCacheManager.setCaffeine(caffeine());
-        caffeineCacheManager.setCacheNames(List.of("jsonPlaceHolder", "userCache", "todoCache", "adminCache", "keycloakCache"));
+        caffeineCacheManager.setCacheNames(List.of("jsonPlaceHolder", "userCache", "todoCache", "adminCache", "keycloakCache", "profileCache"));
 
         caffeineCacheManager.registerCustomCache("fingerprintCache",
                 Caffeine.newBuilder()
