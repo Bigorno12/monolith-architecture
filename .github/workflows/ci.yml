@@ -49,6 +49,7 @@ jobs:
   build-gate:
     needs:
       - build
+      - lint
       - unit-tests
       - integration-tests
       - security
@@ -59,6 +60,7 @@ jobs:
       - name: Check pipeline result
         run: |
           if [ "${{ needs.build.result }}" == "failure" ] || \
+             [ "${{ needs.lint.result }}" == "failure" || \
              [ "${{ needs.unit-tests.result }}" == "failure" ] || \
              [ "${{ needs.integration-tests.result }}" == "failure" ] || \
              [ "${{ needs.security.result}}" == "failure" ] || \
