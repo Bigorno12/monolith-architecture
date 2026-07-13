@@ -1,6 +1,7 @@
 name: Main CI Orchestrator
 
 on:
+  push:
   pull_request:
     branches: [ "main" ]
 
