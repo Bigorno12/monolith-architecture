@@ -20,11 +20,14 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping(version = "1.0", value = ["/api/v1/mono/todo"], produces = ["application/json"])
-class TodoController(private val todoService: TodoService) {
-
+class TodoController(
+    private val todoService: TodoService,
+) {
     @PostMapping(value = ["/{username}"], version = "1.0")
     @PreAuthorize(value = "hasAuthority('user:create') AND #username == authentication.name")
-    fun save(@PathVariable username: String?): ResponseEntity<Void> {
+    fun save(
+        @PathVariable username: String?,
+    ): ResponseEntity<Void> {
         todoService.saveByUserId(username)
         return ResponseEntity.ok().build()
     }
@@ -33,7 +36,7 @@ class TodoController(private val todoService: TodoService) {
     @PreAuthorize(value = "hasAnyAuthority('user:create') AND #username == authentication.name")
     fun save(
         @RequestBody todoRequests: MutableList<TodoRequest>,
-        @PathVariable username: String?
+        @PathVariable username: String?,
     ): ResponseEntity<Void> {
         todoService.save(todoRequests, username)
         return ResponseEntity.ok().build()
@@ -44,22 +47,23 @@ class TodoController(private val todoService: TodoService) {
     fun findAllTodosByUsername(
         @RequestParam(name = "pageNum", defaultValue = "0") pageNum: Int,
         @RequestParam(name = "pageSize", defaultValue = "10") pageSize: Int,
-        @PathVariable username: String?
-    ): ResponseEntity<Page<TodoUsernameResponse>> = ResponseEntity.ok()
-        .body(
-            todoService.findAllTodosByUsername(
-                PageRequest.of(pageNum, pageSize, Sort.by("id").ascending()),
-                username
+        @PathVariable username: String?,
+    ): ResponseEntity<Page<TodoUsernameResponse>> =
+        ResponseEntity
+            .ok()
+            .body(
+                todoService.findAllTodosByUsername(
+                    PageRequest.of(pageNum, pageSize, Sort.by("id").ascending()),
+                    username,
+                ),
             )
-        )
 
     @PreAuthorize(value = "hasAuthority('user:read')")
     fun findAllTodos(
         @RequestParam(name = "pageNum", defaultValue = "0") pageNum: Int,
-        @RequestParam(name = "pageSize", defaultValue = "10") pageSize: Int
-    ): ResponseEntity<PagedList<TodoView>> {
-        return ResponseEntity.ok()
+        @RequestParam(name = "pageSize", defaultValue = "10") pageSize: Int,
+    ): ResponseEntity<PagedList<TodoView>> =
+        ResponseEntity
+            .ok()
             .body(todoService.findAllTodos(PageRequest.of(pageNum, pageSize, Sort.by("id").ascending())))
-    }
-
 }

@@ -19,17 +19,17 @@ class KeycloakConfig(
     @Value($$"${application.keycloak.client-id}") val clientId: String,
     @Value($$"${application.keycloak.client-secret}") val clientSecret: String,
 ) : KeycloakTokenProvider {
-
     @Bean
-    fun adminKeycloak(): Keycloak = KeycloakBuilder
-        .builder()
-        .serverUrl(serverUrl)
-        .realm(realm)
-        .grantType(OAuth2Constants.CLIENT_CREDENTIALS)
-        .clientId(clientId)
-        .clientSecret(clientSecret)
-        .resteasyClient(ResteasyClientBuilder.newBuilder().build())
-        .build()
+    fun adminKeycloak(): Keycloak =
+        KeycloakBuilder
+            .builder()
+            .serverUrl(serverUrl)
+            .realm(realm)
+            .grantType(OAuth2Constants.CLIENT_CREDENTIALS)
+            .clientId(clientId)
+            .clientSecret(clientSecret)
+            .resteasyClient(ResteasyClientBuilder.newBuilder().build())
+            .build()
 
     @Bean
     fun realmResource(keycloak: Keycloak): RealmResource = keycloak.realm(realm)
@@ -37,23 +37,26 @@ class KeycloakConfig(
     @Bean
     fun usersResource(realmResource: RealmResource): UsersResource = realmResource.users()
 
-    override fun getToken(username: String, password: String): TokenResponse {
-        val keycloakClient = KeycloakBuilder.builder()
-            .serverUrl(serverUrl)
-            .realm(realm)
-            .grantType(OAuth2Constants.PASSWORD)
-            .clientId(clientId)
-            .clientSecret(clientSecret)
-            .username(username)
-            .password(password)
-            .resteasyClient(ResteasyClientBuilder.newBuilder().build())
-            .build()
-
+    override fun getToken(
+        username: String,
+        password: String,
+    ): TokenResponse {
+        val keycloakClient =
+            KeycloakBuilder
+                .builder()
+                .serverUrl(serverUrl)
+                .realm(realm)
+                .grantType(OAuth2Constants.PASSWORD)
+                .clientId(clientId)
+                .clientSecret(clientSecret)
+                .username(username)
+                .password(password)
+                .resteasyClient(ResteasyClientBuilder.newBuilder().build())
+                .build()
 
         keycloakClient.use { client ->
             val tokenPayload = client.tokenManager().accessToken
             return TokenResponse(tokenPayload.token, tokenPayload.refreshToken)
         }
-
     }
 }

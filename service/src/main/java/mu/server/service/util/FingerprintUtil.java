@@ -1,13 +1,12 @@
 package mu.server.service.util;
 
 import jakarta.servlet.http.HttpServletRequest;
-import lombok.experimental.UtilityClass;
-
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HexFormat;
 import java.util.Objects;
+import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class FingerprintUtil {
@@ -26,4 +25,3 @@ public class FingerprintUtil {
         }
     }
 }
-

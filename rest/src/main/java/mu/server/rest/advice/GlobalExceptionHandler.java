@@ -1,5 +1,6 @@
 package mu.server.rest.advice;
 
+import java.time.LocalDateTime;
 import lombok.Builder;
 import mu.server.service.exception.JsonPlaceHolderException;
 import mu.server.service.exception.KeycloakException;
@@ -13,8 +14,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
-
-import java.time.LocalDateTime;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {

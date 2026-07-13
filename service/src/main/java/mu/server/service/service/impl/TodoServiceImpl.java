@@ -1,6 +1,8 @@
 package mu.server.service.service.impl;
 
 import com.blazebit.persistence.PagedList;
+import java.util.List;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import mu.server.persistence.entity.Todo;
@@ -23,9 +25,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.Objects;
 
 @Slf4j
 @Service

@@ -2,11 +2,10 @@ package mu.server.persistence.converter;
 
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import mu.server.persistence.util.AESConverter;
 import org.springframework.stereotype.Component;
-
-import java.util.Optional;
 
 @Converter
 @Component

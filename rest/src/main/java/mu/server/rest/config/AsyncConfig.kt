@@ -9,9 +9,8 @@ import java.util.concurrent.Executor
 @EnableAsync
 @Configuration
 class AsyncConfig : AsyncConfigurer {
-
-    override fun getAsyncExecutor(): Executor {
-        return ThreadPoolTaskExecutor().apply {
+    override fun getAsyncExecutor(): Executor =
+        ThreadPoolTaskExecutor().apply {
             corePoolSize = 3
             maxPoolSize = 10
             queueCapacity = 25
@@ -20,5 +19,4 @@ class AsyncConfig : AsyncConfigurer {
             setAwaitTerminationSeconds(10)
             initialize()
         }
-    }
 }
