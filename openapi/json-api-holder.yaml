@@ -7,24 +7,25 @@ servers:
     description: Local Server
 tags:
   - name: auth
-    description: Authentication
+    description: Authentication (Keycloak-backed)
+  - name: user
+    description: Operations about the authenticated user
+  - name: todo
+    description: Todo management
   - name: admin
     description: Admin operations
-  - name: jsonplaceholder
-    description: Get all dummy data from jsonplaceholder
-  - name: user
-    description: Operations about user
 security:
   - bearerHttpAuthentication: []
 paths:
-  /api/v1/auth/register:
+  /api/v2/auth/register:
     post:
       tags:
         - auth
       summary: "Register new user"
       operationId: registerUser
+      security: []
       parameters:
-        - $ref: '#/components/parameters/ApiVersionHeader'
+        - $ref: '#/components/parameters/ApiVersionHeaderV2'
       requestBody:
         required: true
         content:
@@ -33,86 +34,235 @@ paths:
               $ref: '#/components/schemas/UserRequest'
       responses:
         '200':
-          description: User Registered successfully
-          headers:
-            X-Fingerprint:
-              description: Server-generated fingerprint
-              schema:
-                type: string
+          description: User registered successfully
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  access_token:
-                    type: string
-                    nullable: false
-                  refresh_token:
-                    type: string
-                    nullable: false
+                $ref: '#/components/schemas/TokenResponse'
         '401':
           description: Unauthorized
 
-  /api/v1/auth/authenticate:
+  /api/v2/auth/login:
     post:
       tags:
         - auth
-      summary: "Authenticate User"
+      summary: "Authenticate user"
       operationId: authenticateUser
+      security: []
       parameters:
-        - $ref: '#/components/parameters/ApiVersionHeader'
+        - $ref: '#/components/parameters/ApiVersionHeaderV2'
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/authenticationRequest'
+              $ref: '#/components/schemas/AuthenticationRequest'
       responses:
         '200':
-          description: User authenticate successfully
-          headers:
-            X-Fingerprint:
-              description: Server-generated fingerprint
+          description: User authenticated successfully
+          content:
+            application/json:
               schema:
-                type: string
+                $ref: '#/components/schemas/TokenResponse'
+        '401':
+          description: Unauthorized
+
+  /api/v1/mono/user/update:
+    put:
+      tags:
+        - user
+      summary: "Update the authenticated user's profile"
+      operationId: updateUser
+      parameters:
+        - $ref: '#/components/parameters/ApiVersionHeader'
+        - name: username
+          in: query
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUserRequest'
+      responses:
+        '200':
+          description: User updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateUserRequest'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+
+  /api/v1/mono/user/delete/{username}:
+    delete:
+      tags:
+        - user
+      summary: "Delete the authenticated user"
+      operationId: deleteUser
+      parameters:
+        - $ref: '#/components/parameters/ApiVersionHeader'
+        - name: username
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: User deleted successfully
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+
+  /api/v1/mono/user/view-profile/{username}:
+    get:
+      tags:
+        - user
+      summary: "View the authenticated user's profile"
+      operationId: viewUserProfile
+      parameters:
+        - $ref: '#/components/parameters/ApiVersionHeader'
+        - name: username
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Profile fetched successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ViewUserProfile'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+
+  /api/v1/mono/todo/{username}:
+    post:
+      tags:
+        - todo
+      summary: "Create an empty todo list for a user"
+      operationId: createTodoForUser
+      parameters:
+        - $ref: '#/components/parameters/ApiVersionHeader'
+        - name: username
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Todo created successfully
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+
+  /api/v1/mono/todo/save/{username}:
+    post:
+      tags:
+        - todo
+      summary: "Save a list of todos for a user"
+      operationId: saveTodos
+      parameters:
+        - $ref: '#/components/parameters/ApiVersionHeader'
+        - name: username
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/TodoRequest'
+      responses:
+        '200':
+          description: Todos saved successfully
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+
+  /api/v1/mono/todo/all-todos/{username}:
+    get:
+      tags:
+        - todo
+      summary: "List all todos for a user (paginated)"
+      operationId: findAllTodosByUsername
+      parameters:
+        - $ref: '#/components/parameters/ApiVersionHeader'
+        - name: username
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: pageNum
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+        - name: pageSize
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 10
+      responses:
+        '200':
+          description: Todos fetched successfully
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  access_token:
-                    type: string
-                    nullable: false
-                  refresh_token:
-                    type: string
-                    nullable: false
+                  content:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/TodoUsernameResponse'
         '401':
           description: Unauthorized
-  /api/v1/refresh-token:
-    post:
+        '403':
+          description: Forbidden
+
+  /api/v1/mono/admin/{id}:
+    get:
       tags:
-        - auth
-      summary: "Refresh Token"
-      operationId: refreshToken
+        - admin
+      summary: "Find a user by id (admin only)"
+      operationId: findUserById
       parameters:
         - $ref: '#/components/parameters/ApiVersionHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
       responses:
         '200':
-          description: Refresh token Successful
+          description: User found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
         '401':
           description: Unauthorized
-  /api/v1/logout:
-    post:
-      tags:
-        - auth
-      summary: logout
-      parameters:
-        - $ref: '#/components/parameters/ApiVersionHeader'
-      responses:
-        '200':
-          description: "Logout Successful"
-        '401':
-          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: User not found
 
 components:
   securitySchemes:
@@ -130,193 +280,170 @@ components:
         type: string
         default: "1.0"
         example: "1.0"
-    FingerprintHeader:
-      name: X-Fingerprint
+    ApiVersionHeaderV2:
+      name: X-API-Version
       in: header
-      required: false
+      required: true
       schema:
         type: string
-        example: "abc123fingerprint"
+        default: "2.0"
+        example: "2.0"
   schemas:
     UserRequest:
       type: object
       properties:
         firstName:
-          title: Firstname
           type: string
           nullable: false
-          maxLength: 50
           example: John
         lastName:
-          title: Lastname
           type: string
           nullable: false
-          maxLength: 50
           example: Doe
         age:
-          title: Age
           type: integer
-          nullable: false
           format: int32
-          maximum: 16
-          exclusiveMinimum: false
-          example: 16
+          minimum: 16
+          maximum: 100
+          example: 25
+        gender:
+          $ref: '#/components/schemas/Gender'
         email:
-          title: E-mail
           type: string
           format: email
           nullable: false
         username:
-          title: Username
           type: string
           nullable: false
           example: test
         role:
-          title: Role
-          type: string
-          enum:
-            - ADMIN
-            - USER
-          nullable: false
-          example: USER
+          $ref: '#/components/schemas/Role'
         password:
-          title: Password
           type: string
           nullable: false
           example: P@ssW0rd%
-    authenticationRequest:
+    AuthenticationRequest:
       type: object
       properties:
         username:
-          title: Username
           type: string
           nullable: false
           example: test
         password:
-          title: Password
           type: string
           nullable: false
           example: P@ssW0rd%
-    User:
+    TokenResponse:
       type: object
       properties:
-        id:
-          type: integer
+        access_token:
+          type: string
           nullable: false
-          format: int64
-          maxLength: 50
-          example: 1
+        refresh_token:
+          type: string
+          nullable: false
+    UpdateUserRequest:
+      type: object
+      properties:
         firstname:
           type: string
           nullable: false
-          maxLength: 50
-          example: "Leanne"
+          example: John
         lastname:
           type: string
           nullable: false
-          maxLength: 50
-          example: "Graham"
+          example: Doe
         age:
           type: integer
-          nullable: false
-          format: int64
-          example: 12
+          format: int32
+          minimum: 16
+          maximum: 100
+          example: 25
         gender:
+          $ref: '#/components/schemas/Gender'
+        email:
           type: string
           nullable: false
-          enum:
-            - MALE
-            - FEMALE
-            - OTHER
+          example: john.doe@test.com
         username:
           type: string
           nullable: false
-          example: "Bret"
+          example: test
+    UserResponse:
+      type: object
+      properties:
+        firstName:
+          type: string
+          nullable: false
+          example: John
+        lastName:
+          type: string
+          nullable: false
+          example: Doe
+        age:
+          type: integer
+          format: int32
+          example: 25
+        gender:
+          $ref: '#/components/schemas/Gender'
         email:
           type: string
           nullable: false
-          example: "test@test.com"
-        password:
+          example: john.doe@test.com
+        username:
           type: string
           nullable: false
-          example: "password"
-        role:
-          type: string
-          nullable: false
-          enum:
-            - USER
-            - ADMIN
-        tokens:
-          type: array
-          items:
-            $ref: '#/components/schemas/Token'
-    Todo:
+          example: test
+    ViewUserProfile:
       type: object
       properties:
-        id:
+        firstName:
+          type: string
+          example: John
+        lastName:
+          type: string
+          example: Doe
+        username:
+          type: string
+          example: test
+        email:
+          type: string
+          example: john.doe@test.com
+        age:
           type: integer
-          format: int64
-          example: 1
-        userDto:
-          $ref: '#/components/schemas/User'
+          example: 25
+    TodoRequest:
+      type: object
+      properties:
         title:
           type: string
+          nullable: false
           example: delectus aut autem
         completed:
           type: boolean
-    Post:
+          nullable: false
+    TodoUsernameResponse:
       type: object
       properties:
-        id:
-          type: integer
-          format: int64
-          example: 1
-        userDto:
-          $ref: '#/components/schemas/User'
         title:
           type: string
-          example: delectus aut autem
-        body:
-          type: string
-          example: delectus aut autem
-    Comment:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int64
-          example: 1
-        post:
-          $ref: '#/components/schemas/Post'
-        email:
-          type: string
-          example: test@test.com
-        body:
-          type: string
-          example: delectus aut autem
-        name:
-          type: string
-          example: delectus aut autem
-    Token:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int64
-          example: 1
-        token:
-          type: string
           nullable: false
-        tokenType:
-          type: string
-          nullable: false
-          enum:
-            - BEARER
-        revoked:
+          example: delectus aut autem
+        completed:
           type: boolean
           nullable: false
-        expired:
-          type: boolean
+        username:
+          type: string
           nullable: false
-        user:
-          $ref: "#/components/schemas/User"
+          example: test
+    Gender:
+      type: string
+      enum:
+        - MALE
+        - FEMALE
+        - OTHER
+    Role:
+      type: string
+      enum:
+        - USER
+        - ADMIN
