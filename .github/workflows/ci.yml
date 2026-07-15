@@ -47,6 +47,8 @@ jobs:
     uses: ./.github/workflows/security.yml
     permissions:
       security-events: write
+      actions: read
+      contents: read
 
   tag:
     needs: [security]
