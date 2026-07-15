@@ -8,7 +8,10 @@ import mu.server.service.dto.user.ViewUserProfile
 interface UserService {
     fun findUserById(id: Long): Result<UserResponse>?
 
-    fun updateUser(updateUserRequest: UpdateUserRequest, username: String): UpdateUserRequest
+    fun updateUser(
+        updateUserRequest: UpdateUserRequest,
+        username: String,
+    ): UpdateUserRequest
 
     fun deleteUser(username: String)
 
