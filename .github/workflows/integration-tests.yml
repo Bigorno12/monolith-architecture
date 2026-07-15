@@ -48,6 +48,6 @@ jobs:
         continue-on-error: true
         with:
           name: Maven Unit Test
-          path: "**/target/surefire-reports/TEST-*.xml"
+          path: "**/target/*-reports/TEST-*.xml"
           reporter: java-junit
           fail-on-error: 'false'
