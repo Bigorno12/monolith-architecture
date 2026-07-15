@@ -14,6 +14,15 @@ jobs:
       checks: write
       pull-requests: write
     steps:
+
+      - name: Harden Runner
+        uses: step-security/harden-runner@v2.20.0
+        with:
+          egress-policy: block
+          allowed-endpoints: >
+            github.com:443
+            repo.maven.apache.org:443
+
       - uses: actions/checkout@v7.0.0
         with:
           fetch-depth: 0

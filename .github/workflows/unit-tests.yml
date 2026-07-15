@@ -9,6 +9,15 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
+
+      - name: Harden Runner
+        uses: step-security/harden-runner@v2.20.0
+        with:
+          egress-policy: block
+          allowed-endpoints: >
+            github.com:443
+            repo.maven.apache.org:443
+
       - uses: actions/checkout@v7.0.0
 
       - name: Setup Java Environment
@@ -18,3 +27,13 @@ jobs:
 
       - name: Run Unit Test
         run: mvn -B test --file pom.xml
+
+      - name: Publish Unit Tests Report
+        uses: dorny/test-reporter@v3
+        if: always()
+        continue-on-error: true
+        with:
+          name: Maven Unit Test
+          path: "**/target/*-reports/TEST-*.xml"
+          reporter: java-junit
+          fail-on-error: 'false'

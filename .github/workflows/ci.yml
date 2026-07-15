@@ -1,6 +1,9 @@
 name: Main CI Orchestrator
 
 on:
+  push:
+    branches:
+      - "main"
   pull_request:
     branches: [ "main" ]
 
@@ -9,39 +12,55 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
-  contents: write
-  security-events: write
-  checks: write
-  pull-requests: write
-  actions: read
+  contents: read
 
 jobs:
   build:
     uses: ./.github/workflows/build.yml
     secrets: inherit
+    permissions:
+      contents: write
+      security-events: write
+      checks: write
+      pull-requests: write
+
+  lint:
+    needs: build
+    uses: ./.github/workflows/lint.yml
 
   unit-tests:
     needs: build
     uses: ./.github/workflows/unit-tests.yml
     secrets: inherit
+    permissions:
+      checks: write
 
   integration-tests:
     needs: build
     uses: ./.github/workflows/integration-tests.yml
     secrets: inherit
+    permissions:
+      checks: write
 
   security:
     needs: [unit-tests, integration-tests]
     uses: ./.github/workflows/security.yml
+    permissions:
+      security-events: write
+      actions: read
+      contents: read
 
   tag:
     needs: [security]
     if: github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'main'
     uses: ./.github/workflows/tag.yml
+    permissions:
+      contents: write
 
   build-gate:
     needs:
       - build
+      - lint
       - unit-tests
       - integration-tests
       - security
@@ -52,6 +71,7 @@ jobs:
       - name: Check pipeline result
         run: |
           if [ "${{ needs.build.result }}" == "failure" ] || \
+             [ "${{ needs.lint.result }}" == "failure" ] || \
              [ "${{ needs.unit-tests.result }}" == "failure" ] || \
              [ "${{ needs.integration-tests.result }}" == "failure" ] || \
              [ "${{ needs.security.result}}" == "failure" ] || \

@@ -17,17 +17,19 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping(version = "1.0", value = ["/api/v1/mono/user"], produces = ["application/json"])
-class UserController(private val userService: UserService) {
-
+class UserController(
+    private val userService: UserService,
+) {
     @PreAuthorize(value = "hasAuthority('user:update') AND #username == authentication.name")
     @PutMapping(
         path = ["/update"],
         produces = ["application/json"],
         consumes = ["application/json"],
-        version = "1.0")
+        version = "1.0",
+    )
     fun updateUser(
         @RequestBody updateUserRequest: UpdateUserRequest,
-        @RequestParam(name = "username") username: String
+        @RequestParam(name = "username") username: String,
     ): ResponseEntity<UpdateUserRequest> {
         val updateUser: UpdateUserRequest = userService.updateUser(updateUserRequest, username)
         return ResponseEntity.status(HttpStatus.OK).body(updateUser)
@@ -38,9 +40,11 @@ class UserController(private val userService: UserService) {
         path = ["/delete/{username}"],
         produces = ["application/json"],
         consumes = ["application/json"],
-        version = "1.0"
+        version = "1.0",
     )
-    fun deleteUserById(@PathVariable username: String): ResponseEntity<Void> {
+    fun deleteUserById(
+        @PathVariable username: String,
+    ): ResponseEntity<Void> {
         userService.deleteUser(username)
         return ResponseEntity.status(HttpStatus.OK).build()
     }
@@ -50,10 +54,9 @@ class UserController(private val userService: UserService) {
         path = ["/view-profile/{username}"],
         produces = ["application/json"],
         consumes = ["application/json"],
-        version = "1.0"
+        version = "1.0",
     )
-    fun viewUserProfile(@PathVariable username: String): ResponseEntity<ViewUserProfile> {
-        return ResponseEntity.status(HttpStatus.OK).body(userService.viewUserProfile(username))
-    }
-
+    fun viewUserProfile(
+        @PathVariable username: String,
+    ): ResponseEntity<ViewUserProfile> = ResponseEntity.status(HttpStatus.OK).body(userService.viewUserProfile(username))
 }
