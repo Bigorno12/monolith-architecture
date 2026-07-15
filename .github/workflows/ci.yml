@@ -18,6 +18,11 @@ jobs:
   build:
     uses: ./.github/workflows/build.yml
     secrets: inherit
+    permissions:
+      contents: write
+      security-events: write
+      checks: write
+      pull-requests: write
 
   lint:
     needs: build
@@ -27,11 +32,15 @@ jobs:
     needs: build
     uses: ./.github/workflows/unit-tests.yml
     secrets: inherit
+    permissions:
+      checks: write
 
   integration-tests:
     needs: build
     uses: ./.github/workflows/integration-tests.yml
     secrets: inherit
+    permissions:
+      checks: write
 
   security:
     needs: [unit-tests, integration-tests]
