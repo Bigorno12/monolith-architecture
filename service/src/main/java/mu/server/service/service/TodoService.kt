@@ -8,13 +8,17 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 
 interface TodoService {
-
-    fun save(todoRequest: List<TodoRequest>?, username: String?)
+    fun save(
+        todoRequest: List<TodoRequest>?,
+        username: String?,
+    )
 
     fun saveByUserId(username: String?)
 
-    fun findAllTodosByUsername(pageable: Pageable?, username: String?): Page<TodoUsernameResponse>?
+    fun findAllTodosByUsername(
+        pageable: Pageable?,
+        username: String?,
+    ): Page<TodoUsernameResponse>?
 
     fun findAllTodos(pageable: Pageable): PagedList<TodoView>?
-
 }

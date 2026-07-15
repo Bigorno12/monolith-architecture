@@ -8,11 +8,16 @@ import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Repository
 
 @Repository
-interface TodoRepository : GenericRepository<Todo>, TodoCustomRepository {
-
+interface TodoRepository :
+    GenericRepository<Todo>,
+    TodoCustomRepository {
     @Modifying
-    @Query("""
+    @Query(
+        """
         DELETE FROM Todo t WHERE t.user.id = :userId
-    """)
-    fun deleteByUserId(@Param("userId") userId: Long)
+    """,
+    )
+    fun deleteByUserId(
+        @Param("userId") userId: Long,
+    )
 }

@@ -29,9 +29,8 @@ import org.springframework.transaction.annotation.Transactional
 class UserServiceImpl(
     private val userRepository: UserRepository,
     private val userMapper: UserMapper,
-    private val usersResource: UsersResource
+    private val usersResource: UsersResource,
 ) : UserService {
-
     companion object {
         private val LOG = LoggerFactory.getLogger(UserServiceImpl::class.java)
     }
@@ -39,23 +38,29 @@ class UserServiceImpl(
     @CircuitBreaker(name = "userService", fallbackMethod = "fallbackUpdateUser")
     @Transactional(rollbackFor = [NotFoundException::class, UsernameExistException::class])
     @Caching(
-        put = [CachePut(
-            cacheNames = ["userCache", "keycloakCache"],
-            key = "#updateUserRequest.username",
-            unless = "#result == null",
-            condition = "#updateUserRequest != null"
-        )],
-        evict = [CacheEvict(
-            cacheNames = ["profileCache"],
-            key = "#username",
-        )]
+        put = [
+            CachePut(
+                cacheNames = ["userCache", "keycloakCache"],
+                key = "#updateUserRequest.username",
+                unless = "#result == null",
+                condition = "#updateUserRequest != null",
+            ),
+        ],
+        evict = [
+            CacheEvict(
+                cacheNames = ["profileCache"],
+                key = "#username",
+            ),
+        ],
     )
     override fun updateUser(
         updateUserRequest: UpdateUserRequest,
-        username: String
+        username: String,
     ): UpdateUserRequest {
-        val checkUsernameExist: User? = userRepository.findUserByUsername(username)
-            .orElseThrow { NotFoundException("User $username found") }
+        val checkUsernameExist: User? =
+            userRepository
+                .findUserByUsername(username)
+                .orElseThrow { NotFoundException("User $username found") }
 
         if (updateUserRequest.username().equals(checkUsernameExist?.username)) {
             val updateUser: User = userMapper.updateUserFromDto(updateUserRequest, checkUsernameExist)
@@ -63,7 +68,8 @@ class UserServiceImpl(
             updateKeycloakUsername(checkUsernameExist?.keycloakId, updateUserRequest)
             return userMapper.mapToUpdateUser(updateUser)
         } else {
-            userRepository.findUserByUsername(updateUserRequest.username())
+            userRepository
+                .findUserByUsername(updateUserRequest.username())
                 .ifPresent { throw UsernameExistException("User $username already exists!") }
 
             val updateUserDifferentUsername: User? = userMapper.updateUserFromDto(updateUserRequest, checkUsernameExist)
@@ -78,9 +84,10 @@ class UserServiceImpl(
         cacheNames = ["adminCache"],
         unless = "#result == null",
         condition = "#result != null && #id != null",
-        key = "#id"
+        key = "#id",
     )
-    override fun findUserById(id: Long): Result<UserResponse>? = userRepository.findById(id)
+    override fun findUserById(id: Long): Result<UserResponse>? = userRepository
+        .findById(id)
         .map { userMapper.mapToUserResponse(it) }
         .map { Result.ok(it) }
         .orElse(Result.failure("User Not Found $id"))
@@ -90,11 +97,13 @@ class UserServiceImpl(
     @CacheEvict(
         key = "#username",
         cacheNames = ["userCache", "keycloakCache"],
-        condition = "#username != null OR #result != null"
+        condition = "#username != null OR #result != null",
     )
     override fun deleteUser(username: String) {
-        val user: User = userRepository.findUserByUsername(username)
-            .orElseThrow { NotFoundException("User $username not found") }
+        val user: User =
+            userRepository
+                .findUserByUsername(username)
+                .orElseThrow { NotFoundException("User $username not found") }
 
         try {
             userRepository.deleteById(user.id)
@@ -120,34 +129,43 @@ class UserServiceImpl(
         key = "#username",
         cacheNames = ["profileCache"],
         condition = "#username != null OR #result != null",
-        unless = "#result == null"
+        unless = "#result == null",
     )
-    override fun viewUserProfile(username: String): ViewUserProfile {
-        return userRepository.findUserByUsername(username)
-            .map { userMapper.mapToUserProfile(it) }
-            .orElseThrow { NotFoundException("User $username not found") }
-    }
+    override fun viewUserProfile(username: String): ViewUserProfile = userRepository
+        .findUserByUsername(username)
+        .map { userMapper.mapToUserProfile(it) }
+        .orElseThrow { NotFoundException("User $username not found") }
 
-    fun fallbackDeleteUser(username: String, ex: Throwable) {
+    fun fallbackDeleteUser(
+        username: String,
+        ex: Throwable,
+    ) {
         LOG.error(
             "Circuit breaker triggered for deleteUser with username: {} and error message: {}",
             username,
-            ex.message
+            ex.message,
         )
         throw ex
     }
 
-    fun fallbackUpdateUser(updateUserRequest: UpdateUserRequest, username: String, ex: Throwable): UpdateUserRequest {
+    fun fallbackUpdateUser(
+        updateUserRequest: UpdateUserRequest,
+        username: String,
+        ex: Throwable,
+    ): UpdateUserRequest {
         LOG.error(
             "Circuit breaker triggered for updateUser: {} with username: {} and error message: {}",
             username,
             updateUserRequest,
-            ex.message
+            ex.message,
         )
         throw ex
     }
 
-    private fun updateKeycloakUsername(keycloakId: String?, updateUserRequest: UpdateUserRequest) {
+    private fun updateKeycloakUsername(
+        keycloakId: String?,
+        updateUserRequest: UpdateUserRequest,
+    ) {
         try {
             val keycloakUserResource: UserResource? = usersResource.get(keycloakId)
             val userRepresentation: UserRepresentation? = updateUserRequest.let { userMapper.updateUserKeycloak(it) }

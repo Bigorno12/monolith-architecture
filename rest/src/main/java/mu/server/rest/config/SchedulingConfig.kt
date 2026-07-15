@@ -10,21 +10,18 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler
 @Configuration
 @EnableScheduling
 class SchedulingConfig {
-
     companion object {
         private val LOGGER = LoggerFactory.getLogger(SchedulingConfig::class.java)
     }
 
     @Bean
-    fun taskScheduler(): TaskScheduler {
-        return ThreadPoolTaskScheduler().apply {
-            poolSize = 4
-            setThreadNamePrefix("scheduler-")
-            isRemoveOnCancelPolicy = true
-            setAwaitTerminationSeconds(300)
-            setWaitForTasksToCompleteOnShutdown(true)
-            setErrorHandler { t -> LOGGER.error("Uncaught in scheduled pool tasks: ${t.message}") }
-            initialize()
-        }
+    fun taskScheduler(): TaskScheduler = ThreadPoolTaskScheduler().apply {
+        poolSize = 4
+        setThreadNamePrefix("scheduler-")
+        isRemoveOnCancelPolicy = true
+        setAwaitTerminationSeconds(300)
+        setWaitForTasksToCompleteOnShutdown(true)
+        setErrorHandler { t -> LOGGER.error("Uncaught in scheduled pool tasks: ${t.message}") }
+        initialize()
     }
 }

@@ -7,12 +7,23 @@ jobs:
   codeql:
     name: CodeQL Security Scan
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 30
     permissions:
       actions: read
       contents: read
       security-events: write
     steps:
+
+      - name: Harden Runner
+        uses: step-security/harden-runner@v2.20.0
+        with:
+          egress-policy: block
+          allowed-endpoints: >
+            api.github.com:443
+            github.com:443
+            release-assets.githubusercontent.com:443
+            repo.maven.apache.org:443
+
       - uses: actions/checkout@v7
 
       - name: Setup Java Environment
