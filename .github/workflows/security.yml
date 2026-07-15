@@ -23,6 +23,9 @@ jobs:
             github.com:443
             release-assets.githubusercontent.com:443
             repo.maven.apache.org:443
+            repo.spring.io:443
+            repository.jboss.org:443
+
 
       - uses: actions/checkout@v7
 
