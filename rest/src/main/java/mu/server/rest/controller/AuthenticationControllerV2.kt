@@ -14,19 +14,18 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping(version = "2.0", value = ["/api/v2/auth"], produces = ["application/json"])
-class AuthenticationControllerV2(private val keycloakService: KeycloakService) {
-
+class AuthenticationControllerV2(
+    private val keycloakService: KeycloakService,
+) {
     @PostMapping(version = "2.0", value = ["/register"], produces = ["application/json"])
     fun register(
         @Validated @RequestBody userRequest: UserRequest,
-        request: HttpServletRequest
-    ): ResponseEntity<TokenResponse> =
-        ResponseEntity.ok(keycloakService.register(userRequest, request))
+        request: HttpServletRequest,
+    ): ResponseEntity<TokenResponse> = ResponseEntity.ok(keycloakService.register(userRequest, request))
 
     @PostMapping(version = "2.0", value = ["/login"], produces = ["application/json"])
     fun authenticate(
         @RequestBody auth: AuthenticationRequest,
-        request: HttpServletRequest
-    ): ResponseEntity<TokenResponse> =
-        ResponseEntity.ok(keycloakService.authenticate(auth.username, auth.password, request))
+        request: HttpServletRequest,
+    ): ResponseEntity<TokenResponse> = ResponseEntity.ok(keycloakService.authenticate(auth.username, auth.password, request))
 }

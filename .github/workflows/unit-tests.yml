@@ -18,3 +18,13 @@ jobs:
 
       - name: Run Unit Test
         run: mvn -B test --file pom.xml
+
+      - name: Publish Unit Tests Report
+        uses: dorny/test-reporter@v3
+        if: always()
+        continue-on-error: true
+        with:
+          name: Maven Unit Test
+          path: "**/target/*-reports/TEST-*.xml"
+          reporter: java-junit
+          fail-on-error: 'false'
