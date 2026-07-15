@@ -12,16 +12,23 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping(version = "1.0", value = ["/api/v1/mono/admin"], produces = ["application/json"])
-class AdminController(private val userService: UserService) {
-
+class AdminController(
+    private val userService: UserService,
+) {
     @PreAuthorize(value = "hasAuthority('admin:read')")
     @GetMapping(value = ["/{id}"], version = "1.0", produces = ["application/json"])
-    fun findUserById(@PathVariable id: Long): ResponseEntity<UserResponse>? {
+    fun findUserById(
+        @PathVariable id: Long,
+    ): ResponseEntity<UserResponse>? {
         val result: Result<UserResponse>? = userService.findUserById(id)
         return result?.let { user ->
-            if (user.success.not()) ResponseEntity.notFound().build() else ResponseEntity.ok(
-                user.result
-            )
+            if (user.success.not()) {
+                ResponseEntity.notFound().build()
+            } else {
+                ResponseEntity.ok(
+                    user.result,
+                )
+            }
         }
     }
 }

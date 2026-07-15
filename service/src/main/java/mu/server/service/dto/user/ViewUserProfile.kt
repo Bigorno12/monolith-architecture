@@ -5,5 +5,5 @@ data class ViewUserProfile(
     val lastName: String,
     val username: String,
     val email: String,
-    val age: Int
+    val age: Int,
 )

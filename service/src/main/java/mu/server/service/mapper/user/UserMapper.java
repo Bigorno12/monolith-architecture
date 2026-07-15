@@ -9,10 +9,11 @@ import org.mapstruct.InheritInverseConfiguration;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
+import org.mapstruct.ReportingPolicy;
 
 import java.util.Collections;
 
-@Mapper(componentModel = "spring", imports = {Collections.class})
+@Mapper(componentModel = "spring", imports = {Collections.class}, unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface UserMapper extends KeycloakMapper {
 
     @Mapping(target = "id", ignore = true)

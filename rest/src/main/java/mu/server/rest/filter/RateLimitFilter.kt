@@ -12,20 +12,21 @@ import java.time.Duration
 
 @Component
 class RateLimitFilter : OncePerRequestFilter() {
-
-    private val bucket: Bucket = Bucket.builder()
-        .addLimit(
-            Bandwidth.builder()
-                .capacity(100)
-                .refillGreedy(100, Duration.ofMinutes(1))
-                .build()
-        )
-        .build()
+    private val bucket: Bucket =
+        Bucket
+            .builder()
+            .addLimit(
+                Bandwidth
+                    .builder()
+                    .capacity(100)
+                    .refillGreedy(100, Duration.ofMinutes(1))
+                    .build(),
+            ).build()
 
     override fun doFilterInternal(
         request: HttpServletRequest,
         response: HttpServletResponse,
-        filterChain: FilterChain
+        filterChain: FilterChain,
     ) {
         if (bucket.tryConsume(1)) {
             filterChain.doFilter(request, response)

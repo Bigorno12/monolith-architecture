@@ -28,6 +28,12 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
+
+      - name: Harden Runner
+        uses: step-security/harden-runner@v2.20.0
+        with:
+          egress-policy: audit
+
       - uses: actions/checkout@v7.0.0
 
       - name: Setup Java Environment
@@ -35,3 +41,13 @@ jobs:
 
       - name: Run Integration Tests
         run: mvn -B verify -Dsurefire.skip=true --file pom.xml
+
+      - name: Publish Integration Tests Report
+        uses: dorny/test-reporter@v3
+        if: always()
+        continue-on-error: true
+        with:
+          name: Maven Unit Test
+          path: "**/target/*-reports/TEST-*.xml"
+          reporter: java-junit
+          fail-on-error: 'false'
