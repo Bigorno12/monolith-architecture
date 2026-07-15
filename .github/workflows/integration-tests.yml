@@ -36,6 +36,9 @@ jobs:
           allowed-endpoints: >
             github.com:443
             repo.maven.apache.org:443
+            repo.spring.io:443
+            repository.jboss.org:443
+
 
       - uses: actions/checkout@v7.0.0
 
