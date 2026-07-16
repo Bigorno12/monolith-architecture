@@ -1,0 +1,2 @@
+ALTER TABLE _user
+DROP COLUMN password;
