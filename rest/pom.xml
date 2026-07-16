@@ -46,7 +46,18 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
+                    <skip>false</skip>
                     <mainClass>${app.main.class}</mainClass>
+                    <image>
+                        <name>monolith-architecture:latest</name>
+                        <env>
+                            <BP_JVM_VERSION>25</BP_JVM_VERSION>
+                        </env>
+                        <buildpacks>
+                            <buildpack>docker.io/paketobuildpacks/adoptium</buildpack>
+                            <buildpack>urn:cnb:builder:paketo-buildpacks/java</buildpack>
+                        </buildpacks>
+                    </image>
                 </configuration>
                 <executions>
                     <execution>
