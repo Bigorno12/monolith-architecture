@@ -1,0 +1,109 @@
+# 1. The Switchboard (Service)
+apiVersion: v1
+kind: Service
+metadata:
+  name: monolith-api
+spec:
+  type: ClusterIP
+  selector:
+    app: monolith-api
+    color: blue
+  ports:
+    - name: http
+      protocol: TCP
+      port: 8080
+      targetPort: 8080
+---
+# 2. The LIVE Environment (Blue)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: monolith-api-blue
+spec:
+  selector:
+    matchLabels:
+      app: monolith-api
+      color: blue
+  template:
+    metadata:
+      labels:
+        app: monolith-api
+        color: blue
+    spec:
+      containers:
+        - name: monolith-api
+          image: monolith-architecture:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: monolith-config
+            - secretRef:
+                name: monolith-secrets
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8080
+            initialDelaySeconds: 60
+            timeoutSeconds: 240
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8080
+            initialDelaySeconds: 60
+            timeoutSeconds: 240
+          lifecycle:
+            preStop:
+              exec:
+                command:
+                  - "sh"
+                  - "-c"
+                  - "sleep 10"
+---
+# 3. The IDLE Environment (Green)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: monolith-api-green
+spec:
+  selector:
+    matchLabels:
+      app: monolith-api
+      color: green
+  template:
+    metadata:
+      labels:
+        app: monolith-api
+        color: green
+    spec:
+      containers:
+        - name: monolith-api
+          image: monolith-architecture:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: monolith-config
+            - secretRef:
+                name: monolith-secrets
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8080
+            initialDelaySeconds: 60
+            timeoutSeconds: 240
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8080
+            initialDelaySeconds: 60
+            timeoutSeconds: 240
+          lifecycle:
+            preStop:
+              exec:
+                command:
+                  - "sh"
+                  - "-c"
+                  - "sleep 10"
