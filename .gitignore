@@ -33,6 +33,6 @@ replay_pid*
 /rest/src/main/java/mu/server/rest/httprequests/auth-requests.http
 
 # Environment files
-.env
+*.env
 .env.*
 !.env.example

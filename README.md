@@ -20,10 +20,10 @@ rest  ──▶  service  ──▶  persistence
 # 1. Start infrastructure (MySQL, PostgreSQL, Keycloak)
 cd infra
 
-# .env is required — docker-compose/podman-compose reads DB & Keycloak
+# deployment.env is required — docker-compose/podman-compose reads DB & Keycloak
 # credentials from it and will fail to start without it
-cp .env.example .env
-# then fill in real values for MYSQL_*, POSTGRES_*, KEYCLOAK_* in .env
+cp deployment.env.example deployment.env
+# then fill in real values for MYSQL_*, POSTGRES_*, KEYCLOAK_* in deployment.env
 
 docker-compose up -d
 # — OR, if using Podman —
@@ -31,7 +31,7 @@ podman-compose up -d
 
 cd ..
 
-# 2. Set the required DB & Keycloak env vars (must match values used in infra/.env),
+# 2. Set the required DB & Keycloak env vars (must match values used in infra/deployment.env),
 # then build and run (dev profile — requires step 1)
 export WELLDEV_URL=jdbc:mysql://localhost:3306/<MYSQL_DATABASE>
 export WELLDEV_USERNAME=<MYSQL_USER>
