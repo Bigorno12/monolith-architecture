@@ -10,7 +10,7 @@ nodes:
           kubeletExtraArgs:
             node-labels: "ingress-ready=true"
     extraPortMappings:
-      # NGINX Ingress (Standard Web Traffic) - The ONLY ports you need!
+      # NGINX Ingress (Standard Web Traffic)
       - containerPort: 80
         hostPort: 80
         protocol: TCP
