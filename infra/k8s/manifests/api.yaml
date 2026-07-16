@@ -88,6 +88,10 @@ spec:
                 name: monolith-config
             - secretRef:
                 name: monolith-secrets
+          resources:
+            limits:
+              memory: "1Gi"
+              cpu: "2.0"
           livenessProbe:
             httpGet:
               path: /actuator/health/liveness

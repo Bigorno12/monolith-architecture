@@ -9,10 +9,10 @@ spec:
     - http:
         paths:
           - backend:
-              - service:
-                  name: keycloak
-                  port:
-                    number: 7080
+              service:
+                name: keycloak
+                port:
+                  number: 7080
             path: /auth
             pathType: Prefix
           - backend:
