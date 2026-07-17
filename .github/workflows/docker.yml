@@ -31,14 +31,20 @@ jobs:
         env:
           REPO_NAME: ${{ github.repository }}
           EVENT_NAME: ${{ github.event_name }}
+          SHORT_SHA: ${{ github.sha }}
         run: |
           REPO_LC=$(echo "$REPO_NAME" | tr '[:upper:]' '[:lower:]')
-          IMAGE_NAME="ghcr.io/$REPO_LC/monolith-architecture:latest"
+          SHORT_SHA=$(echo "$SHORT_SHA" | cut -c1-c7)
           
-          PUBLISH="false"
-          if [ "$EVENT_NAME" != "pull_request" ]; then
+          if [ "$EVENT_NAME" == "pull_request" ]; then
+            TAG="pr-${{ github.event.pull_request.number }}"
+            PUBLISH=false
+          else
+            TAG="main-${SHORT_SHA}"
             PUBLISH="true"
           fi
+          
+          IMAGE_NAME="ghcr.io/$REPO_LC/monolith-architecture:$TAG"
           
           echo "Building image: $IMAGE_NAME"
           echo "Publishing to GHCR: $PUBLISH"
