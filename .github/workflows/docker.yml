@@ -10,6 +10,11 @@ jobs:
     timeout-minutes: 15
     steps:
 
+      - name: Harden Runner
+        uses: step-security/harden-runner@v2.20.0
+        with:
+          egress-policy: audit
+
       - uses: actions/checkout@v7.0.0
 
       - name: Setup Java Environment
@@ -42,3 +47,15 @@ jobs:
             -P dev -pl rest -am \
             -Dspring-boot.build-image.imageName=$IMAGE_NAME \
             -Dspring-boot.build-image.publish=$PUBLISH
+
+      - name: Keep only the latest 3 images
+        if: github.event_name != 'pull_request'
+        uses: snok/container-retention-policy@v3.1.0
+        with:
+          image-names: monolith-architecture
+          cut-off: just now
+          timestamp-to-use: 'updated_at'
+          keep-n-most-recent: '3'
+          account: user
+          token: ${{ secrets.GITHUB_TOKEN }}
+
