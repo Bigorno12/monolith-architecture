@@ -13,7 +13,18 @@ jobs:
       - name: Harden Runner
         uses: step-security/harden-runner@v2.20.0
         with:
-          egress-policy: audit
+          egress-policy: block
+          allowed-endpoints: >
+            auth.docker.io:443
+            ghcr.io:443
+            github.com:443
+            production.cloudfront.docker.com:443
+            registry-1.docker.io:443
+            release-assets.githubusercontent.com:443
+            repo1.maven.org:443
+            api.github.com:443
+            objects.githubusercontent.com:443
+            pkg-containers.githubusercontent.com:443
 
       - uses: actions/checkout@v7.0.0
 
