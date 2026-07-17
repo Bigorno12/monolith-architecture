@@ -36,6 +36,15 @@ spec:
           imagePullPolicy: Never
           ports:
             - containerPort: 8080
+          env:
+            - name: JAVA_TOOL_OPTIONS
+              value: -Xms1g -Xmx1g -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+UseStringDeduplication -XX:MaxMetaspaceSize=256m
+            - name: BPL_JVM_THREAD_COUNT
+              value: "50"
+          resources:
+            limits:
+              memory: 1Gi
+              cpu: 2
           envFrom:
             - configMapRef:
                 name: monolith-config
@@ -83,15 +92,20 @@ spec:
           imagePullPolicy: Never
           ports:
             - containerPort: 8080
+          env:
+            - name: JAVA_TOOL_OPTIONS
+              value: -Xms1g -Xmx1g -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+UseStringDeduplication -XX:MaxMetaspaceSize=256m
+            - name: BPL_JVM_THREAD_COUNT
+              value: "50"
+          resources:
+            limits:
+              memory: "1Gi"
+              cpu: "2.0"
           envFrom:
             - configMapRef:
                 name: monolith-config
             - secretRef:
                 name: monolith-secrets
-          resources:
-            limits:
-              memory: "1Gi"
-              cpu: "2.0"
           livenessProbe:
             httpGet:
               path: /actuator/health/liveness
