@@ -49,7 +49,6 @@
                     <skip>false</skip>
                     <mainClass>${app.main.class}</mainClass>
                     <image>
-                        <name>monolith-architecture:latest</name>
                         <env>
                             <BP_JVM_VERSION>25</BP_JVM_VERSION>
                         </env>
