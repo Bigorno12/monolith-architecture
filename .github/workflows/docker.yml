@@ -73,7 +73,7 @@ jobs:
         uses: snok/container-retention-policy@v3.1.0
         with:
           image-names: monolith-architecture
-          cut-off: just now
+          cut-off: 0s
           timestamp-to-use: 'updated_at'
           keep-n-most-recent: '3'
           account: user
