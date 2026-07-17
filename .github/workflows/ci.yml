@@ -51,11 +51,18 @@ jobs:
       contents: read
 
   tag:
-    needs: [security]
+    needs: security
     if: github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'main'
     uses: ./.github/workflows/tag.yml
     permissions:
       contents: write
+
+  docker-publish:
+    needs: security
+    uses: ./.github/workflows/docker.yml
+    permissions:
+      contents: read
+      packages: write
 
   build-gate:
     needs:
@@ -65,18 +72,27 @@ jobs:
       - integration-tests
       - security
       - tag
+      - docker-publish
     runs-on: ubuntu-latest
     if: always()
     steps:
       - name: Check pipeline result
+        env:
+          BUILD: ${{ needs.build.result }}
+          LINT: ${{ needs.lint.result }}
+          UNIT_TESTS: ${{ needs.unit-tests.result }}
+          INTEGRATION_TEST: ${{ needs.integration-tests.result }}
+          SECURITY: ${{ needs.security.result}}
+          TAG: ${{ needs.tag.result }}
+          DOCKER_PUBLISH: ${{ needs.docker-publish.result }}
         run: |
-          if [ "${{ needs.build.result }}" == "failure" ] || \
-             [ "${{ needs.lint.result }}" == "failure" ] || \
-             [ "${{ needs.unit-tests.result }}" == "failure" ] || \
-             [ "${{ needs.integration-tests.result }}" == "failure" ] || \
-             [ "${{ needs.security.result}}" == "failure" ] || \
-             [ "${{ needs.tag.result }}" == "failure" ]; then
-            echo "Pipeline failed"
-            exit 1
-          fi
-          echo "Pipeline passed"
+          RESULTS=("$BUILD" "$LINT" "$UNIT_TESTS" "$INTEGRATION_TEST" "$SECURITY" "$TAG" "$DOCKER_PUBLISH")
+
+          for result in "${RESULTS[@]}"; do
+            if [[ "$result" == "failure" || "$result" == "cancelled" ]]; then
+              echo "❌ Pipeline failed or was cancelled"
+              exit 1
+            fi
+          done
+
+          echo "✅ Pipeline passed successfully!"
