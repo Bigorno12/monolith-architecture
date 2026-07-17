@@ -1,0 +1,131 @@
+# 1. The Switchboard (Service)
+apiVersion: v1
+kind: Service
+metadata:
+  name: monolith-api
+spec:
+  type: ClusterIP
+  selector:
+    app: monolith-api
+    color: blue
+  ports:
+    - name: http
+      protocol: TCP
+      port: 8080
+      targetPort: 8080
+---
+# 2. The LIVE Environment (Blue)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: monolith-api-blue
+spec:
+  selector:
+    matchLabels:
+      app: monolith-api
+      color: blue
+  template:
+    metadata:
+      labels:
+        app: monolith-api
+        color: blue
+    spec:
+      imagePullSecrets:
+        - name: ghcr-secret
+      containers:
+        - name: monolith-api
+          image: ghcr.io/bigorno12/monolith-architecture:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          env:
+            - name: JAVA_TOOL_OPTIONS
+              value: -Xms1g -Xmx1g -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+UseStringDeduplication -XX:MaxMetaspaceSize=256m
+            - name: BPL_JVM_THREAD_COUNT
+              value: "50"
+          resources:
+            limits:
+              memory: 1Gi
+              cpu: 2
+          envFrom:
+            - configMapRef:
+                name: monolith-config
+            - secretRef:
+                name: monolith-secrets
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8080
+            initialDelaySeconds: 60
+            timeoutSeconds: 240
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8080
+            initialDelaySeconds: 60
+            timeoutSeconds: 240
+          lifecycle:
+            preStop:
+              exec:
+                command:
+                  - "sh"
+                  - "-c"
+                  - "sleep 10"
+---
+# 3. The IDLE Environment (Green)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: monolith-api-green
+spec:
+  selector:
+    matchLabels:
+      app: monolith-api
+      color: green
+  template:
+    metadata:
+      labels:
+        app: monolith-api
+        color: green
+    spec:
+      imagePullSecrets:
+        - name: ghcr-secret
+      containers:
+        - name: monolith-api
+          image: ghcr.io/bigorno12/monolith-architecture:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          env:
+            - name: JAVA_TOOL_OPTIONS
+              value: -Xms1g -Xmx1g -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+UseStringDeduplication -XX:MaxMetaspaceSize=256m
+            - name: BPL_JVM_THREAD_COUNT
+              value: "50"
+          resources:
+            limits:
+              memory: "1Gi"
+              cpu: "2.0"
+          envFrom:
+            - configMapRef:
+                name: monolith-config
+            - secretRef:
+                name: monolith-secrets
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8080
+            initialDelaySeconds: 60
+            timeoutSeconds: 240
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8080
+            initialDelaySeconds: 60
+            timeoutSeconds: 240
+          lifecycle:
+            preStop:
+              exec:
+                command:
+                  - "sh"
+                  - "-c"
+                  - "sleep 10"
