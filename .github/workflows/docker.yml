@@ -36,7 +36,7 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          password: ${{ secrets.CR_PAT }}
 
       - name: Build and Push using Spring Boot Buildpacks
         env:
@@ -66,7 +66,7 @@ jobs:
             -Dspring-boot.build-image.publish=$PUBLISH \
             -Dspring-boot.build-image.docker.publishRegistry.url=https://ghcr.io \
             -Dspring-boot.build-image.docker.publishRegistry.username=${{ github.actor }} \
-            -Dspring-boot.build-image.docker.publishRegistry.password=${{ secrets.GITHUB_TOKEN }}
+            -Dspring-boot.build-image.docker.publishRegistry.password=${{ secrets.CR_PAT }}
 
       - name: Keep only the latest 3 images
         if: github.event_name != 'pull_request'
@@ -77,5 +77,4 @@ jobs:
           timestamp-to-use: 'updated_at'
           keep-n-most-recent: '3'
           account: user
-          token: ${{ secrets.GITHUB_TOKEN }}
-
+          token: ${{ secrets.CR_PAT }}
