@@ -1,0 +1,67 @@
+name: Buildpack Build and Push Module
+
+on:
+  workflow_call:
+
+jobs:
+  build-and-push:
+    name: Buildpack Build and Push
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+
+      - name: Harden Runner
+        uses: step-security/harden-runner@v2.20.0
+        with:
+          egress-policy: audit
+
+      - uses: actions/checkout@v7.0.0
+
+      - name: Setup Java Environment
+        uses: ./.github/setup-java-env
+
+      - name: Login to Github Container Registry
+        uses: docker/login-action@v4.4.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and Push using Spring Boot Buildpacks
+        env:
+          REPO_NAME: ${{ github.repository }}
+          EVENT_NAME: ${{ github.event_name }}
+          SHORT_SHA: ${{ github.sha }}
+        run: |
+          REPO_LC=$(echo "$REPO_NAME" | tr '[:upper:]' '[:lower:]')
+          SHORT_SHA=$(echo "$SHORT_SHA" | cut -c1-7)
+          
+          if [ "$EVENT_NAME" == "pull_request" ]; then
+            TAG="pr-${{ github.event.pull_request.number }}"
+            PUBLISH=false
+          else
+            TAG="main-${SHORT_SHA}"
+            PUBLISH="true"
+          fi
+          
+          IMAGE_NAME="ghcr.io/$REPO_LC/monolith-architecture:$TAG"
+          
+          echo "Building image: $IMAGE_NAME"
+          echo "Publishing to GHCR: $PUBLISH"
+
+          mvn clean package spring-boot:build-image \
+            -P dev -pl rest -am \
+            -Dspring-boot.build-image.imageName=$IMAGE_NAME \
+            -Dspring-boot.build-image.publish=$PUBLISH
+
+      - name: Keep only the latest 3 images
+        if: github.event_name != 'pull_request'
+        uses: snok/container-retention-policy@v3.1.0
+        with:
+          image-names: monolith-architecture
+          cut-off: just now
+          timestamp-to-use: 'updated_at'
+          keep-n-most-recent: '3'
+          account: user
+          token: ${{ secrets.GITHUB_TOKEN }}
+
