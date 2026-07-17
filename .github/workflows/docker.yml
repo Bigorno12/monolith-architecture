@@ -55,7 +55,7 @@ jobs:
             PUBLISH="true"
           fi
           
-          IMAGE_NAME="ghcr.io/$REPO_LC/monolith-architecture:$TAG"
+          IMAGE_NAME="ghcr.io/$REPO_LC:$TAG"
           
           echo "Building image: $IMAGE_NAME"
           echo "Publishing to GHCR: $PUBLISH"
