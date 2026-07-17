@@ -61,6 +61,7 @@ jobs:
   docker-publish:
     needs: security
     uses: ./.github/workflows/docker.yml
+    secrets: inherit
     permissions:
       contents: read
       packages: write
