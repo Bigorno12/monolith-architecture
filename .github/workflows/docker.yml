@@ -63,7 +63,10 @@ jobs:
           mvn clean package spring-boot:build-image \
             -P dev -pl rest -am \
             -Dspring-boot.build-image.imageName=$IMAGE_NAME \
-            -Dspring-boot.build-image.publish=$PUBLISH
+            -Dspring-boot.build-image.publish=$PUBLISH \
+            -Dspring-boot.build-image.docker.publishRegistry.url=https://ghcr.io \
+            -Dspring-boot.build-image.docker.publishRegistry.username=${{ github.actor }} \
+            -Dspring-boot.build-image.docker.publishRegistry.password=${{ secrets.GITHUB_TOKEN }}
 
       - name: Keep only the latest 3 images
         if: github.event_name != 'pull_request'
