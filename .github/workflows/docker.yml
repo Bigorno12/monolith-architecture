@@ -34,7 +34,7 @@ jobs:
           SHORT_SHA: ${{ github.sha }}
         run: |
           REPO_LC=$(echo "$REPO_NAME" | tr '[:upper:]' '[:lower:]')
-          SHORT_SHA=$(echo "$SHORT_SHA" | cut -c1-c7)
+          SHORT_SHA=$(echo "$SHORT_SHA" | cut -c1-7)
           
           if [ "$EVENT_NAME" == "pull_request" ]; then
             TAG="pr-${{ github.event.pull_request.number }}"
