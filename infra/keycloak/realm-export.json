@@ -197,10 +197,35 @@
     "client": {
       "realm-management": [
         {
+          "id": "23f08efb-13c0-40e7-80d3-1741e663d26e",
+          "name": "manage-organizations",
+          "description": "${role_manage-organizations}",
+          "composite": false,
+          "clientRole": true,
+          "containerId": "2f82cc26-5bb6-4172-823a-23dcd6618216",
+          "attributes": {}
+        },
+        {
           "id": "118df817-3093-41c5-bd77-eed8fe9db406",
           "name": "manage-identity-providers",
           "description": "${role_manage-identity-providers}",
           "composite": false,
+          "clientRole": true,
+          "containerId": "2f82cc26-5bb6-4172-823a-23dcd6618216",
+          "attributes": {}
+        },
+        {
+          "id": "d1974e2e-5037-451b-be5c-f7e4e883c6cd",
+          "name": "view-organizations",
+          "description": "${role_view-organizations}",
+          "composite": true,
+          "composites": {
+            "client": {
+              "realm-management": [
+                "query-organizations"
+              ]
+            }
+          },
           "clientRole": true,
           "containerId": "2f82cc26-5bb6-4172-823a-23dcd6618216",
           "attributes": {}
@@ -231,6 +256,15 @@
           "attributes": {}
         },
         {
+          "id": "8e462489-e104-4676-91cd-9d1e2e0900cc",
+          "name": "query-organizations",
+          "description": "${role_query-organizations}",
+          "composite": false,
+          "clientRole": true,
+          "containerId": "2f82cc26-5bb6-4172-823a-23dcd6618216",
+          "attributes": {}
+        },
+        {
           "id": "a673ed09-c2d7-4808-8fb7-38515190e417",
           "name": "query-users",
           "description": "${role_query-users}",
@@ -256,9 +290,12 @@
           "composites": {
             "client": {
               "realm-management": [
+                "manage-organizations",
+                "view-organizations",
                 "manage-identity-providers",
                 "query-realms",
                 "view-clients",
+                "query-organizations",
                 "query-users",
                 "manage-events",
                 "view-realm",
@@ -555,6 +592,7 @@
   "webAuthnPolicyAttestationConveyancePreference": "not specified",
   "webAuthnPolicyAuthenticatorAttachment": "not specified",
   "webAuthnPolicyRequireResidentKey": "not specified",
+  "webAuthnPolicyResidentKey": "not specified",
   "webAuthnPolicyUserVerificationRequirement": "not specified",
   "webAuthnPolicyCreateTimeout": 0,
   "webAuthnPolicyAvoidSameAuthenticatorRegister": false,
@@ -569,6 +607,7 @@
   "webAuthnPolicyPasswordlessAttestationConveyancePreference": "not specified",
   "webAuthnPolicyPasswordlessAuthenticatorAttachment": "not specified",
   "webAuthnPolicyPasswordlessRequireResidentKey": "Yes",
+  "webAuthnPolicyPasswordlessResidentKey": "required",
   "webAuthnPolicyPasswordlessUserVerificationRequirement": "required",
   "webAuthnPolicyPasswordlessCreateTimeout": 0,
   "webAuthnPolicyPasswordlessAvoidSameAuthenticatorRegister": false,
@@ -862,8 +901,8 @@
       "fullScopeAllowed": true,
       "nodeReRegistrationTimeout": -1,
       "defaultClientScopes": [
-        "web-origins",
         "service_account",
+        "web-origins",
         "acr",
         "roles",
         "profile",
@@ -1431,6 +1470,23 @@
       ]
     },
     {
+      "id": "241bfd6c-63df-4449-a158-e753d85be94e",
+      "name": "AuthnContextClassRef",
+      "description": "AuthnContextClassRef Level of Authentiation",
+      "protocol": "saml",
+      "attributes": {},
+      "protocolMappers": [
+        {
+          "id": "3de623de-9907-4c8c-9adc-8f8620c14da9",
+          "name": "AuthnContextClassRef",
+          "protocol": "saml",
+          "protocolMapper": "saml-authn-context-class-ref-mapper",
+          "consentRequired": false,
+          "config": {}
+        }
+      ]
+    },
+    {
       "id": "6ee65f83-602e-447e-9709-a87e8ce4d945",
       "name": "phone",
       "description": "OpenID Connect built-in scope: phone",
@@ -1694,7 +1750,8 @@
     "roles",
     "web-origins",
     "acr",
-    "basic"
+    "basic",
+    "AuthnContextClassRef"
   ],
   "defaultOptionalClientScopes": [
     "offline_access",
@@ -2596,30 +2653,12 @@
   ],
   "requiredActions": [
     {
-      "alias": "CONFIGURE_TOTP",
-      "name": "Configure OTP",
-      "providerId": "CONFIGURE_TOTP",
-      "enabled": true,
-      "defaultAction": false,
-      "priority": 10,
-      "config": {}
-    },
-    {
       "alias": "TERMS_AND_CONDITIONS",
       "name": "Terms and Conditions",
       "providerId": "TERMS_AND_CONDITIONS",
       "enabled": false,
       "defaultAction": false,
       "priority": 20,
-      "config": {}
-    },
-    {
-      "alias": "UPDATE_PASSWORD",
-      "name": "Update Password",
-      "providerId": "UPDATE_PASSWORD",
-      "enabled": true,
-      "defaultAction": false,
-      "priority": 30,
       "config": {}
     },
     {
@@ -2638,6 +2677,24 @@
       "enabled": true,
       "defaultAction": false,
       "priority": 50,
+      "config": {}
+    },
+    {
+      "alias": "CONFIGURE_TOTP",
+      "name": "Configure OTP",
+      "providerId": "CONFIGURE_TOTP",
+      "enabled": true,
+      "defaultAction": false,
+      "priority": 54,
+      "config": {}
+    },
+    {
+      "alias": "UPDATE_PASSWORD",
+      "name": "Update Password",
+      "providerId": "UPDATE_PASSWORD",
+      "enabled": true,
+      "defaultAction": false,
+      "priority": 57,
       "config": {}
     },
     {
@@ -2749,7 +2806,7 @@
     "shortVerificationUri": "",
     "actionTokenGeneratedByUserLifespan.reset-credentials": ""
   },
-  "keycloakVersion": "26.6.4",
+  "keycloakVersion": "26.7.0",
   "userManagedAccessAllowed": false,
   "organizationsEnabled": false,
   "verifiableCredentialsEnabled": false,
