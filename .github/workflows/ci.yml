@@ -2,8 +2,7 @@ name: Main CI Orchestrator
 
 on:
   push:
-    branches:
-      - "main"
+    branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
 
@@ -11,90 +10,55 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-permissions:
-  contents: read
-  packages: write
-
 jobs:
-  build:
-    uses: ./.github/workflows/build.yml
+  run-entire-pipeline:
+    uses: Bigorno12/ci-cd-templates/.github/workflows/master-maven-pipeline.yml@main
     secrets: inherit
-    permissions:
-      contents: write
-      security-events: write
-      checks: write
-      pull-requests: write
+    with:
+      build-egress-policy: "block"
 
-  lint:
-    needs: build
-    uses: ./.github/workflows/lint.yml
+      build-allowed-endpoints: >
+        github.com:443
+        repo.maven.apache.org:443
+        api.github.com:443
+        repo.spring.io:443
+        repository.jboss.org:443
 
-  unit-tests:
-    needs: build
-    uses: ./.github/workflows/unit-tests.yml
-    secrets: inherit
-    permissions:
-      checks: write
+      test-allowed-endpoints: >
+        github.com:443
+        repo.maven.apache.org:443
+        repo.spring.io:443
+        repository.jboss.org:443
 
-  integration-tests:
-    needs: build
-    uses: ./.github/workflows/integration-tests.yml
-    secrets: inherit
-    permissions:
-      checks: write
+      security-allowed-endpoints: >
+        api.github.com:443
+        github.com:443
+        release-assets.githubusercontent.com:443
+        repo.maven.apache.org:443
+        repo.spring.io:443
+        repository.jboss.org:443
 
-  security:
-    needs: [unit-tests, integration-tests]
-    uses: ./.github/workflows/security.yml
-    permissions:
-      security-events: write
-      actions: read
-      contents: read
+      docker-allowed-endpoints: >
+        auth.docker.io:443
+        ghcr.io:443
+        github.com:443
+        production.cloudfront.docker.com:443
+        registry-1.docker.io:443
+        release-assets.githubusercontent.com:443
+        repo1.maven.org:443
+        api.github.com:443
+        objects.githubusercontent.com:443
+        pkg-containers.githubusercontent.com:443
 
-  tag:
-    needs: security
-    if: github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'main'
-    uses: ./.github/workflows/tag.yml
-    permissions:
-      contents: write
-
-  docker-publish:
-    needs: security
-    uses: ./.github/workflows/docker.yml
-    secrets: inherit
-    permissions:
-      contents: read
-      packages: write
-
-  build-gate:
-    needs:
-      - build
-      - lint
-      - unit-tests
-      - integration-tests
-      - security
-      - tag
-      - docker-publish
-    runs-on: ubuntu-latest
-    if: always()
-    steps:
-      - name: Check pipeline result
-        env:
-          BUILD: ${{ needs.build.result }}
-          LINT: ${{ needs.lint.result }}
-          UNIT_TESTS: ${{ needs.unit-tests.result }}
-          INTEGRATION_TEST: ${{ needs.integration-tests.result }}
-          SECURITY: ${{ needs.security.result}}
-          TAG: ${{ needs.tag.result }}
-          DOCKER_PUBLISH: ${{ needs.docker-publish.result }}
-        run: |
-          RESULTS=("$BUILD" "$LINT" "$UNIT_TESTS" "$INTEGRATION_TEST" "$SECURITY" "$TAG" "$DOCKER_PUBLISH")
-
-          for result in "${RESULTS[@]}"; do
-            if [[ "$result" == "failure" || "$result" == "cancelled" ]]; then
-              echo "❌ Pipeline failed or was cancelled"
-              exit 1
-            fi
-          done
-
-          echo "✅ Pipeline passed successfully!"
+      spring-boot-args: "-P dev -pl rest -am"
+      test-args: >
+        -DWELLDEV_URL=jdbc:mysql://localhost:3306/${MYSQL_DATABASE}
+        -DWELLDEV_USERNAME=${MYSQL_USER}
+        -DWELLDEV_PASSWORD=${MYSQL_PASSWORD}
+        -DWELLDEV.KEYCLOAK.REALM=${KEYCLOAK_REALM}
+        -DWELLDEV.KEYCLOAK.CLIENT-ID=${KEYCLOAK_CLIENT_ID}
+        -DWELLDEV.KEYCLOAK.CLIENT-SECRET=${KEYCLOAK_CLIENT_SECRET}
+        -DWELLDEV.AES.SECRET.KEY=${AES_SECRET_KEY}
+        -DPOSTGRES_USER=${POSTGRES_USER}
+        -DPOSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+        -DPOSTGRES_DB=${POSTGRES_DB}
