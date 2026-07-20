@@ -39,7 +39,7 @@
         <mapstruct.version>1.6.3</mapstruct.version>
         <maven.compiler.release>${java.version}</maven.compiler.release>
         <maven.version>3.9.9</maven.version>
-        <org.openapi-generator-maven-plugin.version>7.23.0</org.openapi-generator-maven-plugin.version>
+        <org.openapi-generator-maven-plugin.version>7.24.0</org.openapi-generator-maven-plugin.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <resilience4j-spring-boot3.version>2.4.0</resilience4j-spring-boot3.version>
         <resteasy.version>7.0.2.Final</resteasy.version>
