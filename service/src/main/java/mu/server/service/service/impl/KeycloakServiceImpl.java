@@ -8,6 +8,7 @@ import mu.server.persistence.entity.User;
 import mu.server.persistence.repository.UserRepository;
 import mu.server.service.dto.auth.TokenResponse;
 import mu.server.service.dto.user.UserRequest;
+import mu.server.service.exception.UsernameExistException;
 import mu.server.service.mapper.user.UserMapper;
 import mu.server.service.service.KeycloakService;
 import mu.server.service.service.KeycloakTokenProvider;
@@ -39,6 +40,11 @@ public class KeycloakServiceImpl implements KeycloakService {
     @Override
     @Transactional
     public TokenResponse register(UserRequest userRequest, HttpServletRequest request) {
+        userRepository.findUserByUsername(userRequest.username())
+                .ifPresent(user -> {
+                    throw new UsernameExistException("Username: " + user.getUsername() + " already exist");
+                });
+
         CredentialRepresentation credentialRepresentation = Credentials.INSTANCE.createCredentialRepresentation(userRequest.password());
         UserRepresentation userRepresentation = userMapper.mapToUserRepresentation(userRequest, credentialRepresentation);
 
