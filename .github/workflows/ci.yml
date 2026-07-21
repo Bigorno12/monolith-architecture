@@ -12,41 +12,12 @@ concurrency:
 
 jobs:
   run-entire-pipeline:
-    uses: Bigorno12/ci-cd-templates/.github/workflows/master-maven-pipeline.yml@v0.0.5
+    uses: Bigorno12/ci-cd-templates/.github/workflows/master-maven-pipeline.yml@v0.0.6
     secrets: inherit
     with:
       java-version: '25'
       cache-type: 'maven'
       build-egress-policy: "block"
-      build-allowed-endpoints: >
-        github.com:443
-        repo.maven.apache.org:443
-        api.github.com:443
-        repo.spring.io:443
-        repository.jboss.org:443
-      test-allowed-endpoints: >
-        github.com:443
-        repo.maven.apache.org:443
-        repo.spring.io:443
-        repository.jboss.org:443
-      security-allowed-endpoints: >
-        api.github.com:443
-        github.com:443
-        release-assets.githubusercontent.com:443
-        repo.maven.apache.org:443
-        repo.spring.io:443
-        repository.jboss.org:443
-      docker-allowed-endpoints: >
-        auth.docker.io:443
-        ghcr.io:443
-        github.com:443
-        production.cloudfront.docker.com:443
-        registry-1.docker.io:443
-        release-assets.githubusercontent.com:443
-        repo1.maven.org:443
-        api.github.com:443
-        objects.githubusercontent.com:443
-        pkg-containers.githubusercontent.com:443
       spring-boot-args: "-P dev -pl rest -am"
       test-args: >
         -DWELLDEV_URL=jdbc:mysql://localhost:3306/${MYSQL_DATABASE}
