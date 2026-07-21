@@ -31,7 +31,6 @@
     </scm>
 
     <properties>
-        <!-- Enforcer -->
         <app.main.class>mu.server.rest.Application</app.main.class>
         <blaze-persistence.version>1.6.18</blaze-persistence.version>
         <bucket.version>8.19.0</bucket.version>
@@ -40,12 +39,12 @@
         <commons-io.version>2.22.0</commons-io.version>
         <commons-lang3.version>3.18.0</commons-lang3.version>
         <commons-lang3.version>3.20.0</commons-lang3.version>
+        <datasource-proxy-spring-boot-starter.version>2.0.1</datasource-proxy-spring-boot-starter.version>
         <jakarta.validation-api.version>3.1.1</jakarta.validation-api.version>
         <java.version>25</java.version>
         <keycloak.version>26.0.11</keycloak.version>
         <kotlin.version>2.4.0</kotlin.version>
         <lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version>
-        <!-- Versioning -->
         <mapstruct.version>1.6.3</mapstruct.version>
         <maven.compiler.release>${java.version}</maven.compiler.release>
         <maven.version>3.9.9</maven.version>
@@ -180,6 +179,13 @@
                 <groupId>io.github.resilience4j</groupId>
                 <artifactId>resilience4j-spring-boot3</artifactId>
                 <version>${resilience4j-spring-boot3.version}</version>
+            </dependency>
+
+            <!-- SQL Logging -->
+            <dependency>
+                <groupId>com.github.gavlyukovskiy</groupId>
+                <artifactId>datasource-proxy-spring-boot-starter</artifactId>
+                <version>${datasource-proxy-spring-boot-starter.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

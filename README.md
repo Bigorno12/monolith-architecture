@@ -2,59 +2,114 @@
 
 > Production-grade **modular monolith** — Spring Boot 4 · Kotlin 2.4 · Java 25
 
-A single deployable JAR split into three Maven modules with strict one-directional dependencies:
-
 ```
 rest  ──▶  service  ──▶  persistence
+   │            │               │
+   ▼            ▼               ▼
+Keycloak   JSONPlaceholder   MySQL / H2
 ```
 
-- **rest** — HTTP layer, security (JWT + OAuth2/Keycloak), API versioning
-- **service** — business logic, circuit breakers/retries, caching
+- **rest** — HTTP layer, stateless JWT resource server + OAuth2/OIDC client (Keycloak), API versioning, rate limiting
+- **service** — business logic, circuit breakers/retries (Resilience4j), Caffeine caching
 - **persistence** — JPA entities, repositories, Flyway migrations
+
+Deploys via **Docker Compose** (local) or **Kubernetes** (`kind`, blue/green).
 
 ## Getting Started
 
-**Prerequisites:** Java 25 · Maven 3.9.9 · Docker (or Podman) with Docker Compose (or Podman Compose)
+**Prerequisites:** Java 25 · Maven 3.9.9 · Docker (or Podman) + Compose
 
 ```bash
-# 1. Start infrastructure (MySQL, PostgreSQL, Keycloak)
 cd infra
-
-# deployment.env is required — docker-compose/podman-compose reads DB & Keycloak
-# credentials from it and will fail to start without it
-cp deployment.env.example deployment.env
-# then fill in real values for MYSQL_*, POSTGRES_*, KEYCLOAK_* in deployment.env
-
-docker-compose up -d
-# — OR, if using Podman —
-podman-compose up -d
-
+cp .env.example secret.env      # fill in MYSQL_*, POSTGRES_*, KEYCLOAK_* + WELLDEV.* app config
+docker-compose --env-file secret.env up -d
 cd ..
 
-# 2. Set the required DB & Keycloak env vars (must match values used in infra/deployment.env),
-# then build and run (dev profile — requires step 1)
-export WELLDEV_URL=jdbc:mysql://localhost:3306/<MYSQL_DATABASE>
-export WELLDEV_USERNAME=<MYSQL_USER>
-export WELLDEV_PASSWORD=<MYSQL_PASSWORD>
-
+# export the same DB/Keycloak values from secret.env, then:
 mvn clean package -Pdev
 java -jar rest/target/rest-1.0-SNAPSHOT.jar
 
-# — OR — run with H2 in-memory, no Docker/Podman required
+# — OR — H2 in-memory, no Docker required
 mvn clean package -Ptest
 java -jar rest/target/rest-1.0-SNAPSHOT.jar
 ```
 
-### Required Configuration
+`application-dev.properties` needs `WELLDEV_URL`/`WELLDEV_USERNAME`/`WELLDEV_PASSWORD`;
+`application.properties` needs `WELLDEV.KEYCLOAK.*` — set as env vars or directly in
+the properties files, matching `infra/secret.env`.
 
-- `rest/src/main/resources/application-dev.properties` (dev profile, MySQL) reads
-  `WELLDEV_URL`, `WELLDEV_USERNAME`, and `WELLDEV_PASSWORD` from the environment —
-  set these (or add them directly to the properties file) to your DB credentials
-  before running with `-Pdev`.
-- `rest/src/main/resources/application.properties` reads Keycloak settings from
-  `WELLDEV.KEYCLOAK.*` env vars (server URL, realm, client id/secret, admin
-  credentials) — set these, or add the real values directly in the properties
-  file, to match your `infra/.env` Keycloak configuration.
+### Troubleshooting: MySQL user/password rejected
+
+If MySQL keeps a stale user from an old volume (e.g. wrong host or password
+after changing `secret.env`):
+
+```bash
+# 1. Stop and wipe the broken database volume
+docker-compose --env-file secret.env down -v
+podman compose --env-file secret.env down -v
+
+# 2. Start it back up so it creates the user with your passwords
+docker-compose --env-file secret.env up -d
+podman compose --env-file secret.env up -d
+```
+
+If that alone doesn't fix it, connect to MySQL and reset the user manually:
+
+```sql
+CREATE USER IF NOT EXISTS 'user'@'%' IDENTIFIED BY 'MYSQL_PASSWORD';
+ALTER USER 'user'@'%' IDENTIFIED BY 'MYSQL_PASSWORD';
+GRANT ALL PRIVILEGES ON MYSQL_DATABASE.* TO 'user'@'%';
+FLUSH PRIVILEGES;
+```
+
+## Building a Container Image
+
+```bash
+mvn clean package spring-boot:build-image -Pdev -pl rest -am
+```
+
+Only `rest` has the Paketo buildpacks image goal enabled; requires a local Docker/Podman
+daemon, no Dockerfile needed. With no `<name>` set in `rest/pom.xml`, the image defaults
+to `${project.artifactId}:${project.version}` → **`rest:1.0-SNAPSHOT`**. OCI labels
+(title, description, source, version, authors) are populated from the project's `pom.xml`
+metadata via `BP_OCI_*` env vars. To match what `infra/k8s/manifest/api.yaml` pulls
+(`ghcr.io/bigorno12/monolith-architecture:latest`), tag/push explicitly:
+
+```bash
+mvn clean package spring-boot:build-image -Pdev -pl rest -am \
+  -Dspring-boot.build-image.imageName=ghcr.io/bigorno12/monolith-architecture:latest \
+  -Dspring-boot.build-image.publish=true
+```
+
+CI builds/publishes to GHCR the same way via the shared pipeline template — see CI/CD.
+
+## Kubernetes (kind)
+
+```bash
+cd infra/k8s/kind && ./kind-cluster.sh create && cd ..
+cp ../.env.example config.env && cp ../.env.example secret.env   # fill in real values
+kubectl create secret docker-registry ghcr-secret \
+  --docker-server=ghcr.io --docker-username=<gh-user> --docker-password=<gh-pat>
+cd manifest && ../deploy.sh
+```
+
+- `manifest/` — `mysql.yaml`, `postgres.yaml`, `keycloak.yaml`, `api.yaml` (blue/green
+  Deployments + Service), `ingress.yaml` (`/` → API, `/auth` → Keycloak), `lgtm.yaml`
+  (Grafana OTel-LGTM observability).
+- `deploy.sh` rebuilds the `monolith-config`/`monolith-secrets` ConfigMap/Secret from
+  `config.env`/`secret.env`, then rolls out MySQL → Postgres → Keycloak → API/Ingress.
+- `api.yaml` pulls `ghcr.io/bigorno12/monolith-architecture:latest` (`imagePullPolicy: Always`)
+  via the `ghcr-secret` image pull secret — push an image to GHCR first (see above).
+- `./check-read.sh` (in `infra/k8s`) reports pod health and dumps logs for failures.
+- Tear down: `kind/kind-cluster.sh destroy`.
+
+## CI/CD
+
+`.github/workflows/ci.yml` delegates the whole pipeline (build → lint → unit/integration
+tests → CodeQL/Gitleaks security scan → Docker image build/publish to GHCR) to a shared
+reusable workflow, [`Bigorno12/ci-cd-templates`](https://github.com/Bigorno12/ci-cd-templates).
+`auto-release.yml` tags/releases on every merge to `main` (patch bump, keeps latest 10
+releases). `dependabot.yml` updates Maven, Docker Compose, and Actions weekly/monthly.
 
 ## API Docs
 
