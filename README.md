@@ -1,4 +1,4 @@
-# 🏗️ Monolith Architecture
+# 🏗️ Monolith Architecture using Spring Boot 4.x.x · Keycloak · Kotlin 2.4 · Java 25 · Maven
 
 > Production-grade **modular monolith** — Spring Boot 4 · Kotlin 2.4 · Java 25
 
