@@ -42,7 +42,7 @@ public class KeycloakServiceImpl implements KeycloakService {
     public TokenResponse register(UserRequest userRequest, HttpServletRequest request) {
         userRepository.findUserByUsername(userRequest.username())
                 .ifPresent(user -> {
-                    throw new UsernameExistException("Username: " + user.getUsername() + "already exist");
+                    throw new UsernameExistException("Username: " + user.getUsername() + " already exist");
                 });
 
         CredentialRepresentation credentialRepresentation = Credentials.INSTANCE.createCredentialRepresentation(userRequest.password());
