@@ -14,11 +14,21 @@
     <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
+    <name>Monolith Architecture</name>
+    <description>Production-grade modular monolith using Spring Boot 4 · Kotlin 2.4.x · Java 25</description>
+
     <modules>
         <module>persistence</module>
         <module>service</module>
         <module>rest</module>
     </modules>
+
+    <scm>
+        <connection>scm:git:https://github.com/Bigorno12/monolith-architecture.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/Bigorno12/monolith-architecture.git</developerConnection>
+        <tag>HEAD</tag>
+        <url>https://github.com/Bigorno12/monolith-architecture</url>
+    </scm>
 
     <properties>
         <!-- Enforcer -->
