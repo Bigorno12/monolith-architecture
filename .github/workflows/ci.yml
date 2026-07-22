@@ -12,12 +12,12 @@ concurrency:
 
 jobs:
   run-entire-pipeline:
-    uses: Bigorno12/ci-cd-templates/.github/workflows/master-maven-pipeline.yml@v0.0.10
+    uses: Bigorno12/ci-cd-templates/.github/workflows/master-maven-pipeline.yml@71988ed1cc6566f93cb0a60988be35677ef6e33f
     secrets: inherit
     with:
       java-version: '25'
       cache-type: 'maven'
       build-egress-policy: "block"
       spring-boot-args: "-P dev -pl rest -am"
-      test-args: >
-        -Dspring.profiles.active=dev
+      test-args: "-Dspring.profiles.active=dev"
+      gitops-manifest-path: 'infra/k8s/manifest/api.yaml'
