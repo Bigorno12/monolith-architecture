@@ -15,7 +15,7 @@ jobs:
     timeout-minutes: 5
     steps:
 
-      - uses: actions/checkout@v7.0.1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
 
       - name: Rerun  failed jobs using Github CLI
         env:
@@ -33,6 +33,13 @@ jobs:
           fi
           
           for id in $RUN_IDS; do
+            ATTEMPTS=$(gh run view $id --json runAttempt --jq '.runAttempt')
+          
+            if [ "$ATTEMPTS" -ge 2 ]; then
+              echo "⏭️ Skipping $id (Already attempted $ATTEMPTS times)."
+              continue
+            fi
+          
             echo "⏳ Retrying failed jobs for Run ID: $id"
           
             gh run rerun $id --failed || echo "⚠️ Could not retry $id (it might be too old or already running)"

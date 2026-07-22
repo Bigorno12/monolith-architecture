@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: monolith-config
+  namespace: default
+data:
+  MYSQL_DATABASE: "welldev"
+  MYSQL_USER: "user"
+
+  POSTGRES_DB: "keycloak_db"
+  POSTGRES_USER: "keycloak_admin"
+
+  KC_HTTP_RELATIVE_PATH: "/auth"
+  WELLDEV_KEYCLOAK_ISSUER_URI: "http://localhost/auth/realms/monolith-keycloak"
+  WELLDEV_RESOURCESERVER_JWT_ISSUER_URI: "http://localhost/auth/realms/monolith-keycloak"
+  WELLDEV_RESOURCESERVER_JWT_SET_URI: "http://keycloak:7080/realms/monolith-keycloak/protocol/openid-connect/certs"
+  WELLDEV_KEYCLOAK_SERVER_URL: "http://keycloak:7080"
+  WELLDEV_KEYCLOAK_REALM: "monolith-keycloak"
+  WELLDEV_KEYCLOAK_CLIENT_ID: "monolith-keycloak-confidential"
+
+  WELLDEV_USERNAME: "user"
+  WELLDEV_URL: "jdbc:mysql://mysql:3306/welldev"
