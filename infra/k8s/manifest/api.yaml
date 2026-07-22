@@ -40,13 +40,13 @@ spec:
             - containerPort: 8080
           env:
             - name: JAVA_TOOL_OPTIONS
-              value: -Xms1g -Xmx1g -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+UseStringDeduplication -XX:MaxMetaspaceSize=256m
+              value: -XX:MaxRAMPercentage=75.0 -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+UseStringDeduplication -XX:MaxMetaspaceSize=256m
             - name: BPL_JVM_THREAD_COUNT
               value: "50"
           resources:
-            limits:
-              memory: 1Gi
-              cpu: 2
+            requests:
+              memory: "1Gi"
+              cup: "500m"
           envFrom:
             - configMapRef:
                 name: monolith-config
@@ -98,10 +98,13 @@ spec:
             - containerPort: 8080
           env:
             - name: JAVA_TOOL_OPTIONS
-              value: -Xms1g -Xmx1g -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+UseStringDeduplication -XX:MaxMetaspaceSize=256m
+              value: -XX:MaxRAMPercentage=75.0 -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+UseStringDeduplication -XX:MaxMetaspaceSize=256m
             - name: BPL_JVM_THREAD_COUNT
               value: "50"
           resources:
+            requests:
+              memory: "1Gi"
+              cup: "500m"
             limits:
               memory: "1Gi"
               cpu: "2.0"
