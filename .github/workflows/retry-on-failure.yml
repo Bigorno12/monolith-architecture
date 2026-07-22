@@ -1,0 +1,41 @@
+name: Retry on failure Module
+
+on:
+  schedule:
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+permissions:
+  actions: write
+  contents: read
+
+jobs:
+  retry-on-failure:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+
+      - uses: actions/checkout@v7.0.1
+
+      - name: Rerun  failed jobs using Github CLI
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          WORKFLOW_FILENAME="ci.yml"
+          
+          echo "Searching for failed runs in $WORKFLOW_FILENAME..."
+          
+          RUN_IDS=$(gh run list --workflow "$WORKFLOW_FILENAME" --status failure --limit 5 --json databaseId --jq '.[].databaseId')
+          
+          if [ -z "$RUN_IDS" ]; then
+            echo "✅ No failed runs found. Everything is green!"
+            exit 0
+          fi
+          
+          for id in $RUN_IDS; do
+            echo "⏳ Retrying failed jobs for Run ID: $id"
+          
+            gh run rerun $id --failed || echo "⚠️ Could not retry $id (it might be too old or already running)"
+          
+            sleep 5
+          done
