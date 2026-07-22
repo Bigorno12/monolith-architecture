@@ -33,6 +33,13 @@ jobs:
           fi
           
           for id in $RUN_IDS; do
+            ATTEMPTS=$(gh run view $id --json runAttempt --jq '.runAttempt')
+          
+            if [ "$ATTEMPTS" -ge 2 ]; then
+              echo "⏭️ Skipping $id (Already attempted $ATTEMPTS times)."
+              continue
+            fi
+          
             echo "⏳ Retrying failed jobs for Run ID: $id"
           
             gh run rerun $id --failed || echo "⚠️ Could not retry $id (it might be too old or already running)"
