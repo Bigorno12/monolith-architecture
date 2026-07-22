@@ -34,7 +34,7 @@ spec:
         - name: ghcr-secret
       containers:
         - name: monolith-api
-          image: ghcr.io/bigorno12/monolith-architecture:main-8b6dad7
+          image: ghcr.io/bigorno12/monolith-architecture:main-a1d0bbc
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
@@ -97,7 +97,7 @@ spec:
         - name: ghcr-secret
       containers:
         - name: monolith-api
-          image: ghcr.io/bigorno12/monolith-architecture:main-8b6dad7
+          image: ghcr.io/bigorno12/monolith-architecture:main-a1d0bbc
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
