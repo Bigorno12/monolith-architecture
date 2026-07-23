@@ -40,6 +40,7 @@
         <commons-lang3.version>3.18.0</commons-lang3.version>
         <commons-lang3.version>3.20.0</commons-lang3.version>
         <datasource-proxy-spring-boot-starter.version>2.0.1</datasource-proxy-spring-boot-starter.version>
+        <exec-maven-plugin.version>3.6.3</exec-maven-plugin.version>
         <jakarta.validation-api.version>3.1.1</jakarta.validation-api.version>
         <java.version>25</java.version>
         <keycloak.version>26.0.11</keycloak.version>
@@ -482,6 +483,30 @@
                             <goal>check</goal>
                         </goals>
                         <phase>validate</phase>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- Enforce Githooks -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>${exec-maven-plugin.version}</version>
+                <inherited>false</inherited>
+                <executions>
+                    <execution>
+                        <id>install-git-hooks</id>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <phase>initialize</phase>
+                        <configuration>
+                            <executable>git</executable>
+                            <arguments>
+                                <argument>config</argument>
+                                <argument>core.hooksPath</argument>
+                                <argument>.githook</argument>
+                            </arguments>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
