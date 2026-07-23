@@ -33,7 +33,7 @@ jobs:
           fi
           
           for id in $RUN_IDS; do
-            ATTEMPTS=$(gh run view $id --json runAttempt --jq '.runAttempt')
+            ATTEMPTS=$(gh run view $id --json attempt --jq '.attempt')
           
             if [ "$ATTEMPTS" -ge 2 ]; then
               echo "⏭️ Skipping $id (Already attempted $ATTEMPTS times)."
