@@ -90,7 +90,7 @@ cd infra/k8s/kind && ./kind-cluster.sh create && cd ..
 cp ../.env.example config.env && cp ../.env.example secret.env   # fill in real values
 kubectl create secret docker-registry ghcr-secret \
   --docker-server=ghcr.io --docker-username=<gh-user> --docker-password=<gh-pat>
-cd manifest && ../deploy.sh
+cd manifest && ../bootstrap-gitops.sh
 ```
 
 - `manifest/` — `mysql.yaml`, `postgres.yaml`, `keycloak.yaml`, `api.yaml` (blue/green
