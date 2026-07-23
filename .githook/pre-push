@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+set -e
+
+ROOT="$(git rev-parse --show-toplevel)"
+REMOTE="$1"
+
+# Git exports GIT_DIR into hooks. Drop the inherited git env so every
+# git call auto-discovers the real work-tree properly.
+unset GIT_DIR GIT_WORK_TREE
+
+ZERO=0000000000000000000000000000000000000000
+
+# ── Path gating: skip unless pushed commits touch Java / Maven files pre-push ─────────
+needs_check=0
+
+# Git passes information about the push via standard input
+while read -r _local_ref local_sha _remote_ref remote_sha; do
+  [ "$local_sha" = "$ZERO" ] && continue  # branch deletion — nothing to verify
+
+  # Get the list of files changed in this push
+  if [ "$remote_sha" = "$ZERO" ]; then
+    paths=$(git log --name-only --pretty=format: "$local_sha" --not --remotes="$REMOTE" 2>/dev/null || true)
+  else
+    paths=$(git log --name-only --pretty=format: "$remote_sha..$local_sha" 2>/dev/null || true)
+  fi
+
+  # If any Java files, pom.xml, or application properties changed, we need to test
+  if printf '%s\n' "$paths" | grep -qE '(\.java$|pom\.xml$|\.properties$|\.yml$|\.yaml$)'; then
+    needs_check=1
+    break
+  fi
+done
+
+if [ "$needs_check" -eq 0 ]; then
+  echo "[pre-push] ✓ No backend code changes detected — skipping tests."
+  echo "✅ pre-push successful"
+  exit 0
+fi
+
+# ── Backend: Run Maven Tests ─────────────────────────────────────────────
+echo "[pre-push] ⏳ Backend changes detected. Running Maven tests..."
+
+if command -v mvn >/dev/null 2>&1; then
+  # Run tests from the project root. Using -B for non-interactive batch mode output.
+  if ! (cd "$ROOT" && mvn clean test -B); then
+    echo ""
+    echo "[pre-push] ❌ Maven tests failed — push blocked."
+    echo "[pre-push]    Please fix the failing tests before pushing to GitHub."
+    exit 1
+  fi
+else
+  echo "[pre-push] ⚠️  mvn not on PATH — skipping tests."
+fi
+
+echo "✅ pre-push successful"
