@@ -1,0 +1,80 @@
+#!/usr/bin/env bash
+set -e
+
+ROOT="$(git rev-parse --show-toplevel)"
+
+# ── 1. Secrets scan (gitleaks) ─────────────────────────────────────────────
+if command -v gitleaks >/dev/null 2>&1; then
+  if ! GITLEAKS_OUT=$(gitleaks protect --staged --redact --no-banner 2>&1); then
+    echo "$GITLEAKS_OUT"
+    echo ""
+    echo "[pre-commit] ❌ Secrets detected in staged changes — commit blocked."
+    echo "[pre-commit]    Remove the secret, rotate it if it was real, then re-stage."
+    exit 1
+  fi
+else
+  echo "[pre-commit] ⚠️  gitleaks not installed — skipping secret scan."
+  echo "[pre-commit]    Install with: brew install gitleaks"
+fi
+
+# ── 2. Project-local secrets scan (catches custom-shape secrets gitleaks misses) ─
+# Scans all local env files defined in your workspace
+ENV_FILES=("$ROOT/secret.env" "$ROOT/local.env" "$ROOT/config.env")
+
+for ENV_FILE in "${ENV_FILES[@]}"; do
+  if [ -f "$ENV_FILE" ]; then
+    # Check staged additions against this specific env file
+    STAGED_ADDITIONS=$(git diff --cached -U0 --no-color -- ":!$(basename "$ENV_FILE")" | grep -E '^\+[^+]' || true)
+if [ -n "$STAGED_ADDITIONS" ]; then
+      # Read the file contents completely into memory first to avoid SC2094
+      ENV_CONTENT=$(cat "$ENV_FILE")
+
+      while IFS= read -r line || [ -n "$line" ]; do
+        [[ -z "$line" || "$line" =~ ^[[:space:]]*# ]] && continue
+        [[ "$line" =~ ^[[:space:]]*([A-Za-z_][A-Za-z0-9_]*)=(.*)$ ]] || continue
+
+        key="${BASH_REMATCH[1]}"
+        value="${BASH_REMATCH[2]}"
+
+        # Strip trailing carriage returns and whitespace
+        value="${value%$'\r'}"
+        value="${value%"${value##*[![:space:]]}"}"
+
+        # Strip surrounding quotes if present
+        if [[ "$value" =~ ^\"(.*)\"$ ]] || [[ "$value" =~ ^\'(.*)\'$ ]]; then
+          value="${BASH_REMATCH[1]}"
+        fi
+
+        # Ignore values shorter than 8 characters (likely not high-entropy secrets)
+        [[ ${#value} -ge 8 ]] || continue
+
+        if printf '%s\n' "$STAGED_ADDITIONS" | grep -F -q -- "$value"; then
+          echo ""
+          echo "[pre-commit] ❌ Value of \$$key (from $(basename "$ENV_FILE")) appears in staged additions — commit blocked."
+          echo "[pre-commit]    Rotate the secret if it was real, scrub it from your changes, then re-stage."
+          exit 1
+        fi
+      done <<< "$ENV_CONTENT"
+    fi
+  fi
+done
+
+# ── 3. Backend: Spotless-format staged Java files ─────────────────────────────
+# Format Java files on commit to enforce code style automatically.
+STAGED_JAVA=$(git diff --cached --name-only --diff-filter=ACMR | grep -E '\.java$' || true)
+if [ -n "$STAGED_JAVA" ]; then
+  if command -v mvn >/dev/null 2>&1; then
+    # Run Spotless from the project root
+    if ! SPOTLESS_OUT=$(cd "$ROOT" && mvn spotless:apply -q 2>&1); then
+      echo "$SPOTLESS_OUT"
+      echo "[pre-commit] ❌ Spotless failed — commit blocked."
+      exit 1
+    fi
+    # Re-stage the formatted files so the commit contains the formatted version.
+    while IFS= read -r f; do
+      git add "$ROOT/$f"
+    done <<<"$STAGED_JAVA"
+  else
+    echo "[pre-commit] ⚠️  mvn not on PATH — skipping Spotless formatting."
+  fi
+fi
