@@ -6,13 +6,9 @@ on:
   pull_request:
     branches: [ "main" ]
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
-
 jobs:
   run-entire-pipeline:
-    uses: Bigorno12/ci-cd-templates/.github/workflows/master-maven-pipeline.yml@085b6b05bf37bc37ebd42c27fe0c5f7f294a6864
+    uses: Bigorno12/ci-cd-templates/.github/workflows/master-maven-pipeline.yml@4141abc7cc96e4d384f265d5716b307c2a9c2724
     secrets: inherit
     with:
       java-version: '25'
