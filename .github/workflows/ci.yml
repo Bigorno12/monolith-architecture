@@ -12,7 +12,7 @@ concurrency:
 
 jobs:
   run-entire-pipeline:
-    uses: Bigorno12/ci-cd-templates/.github/workflows/master-maven-pipeline.yml@eb6279d1462f6aa94b419ce63b040e38ecb5f524
+    uses: Bigorno12/ci-cd-templates/.github/workflows/master-maven-pipeline.yml@085b6b05bf37bc37ebd42c27fe0c5f7f294a6864
     secrets: inherit
     with:
       java-version: '25'
