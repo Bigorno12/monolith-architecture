@@ -60,7 +60,6 @@
                         <buildpacks>
                             <buildpack>docker.io/paketobuildpacks/adoptium</buildpack>
                             <buildpack>urn:cnb:builder:paketo-buildpacks/java</buildpack>
-                            <buildpack>docker.io/paketobuildpacks/image-labels</buildpack>
                         </buildpacks>
                     </image>
                 </configuration>
