@@ -55,7 +55,7 @@
                             <BP_OCI_DESCRIPTION>${project.description}</BP_OCI_DESCRIPTION>
                             <BP_OCI_SOURCE>${project.scm.url}</BP_OCI_SOURCE>
                             <BP_OCI_VERSION>${project.version}</BP_OCI_VERSION>
-                            <BP_OCI_AUTHORS>${pom.organization.name}</BP_OCI_AUTHORS>
+                            <BP_OCI_AUTHORS>Bigorno12</BP_OCI_AUTHORS>
                         </env>
                         <buildpacks>
                             <buildpack>docker.io/paketobuildpacks/adoptium</buildpack>
