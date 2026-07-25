@@ -17,7 +17,7 @@ permissions:
 
 jobs:
   run-entire-pipeline:
-    uses: Bigorno12/ci-cd-templates/.github/workflows/master-maven-pipeline.yml@249630923d3833bad951a88ff25e20185152a0a4
+    uses: Bigorno12/ci-cd-templates/.github/workflows/master-maven-pipeline.yml@af140bb9720075bcb8f3f49b5ac8805eccd3d490
     secrets: inherit
     with:
       java-version: '25'
