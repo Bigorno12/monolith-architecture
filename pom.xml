@@ -32,6 +32,7 @@
 
     <properties>
         <app.main.class>mu.server.rest.Application</app.main.class>
+        <archunit.version>1.4.2</archunit.version>
         <blaze-persistence.version>1.6.18</blaze-persistence.version>
         <bucket.version>8.19.0</bucket.version>
         <build-helper-maven-plugin.version>3.5.0</build-helper-maven-plugin.version>
@@ -56,6 +57,8 @@
         <spotless.version>3.8.0</spotless.version>
         <springdoc-openapi-starter-webmvc-ui.version>3.0.3</springdoc-openapi-starter-webmvc-ui.version>
         <swagger-annotations.version>2.2.52</swagger-annotations.version>
+        <testcontainers-keycloak.version>4.3.1</testcontainers-keycloak.version>
+        <testcontainers.version>1.21.4</testcontainers.version>
     </properties>
 
     <dependencyManagement>
@@ -66,26 +69,22 @@
                 <artifactId>mapstruct</artifactId>
                 <version>${mapstruct.version}</version>
             </dependency>
-
             <!-- OpenApi -->
             <dependency>
                 <groupId>io.swagger.core.v3</groupId>
                 <artifactId>swagger-annotations</artifactId>
                 <version>${swagger-annotations.version}</version>
             </dependency>
-
             <dependency>
                 <groupId>org.springdoc</groupId>
                 <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
                 <version>${springdoc-openapi-starter-webmvc-ui.version}</version>
             </dependency>
-
             <dependency>
                 <groupId>jakarta.validation</groupId>
                 <artifactId>jakarta.validation-api</artifactId>
                 <version>${jakarta.validation-api.version}</version>
             </dependency>
-
             <!-- Blaze -->
             <dependency>
                 <groupId>com.blazebit</groupId>
@@ -93,34 +92,29 @@
                 <version>${blaze-persistence.version}</version>
                 <scope>compile</scope>
             </dependency>
-
             <dependency>
                 <groupId>com.blazebit</groupId>
                 <artifactId>blaze-persistence-core-impl-jakarta</artifactId>
                 <version>${blaze-persistence.version}</version>
                 <scope>runtime</scope>
             </dependency>
-
             <dependency>
                 <groupId>com.blazebit</groupId>
                 <artifactId>blaze-persistence-integration-hibernate-7.1</artifactId>
                 <version>${blaze-persistence.version}</version>
                 <scope>runtime</scope>
             </dependency>
-
             <dependency>
                 <groupId>com.blazebit</groupId>
                 <artifactId>blaze-persistence-entity-view-api-jakarta</artifactId>
                 <version>${blaze-persistence.version}</version>
             </dependency>
-
             <dependency>
                 <groupId>com.blazebit</groupId>
                 <artifactId>blaze-persistence-entity-view-impl-jakarta</artifactId>
                 <version>${blaze-persistence.version}</version>
                 <scope>runtime</scope>
             </dependency>
-
             <!-- Kotlin -->
             <dependency>
                 <groupId>org.jetbrains.kotlin</groupId>
@@ -129,7 +123,6 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-
             <dependency>
                 <groupId>org.jetbrains.kotlin</groupId>
                 <artifactId>kotlin-reflect</artifactId>
@@ -142,44 +135,63 @@
                 <artifactId>bucket4j_jdk17-core</artifactId>
                 <version>${bucket.version}</version>
             </dependency>
-
             <!-- RestEasy -->
             <dependency>
                 <groupId>org.jboss.resteasy</groupId>
                 <artifactId>resteasy-client</artifactId>
                 <version>${resteasy.version}</version>
             </dependency>
-
             <dependency>
                 <groupId>org.jboss.resteasy</groupId>
                 <artifactId>resteasy-core</artifactId>
                 <version>${resteasy.version}</version>
             </dependency>
-
             <dependency>
                 <groupId>org.jboss.resteasy</groupId>
                 <artifactId>resteasy-core-spi</artifactId>
                 <version>${resteasy.version}</version>
             </dependency>
-
             <dependency>
                 <groupId>commons-io</groupId>
                 <artifactId>commons-io</artifactId>
                 <version>${commons-io.version}</version>
             </dependency>
-
             <!-- Circuit Breaker -->
             <dependency>
                 <groupId>io.github.resilience4j</groupId>
                 <artifactId>resilience4j-spring-boot3</artifactId>
                 <version>${resilience4j-spring-boot3.version}</version>
             </dependency>
-
             <!-- SQL Logging -->
             <dependency>
                 <groupId>com.github.gavlyukovskiy</groupId>
                 <artifactId>datasource-proxy-spring-boot-starter</artifactId>
                 <version>${datasource-proxy-spring-boot-starter.version}</version>
+            </dependency>
+            <!-- Arch Unit -->
+            <dependency>
+                <groupId>com.tngtech.archunit</groupId>
+                <artifactId>archunit</artifactId>
+                <version>${archunit.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.github.dasniko</groupId>
+                <artifactId>testcontainers-keycloak</artifactId>
+                <version>${testcontainers-keycloak.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>mysql</artifactId>
+                <version>${testcontainers.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>postgresql</artifactId>
+                <version>${testcontainers.version}</version>
+                <scope>test</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -226,6 +238,12 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+        <!-- Tests -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

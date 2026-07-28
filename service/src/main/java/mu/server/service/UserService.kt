@@ -1,4 +1,4 @@
-package mu.server.service.service
+package mu.server.service
 
 import mu.server.service.dto.Result
 import mu.server.service.dto.user.UpdateUserRequest

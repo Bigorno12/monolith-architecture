@@ -1,4 +1,4 @@
-package mu.server.service.service.http;
+package mu.server.service.http;
 
 import mu.server.service.dto.todo.TodoRequest;
 import org.springframework.resilience.annotation.Retryable;

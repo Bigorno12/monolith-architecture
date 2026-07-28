@@ -2,9 +2,9 @@ package mu.server.rest.controller
 
 import com.blazebit.persistence.PagedList
 import mu.server.persistence.repository.blaze.TodoView
+import mu.server.service.TodoService
 import mu.server.service.dto.todo.TodoRequest
 import mu.server.service.dto.todo.TodoUsernameResponse
-import mu.server.service.service.TodoService
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
