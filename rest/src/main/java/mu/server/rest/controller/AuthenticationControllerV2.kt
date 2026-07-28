@@ -1,10 +1,10 @@
 package mu.server.rest.controller
 
 import jakarta.servlet.http.HttpServletRequest
+import mu.server.service.KeycloakService
 import mu.server.service.dto.auth.AuthenticationRequest
 import mu.server.service.dto.auth.TokenResponse
 import mu.server.service.dto.user.UserRequest
-import mu.server.service.service.KeycloakService
 import org.springframework.http.ResponseEntity
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.PostMapping

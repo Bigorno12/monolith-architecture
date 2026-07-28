@@ -3,7 +3,7 @@ package mu.server.rest.config;
 import mu.server.service.exception.InvalidCallException;
 import mu.server.service.exception.JsonPlaceHolderException;
 import mu.server.service.exception.NotFoundException;
-import mu.server.service.service.http.JsonPlaceHolderService;
+import mu.server.service.http.JsonPlaceHolderService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;

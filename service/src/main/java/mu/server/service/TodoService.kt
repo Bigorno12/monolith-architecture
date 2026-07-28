@@ -1,4 +1,4 @@
-package mu.server.service.service
+package mu.server.service
 
 import com.blazebit.persistence.PagedList
 import mu.server.persistence.repository.blaze.TodoView
