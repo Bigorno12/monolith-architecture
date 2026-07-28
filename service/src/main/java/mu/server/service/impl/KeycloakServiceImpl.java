@@ -1,4 +1,4 @@
-package mu.server.service.service.impl;
+package mu.server.service.impl;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.ws.rs.core.Response;
@@ -6,12 +6,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import mu.server.persistence.entity.User;
 import mu.server.persistence.repository.UserRepository;
+import mu.server.service.KeycloakService;
+import mu.server.service.KeycloakTokenProvider;
 import mu.server.service.dto.auth.TokenResponse;
 import mu.server.service.dto.user.UserRequest;
 import mu.server.service.exception.UsernameExistException;
 import mu.server.service.mapper.user.UserMapper;
-import mu.server.service.service.KeycloakService;
-import mu.server.service.service.KeycloakTokenProvider;
 import mu.server.service.util.Credentials;
 import mu.server.service.util.FingerprintUtil;
 import org.keycloak.admin.client.resource.UsersResource;

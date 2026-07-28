@@ -1,4 +1,4 @@
-package mu.server.service.service;
+package mu.server.service;
 
 import jakarta.servlet.http.HttpServletRequest;
 import mu.server.service.dto.auth.TokenResponse;

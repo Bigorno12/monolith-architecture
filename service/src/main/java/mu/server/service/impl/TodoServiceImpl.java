@@ -1,4 +1,4 @@
-package mu.server.service.service.impl;
+package mu.server.service.impl;
 
 import com.blazebit.persistence.PagedList;
 import lombok.RequiredArgsConstructor;
@@ -8,14 +8,14 @@ import mu.server.persistence.entity.User;
 import mu.server.persistence.repository.TodoRepository;
 import mu.server.persistence.repository.UserRepository;
 import mu.server.persistence.repository.blaze.TodoView;
+import mu.server.service.TodoService;
 import mu.server.service.dto.todo.TodoRequest;
 import mu.server.service.dto.todo.TodoUsernameResponse;
 import mu.server.service.exception.InvalidCallException;
 import mu.server.service.exception.JsonPlaceHolderException;
 import mu.server.service.exception.NotFoundException;
+import mu.server.service.http.JsonPlaceHolderService;
 import mu.server.service.mapper.todo.TodoMapper;
-import mu.server.service.service.TodoService;
-import mu.server.service.service.http.JsonPlaceHolderService;
 import org.jspecify.annotations.Nullable;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
