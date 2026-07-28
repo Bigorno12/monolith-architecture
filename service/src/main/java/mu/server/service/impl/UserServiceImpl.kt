@@ -1,10 +1,11 @@
-package mu.server.service.service.impl
+package mu.server.service.impl
 
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker
 import jakarta.ws.rs.WebApplicationException
 import jakarta.ws.rs.core.Response
 import mu.server.persistence.entity.User
 import mu.server.persistence.repository.UserRepository
+import mu.server.service.UserService
 import mu.server.service.dto.Result
 import mu.server.service.dto.user.UpdateUserRequest
 import mu.server.service.dto.user.UserResponse
@@ -13,7 +14,6 @@ import mu.server.service.exception.KeycloakException
 import mu.server.service.exception.NotFoundException
 import mu.server.service.exception.UsernameExistException
 import mu.server.service.mapper.user.UserMapper
-import mu.server.service.service.UserService
 import org.keycloak.admin.client.resource.UserResource
 import org.keycloak.admin.client.resource.UsersResource
 import org.keycloak.representations.idm.UserRepresentation
