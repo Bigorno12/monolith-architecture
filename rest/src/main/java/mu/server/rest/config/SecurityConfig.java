@@ -3,6 +3,7 @@ package mu.server.rest.config;
 import lombok.RequiredArgsConstructor;
 import mu.server.rest.filter.FingerprintFilter;
 import mu.server.rest.filter.RateLimitFilter;
+import org.springframework.boot.security.autoconfigure.actuate.web.servlet.EndpointRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -127,7 +128,7 @@ public class SecurityConfig {
                 })
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(WHITELISTED_PATHS).permitAll()
-                        .requestMatchers("/actuator/**").hasAnyAuthority(ADMIN_READ.getPermission())
+                        .requestMatchers(EndpointRequest.to("health", "info")).hasAnyAuthority(ADMIN_READ.getPermission())
                         .anyRequest().authenticated()
                 )
                 .build();
