@@ -30,6 +30,7 @@ spec:
         app: monolith-api
         color: blue
     spec:
+      terminationGracePeriodSeconds: 40
       imagePullSecrets:
         - name: ghcr-secret
       containers:
@@ -93,6 +94,7 @@ spec:
         app: monolith-api
         color: green
     spec:
+      terminationGracePeriodSeconds: 40
       imagePullSecrets:
         - name: ghcr-secret
       containers:
