@@ -317,7 +317,6 @@
                                 <generateModelDocumentation>false</generateModelDocumentation>
                                 <output>${project.build.directory}/generated-sources</output>
                                 <configOptions>
-                                    <additionalModelTypeAnnotations>@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)</additionalModelTypeAnnotations>
                                     <collectionType>list</collectionType>
                                     <enumPropertyNaming>MACRO_CASE</enumPropertyNaming>
                                     <dateLibrary>java25</dateLibrary>
