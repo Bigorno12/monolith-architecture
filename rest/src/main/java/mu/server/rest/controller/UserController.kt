@@ -1,8 +1,8 @@
 package mu.server.rest.controller
 
+import mu.server.service.UserService
 import mu.server.service.dto.user.UpdateUserRequest
 import mu.server.service.dto.user.ViewUserProfile
-import mu.server.service.service.UserService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize

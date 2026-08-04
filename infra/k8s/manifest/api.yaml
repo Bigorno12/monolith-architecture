@@ -30,11 +30,12 @@ spec:
         app: monolith-api
         color: blue
     spec:
+      terminationGracePeriodSeconds: 40
       imagePullSecrets:
         - name: ghcr-secret
       containers:
         - name: monolith-api
-          image: ghcr.io/bigorno12/monolith-architecture:main-f23e48b
+          image: ghcr.io/bigorno12/monolith-architecture:main-33dc8c7
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
@@ -93,11 +94,12 @@ spec:
         app: monolith-api
         color: green
     spec:
+      terminationGracePeriodSeconds: 40
       imagePullSecrets:
         - name: ghcr-secret
       containers:
         - name: monolith-api
-          image: ghcr.io/bigorno12/monolith-architecture:main-f23e48b
+          image: ghcr.io/bigorno12/monolith-architecture:main-33dc8c7
           imagePullPolicy: Always
           ports:
             - containerPort: 8080

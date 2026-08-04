@@ -1,7 +1,7 @@
 package mu.server.rest.config
 
+import mu.server.service.KeycloakTokenProvider
 import mu.server.service.dto.auth.TokenResponse
-import mu.server.service.service.KeycloakTokenProvider
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder
 import org.keycloak.OAuth2Constants
 import org.keycloak.admin.client.Keycloak

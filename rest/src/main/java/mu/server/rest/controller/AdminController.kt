@@ -1,8 +1,8 @@
 package mu.server.rest.controller
 
+import mu.server.service.UserService
 import mu.server.service.dto.Result
 import mu.server.service.dto.user.UserResponse
-import mu.server.service.service.UserService
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.GetMapping

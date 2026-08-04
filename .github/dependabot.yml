@@ -3,7 +3,7 @@ updates:
   - package-ecosystem: "maven"
     directory: "/"
     schedule:
-      interval: "weekly"
+      interval: "daily"
     open-pull-requests-limit: 10
     commit-message:
       prefix: "chore"
@@ -13,6 +13,9 @@ updates:
         patterns:
           - "org.springframework.boot:spring-boot-starter-parent"
           - "org.springframework.*"
+      maven:
+        patterns:
+          - "org.apache.maven.plugins:*"
       test-dependencies:
         patterns:
           - "junit:*"
@@ -23,8 +26,6 @@ updates:
       - "dependencies"
       - "java"
     # Recommend reviewers for PRs
-    reviewers:
-      - "Bigorno"
     assignees:
       - "Bigorno"
 
