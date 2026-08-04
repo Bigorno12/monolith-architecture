@@ -33,7 +33,7 @@
     <properties>
         <app.main.class>mu.server.rest.Application</app.main.class>
         <archunit.version>1.4.2</archunit.version>
-        <blaze-persistence.version>1.6.19</blaze-persistence.version>
+        <blaze-persistence.version>1.6.20</blaze-persistence.version>
         <bucket.version>8.19.0</bucket.version>
         <build-helper-maven-plugin.version>3.5.0</build-helper-maven-plugin.version>
         <com.fasterxml.jackson.version>2.21.5</com.fasterxml.jackson.version>
