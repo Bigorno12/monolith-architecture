@@ -36,7 +36,7 @@
         <blaze-persistence.version>1.6.19</blaze-persistence.version>
         <bucket.version>8.19.0</bucket.version>
         <build-helper-maven-plugin.version>3.5.0</build-helper-maven-plugin.version>
-        <com.fasterxml.jackson.version>2.22.1</com.fasterxml.jackson.version>
+        <com.fasterxml.jackson.version>2.21.5</com.fasterxml.jackson.version>
         <commons-io.version>2.22.0</commons-io.version>
         <commons-lang3.version>3.18.0</commons-lang3.version>
         <commons-lang3.version>3.20.0</commons-lang3.version>
@@ -288,6 +288,7 @@
                                 <generateModelDocumentation>false</generateModelDocumentation>
                                 <output>${project.build.directory}/generated-sources</output>
                                 <configOptions>
+                                    <additionalModelTypeAnnotations>@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)</additionalModelTypeAnnotations>
                                     <collectionType>list</collectionType>
                                     <dateLibrary>java25</dateLibrary>
                                     <enumPropertyNaming>MACRO_CASE</enumPropertyNaming>
@@ -317,6 +318,7 @@
                                 <generateModelDocumentation>false</generateModelDocumentation>
                                 <output>${project.build.directory}/generated-sources</output>
                                 <configOptions>
+                                    <additionalModelTypeAnnotations>@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)</additionalModelTypeAnnotations>
                                     <collectionType>list</collectionType>
                                     <enumPropertyNaming>MACRO_CASE</enumPropertyNaming>
                                     <dateLibrary>java25</dateLibrary>
