@@ -56,7 +56,7 @@
         <resteasy.version>7.0.2.Final</resteasy.version>
         <spotless.version>3.9.0</spotless.version>
         <springdoc-openapi-starter-webmvc-ui.version>3.0.3</springdoc-openapi-starter-webmvc-ui.version>
-        <swagger-annotations.version>2.2.52</swagger-annotations.version>
+        <swagger-annotations.version>2.2.53</swagger-annotations.version>
         <testcontainers-keycloak.version>4.3.1</testcontainers-keycloak.version>
         <testcontainers.version>1.21.4</testcontainers.version>
     </properties>
