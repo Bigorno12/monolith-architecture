@@ -14,6 +14,7 @@ public abstract class TestContainerDBConfiguration {
 
     @Container
     @ServiceConnection
+    @SuppressWarnings("resource")
     static MySQLContainer<?> mysql = new MySQLContainer<>("mysql:9.7")
             .withDatabaseName("welldev")
             .withUsername("test")
@@ -21,6 +22,7 @@ public abstract class TestContainerDBConfiguration {
 
     @Container
     @ServiceConnection
+    @SuppressWarnings("resource")
     static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:17-alpine")
             .withDatabaseName("keycloak_db")
             .withUsername("test")
