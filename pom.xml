@@ -36,12 +36,11 @@
         <blaze-persistence.version>1.6.20</blaze-persistence.version>
         <bucket.version>8.19.0</bucket.version>
         <build-helper-maven-plugin.version>3.5.0</build-helper-maven-plugin.version>
-        <com.fasterxml.jackson.version>2.21.5</com.fasterxml.jackson.version>
         <commons-io.version>2.22.0</commons-io.version>
-        <commons-lang3.version>3.18.0</commons-lang3.version>
         <commons-lang3.version>3.20.0</commons-lang3.version>
         <datasource-proxy-spring-boot-starter.version>2.0.1</datasource-proxy-spring-boot-starter.version>
         <exec-maven-plugin.version>3.6.3</exec-maven-plugin.version>
+        <jackson-2-bom.version>2.22.0</jackson-2-bom.version>
         <jakarta.validation-api.version>3.1.1</jakarta.validation-api.version>
         <java.version>25</java.version>
         <keycloak.version>26.0.12</keycloak.version>
