@@ -57,7 +57,7 @@
         <sonar.coverage.jacoco.xmlReportPaths>${maven.multiModuleProjectDirectory}/**/target/site/jacoco/jacoco.xml,${maven.multiModuleProjectDirectory}/**/target/site/jacoco-aggregate/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
         <spotless.version>3.9.0</spotless.version>
         <springdoc-openapi-starter-webmvc-ui.version>3.1.0</springdoc-openapi-starter-webmvc-ui.version>
-        <swagger-annotations.version>2.2.52</swagger-annotations.version>
+        <swagger-annotations.version>2.2.53</swagger-annotations.version>
         <testcontainers-keycloak.version>4.3.1</testcontainers-keycloak.version>
         <testcontainers.version>1.21.4</testcontainers.version>
     </properties>
