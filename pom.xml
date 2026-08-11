@@ -36,6 +36,7 @@
         <blaze-persistence.version>1.6.20</blaze-persistence.version>
         <bucket.version>8.19.0</bucket.version>
         <build-helper-maven-plugin.version>3.5.0</build-helper-maven-plugin.version>
+        <commons-codec.version>1.22.1</commons-codec.version>
         <commons-io.version>2.22.0</commons-io.version>
         <commons-lang3.version>3.20.0</commons-lang3.version>
         <datasource-proxy-spring-boot-starter.version>2.0.1</datasource-proxy-spring-boot-starter.version>
@@ -52,7 +53,7 @@
         <org.openapi-generator-maven-plugin.version>7.24.0</org.openapi-generator-maven-plugin.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <resilience4j-spring-boot3.version>2.4.0</resilience4j-spring-boot3.version>
-        <resteasy.version>7.0.2.Final</resteasy.version>
+        <resteasy.version>7.0.3.Final</resteasy.version>
         <spotless.version>3.9.0</spotless.version>
         <springdoc-openapi-starter-webmvc-ui.version>3.1.0</springdoc-openapi-starter-webmvc-ui.version>
         <swagger-annotations.version>2.2.53</swagger-annotations.version>
