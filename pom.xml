@@ -592,6 +592,19 @@
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <version>${jacoco.version}</version>
+                <configuration>
+                    <excludes>
+                        <exclude>org/openapitools/**</exclude>
+                        <exclude>mu/server/rest/controller/Api*</exclude>
+                        <exclude>mu/server/rest/controller/RFC3339*</exclude>
+                        <exclude>mu/server/rest/controller/Server*</exclude>
+                        <exclude>mu/server/rest/controller/StringUtil*</exclude>
+                        <exclude>mu/server/rest/controller/auth/**</exclude>
+                        <exclude>mu/server/rest/controller/api/**</exclude>
+                        <exclude>mu/server/service/dto/**</exclude>
+                        <exclude>**/*MapperImpl*</exclude>
+                    </excludes>
+                </configuration>
                 <executions>
                     <execution>
                         <id>prepare-agent</id>
@@ -636,11 +649,17 @@
                         </goals>
                         <configuration>
                             <rules>
+                                <!-- Unit Test Coverage -->
                                 <rule>
                                     <element>PACKAGE</element>
                                     <limits>
                                         <limit>
                                             <counter>LINE</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>0.00</minimum>
+                                        </limit>
+                                        <limit>
+                                            <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
                                             <minimum>0.00</minimum>
                                         </limit>

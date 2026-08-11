@@ -39,7 +39,7 @@ services:
     volumes:
       - postgres-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -69,7 +69,7 @@ services:
       KC_BOOTSTRAP_ADMIN_USERNAME: ${KEYCLOAK_ADMIN}
       KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
     healthcheck:
-      test: [ 'CMD-SHELL', '[ -f /tmp/HealthCheck.java ] || echo "public class HealthCheck { public static void main(String[] args) throws java.lang.Throwable { System.exit(java.net.HttpURLConnection.HTTP_OK == ((java.net.HttpURLConnection)new java.net.URL(args[0]).openConnection()).getResponseCode() ? 0 : 1); } }" > /tmp/HealthCheck.java && java /tmp/HealthCheck.java http://localhost:7080/health/live' ]
+      test: ["CMD-SHELL", "curl -sf http://localhost:7080/health/live || exit 1"]
       interval: 15s
       timeout: 5s
       retries: 10
@@ -78,7 +78,7 @@ services:
     ports:
       - "7080:7080"
     volumes:
-      - ./keycloak/:/opt/keycloak/data/import/
+      - ./keycloak/:/opt/keycloak/data/import/:z
     depends_on:
       postgres:
         condition: service_healthy
@@ -99,9 +99,9 @@ services:
       POSTGRES_USER: ${POSTGRES_SONAR_USER}
       POSTGRES_PASSWORD: ${POSTGRES_SONAR_PASSWORD}
     volumes:
-      - postgres-sonar-data:/var/lib/postgresql/data
+      - postgres-sonar-data-v2:/var/lib/postgresql/data
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U sonar -d $$POSTGRES_SONAR_DB" ]
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_SONAR_USER} -d ${POSTGRES_SONAR_DB}" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -122,6 +122,9 @@ services:
       SONAR_JDBC_URL: jdbc:postgresql://postgres-sonar:5432/${POSTGRES_SONAR_DB}
       SONAR_JDBC_USERNAME: ${SONAR_USER}
       SONAR_JDBC_PASSWORD: ${SONAR_PASSWORD}
+      SONAR_WEB_JAVAOPTS: "-Xmx512m -Xms128m"
+      SONAR_CE_JAVAOPTS: "-Xmx512m -Xms128m"
+      SONAR_SEARCH_JAVAOPTS: "-Xmx512m -Xms512m -XX:MaxDirectMemorySize=256m"
     ports:
       - "9000:9000"
     volumes:
@@ -148,7 +151,7 @@ services:
 volumes:
   mysql-data:
   postgres-data:
-  postgres-sonar-data:
+  postgres-sonar-data-v2:
   sonarqube-data:
   sonarqube-logs:
   sonarqube-extensions:
