@@ -1,0 +1,30 @@
+@startuml C1-Context
+!include <C4/C4_Context>
+
+title System Context — Monolith Architecture
+
+Person(user, "User", "Registers, logs in, manages their own profile and todos")
+Person(admin, "Admin", "Reads any user by id (admin:read)")
+
+System_Boundary(sb, "monolith-architecture") {
+  System(api, "Monolith API", "Spring Boot 4 · Java 25 + Kotlin 2.4\nSingle jar: rest → service → persistence")
+}
+
+System_Ext(kc, "Keycloak", "Identity provider — issues JWTs,\nowns credentials and realm roles")
+SystemDb_Ext(mysql, "MySQL", "Users, todos, posts, comments\nFlyway-migrated")
+SystemDb_Ext(pg, "PostgreSQL", "Keycloak's own store")
+System_Ext(jp, "JSONPlaceholder", "Public API — seeds todos for a user")
+
+Rel(user, api, "REST + Bearer JWT", "HTTPS / X-API-Version")
+Rel(admin, api, "REST + Bearer JWT", "HTTPS")
+Rel(user, kc, "Authenticates (OAuth2 / OIDC)", "HTTPS")
+
+Rel(api, kc, "Validates JWT (JWK set), creates users,\nassigns realm roles", "OIDC / Admin REST")
+Rel(api, mysql, "Reads / writes", "JDBC + HikariCP")
+Rel(api, jp, "Fetches todos", "REST + retry")
+Rel(kc, pg, "Reads / writes", "JDBC")
+
+SHOW_LEGEND()
+
+footer docs/c4/C1-Context.puml — Bigorno12/monolith-architecture
+@enduml

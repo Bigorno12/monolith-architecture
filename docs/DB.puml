@@ -1,0 +1,79 @@
+@startuml DB
+' Hand-maintained. Source of truth = persistence/src/main/resources/db.migration/*.sql
+title Database (MySQL) — after V1_0 … V1_8
+
+hide circle
+skinparam linetype ortho
+
+entity "_user" as user {
+  * id : bigint <<PK, auto_increment>>
+  --
+  * username : varchar(255) <<unique>>
+  * keycloak_id : varchar(255) <<unique>>   (V1_7)
+  * firstname : varchar(50)
+  * lastname : varchar(50)
+  * age : integer
+  * gender : enum(FEMALE, MALE, OTHER)
+  * email : varchar(255)  <<AES at rest>>
+  * role : enum(ADMIN, USER)
+  --
+  created_date / last_modified_date : timestamp(6)
+  created_by / modified_by : varchar(255)
+}
+
+entity "todo" as todo {
+  * id : bigint <<PK, auto_increment>>
+  --
+  user_id : bigint <<FK → _user.id>>
+  * title : varchar(1000)
+  * completed : boolean
+  --
+  created_date / last_modified_date : timestamp(6)
+  created_by / modified_by : varchar(255)
+}
+
+entity "post" as post {
+  * id : bigint <<PK, auto_increment>>
+  --
+  * user_id : bigint <<FK → _user.id>>
+  * title : varchar(1000)
+  * body : varchar(1000)
+  --
+  created_date / last_modified_date : timestamp(6)
+  created_by / modified_by : varchar(255)
+}
+
+entity "comments" as comments {
+  * id : bigint <<PK, auto_increment>>
+  --
+  * post_id : bigint <<FK → post.id>>
+  * email : varchar(100)
+  * name : varchar(500)
+  * body : varchar(500)
+  --
+  created_date / last_modified_date : timestamp(6)
+  created_by / modified_by : varchar(255)
+}
+
+entity "user_todo_complete" as v <<view>> #F5F5F5 {
+  username / firstname / lastname / age
+  title / completed
+  --
+  V1_5: _user ⋈ todo WHERE completed = true
+}
+
+user ||--o{ todo
+user ||--o{ post
+post ||--o{ comments
+user .right.> v : <<feeds>>
+todo .up.> v : <<feeds>>
+
+note as N1
+  Dropped again: **token** (created V1_2, dropped V1_6)
+  — session state moved to Keycloak.
+  Passwords left the schema in V1_8 for the same reason.
+  Flyway location is classpath:**db.migration** (a dot, not a slash).
+end note
+
+footer docs/DB.puml — Bigorno12/monolith-architecture
+@enduml
