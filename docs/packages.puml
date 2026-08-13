@@ -1,0 +1,71 @@
+@startuml packages
+' Hand-maintained. Enforced for real by rest/src/test/java/ArchitectureTest.java (ArchUnit)
+title Logical architecture — one Maven reactor, three modules, one bootable jar
+
+skinparam componentStyle rectangle
+skinparam linetype ortho
+
+package "rest  (mu.server.rest)" as REST #E8F0FE {
+  [Application] <<@SpringBootApplication>>
+  [controller] <<@RestController>>
+  [config] <<@Configuration>>
+  [filter] <<OncePerRequestFilter>>
+  [advice] <<@RestControllerAdvice>>
+}
+
+package "service  (mu.server.service)" as SVC #E6F4EA {
+  [Service API] <<interface>>
+  [impl] <<*ServiceImpl>>
+  [mapper] <<MapStruct>>
+  [dto] <<record / data class>>
+  [http] <<@HttpExchange>>
+  [exception]
+}
+
+package "persistence  (mu.server.persistence)" as PERS #FEF7E0 {
+  [entity] <<@Entity>>
+  [repository] <<Spring Data>>
+  [repository.blaze] <<entity views>>
+  [enumeration] <<Role / Permission>>
+  [audit] <<Auditable>>
+  [converter] <<AES @Convert>>
+}
+
+cloud "Keycloak" as KC
+database "MySQL" as DB
+cloud "JSONPlaceholder" as JP
+
+[controller] --> [Service API]
+[impl] ..|> [Service API]
+[impl] --> [repository]
+[impl] --> [mapper]
+[impl] --> [http]
+[mapper] --> [entity]
+[repository] --> [entity]
+
+[config] --> KC : Keycloak admin client
+[filter] --> [dto]
+[advice] --> [exception]
+[http] --> JP : RestClient + @Retryable
+[repository] --> DB : JPA / Blaze
+REST --> KC : JWT resource server\n+ OAuth2 login
+
+note bottom of PERS
+  **ArchUnit rules (ArchitectureTest):**
+  • controller: accessed by NO layer
+  • service: only from controller / config / advice / filter
+  • persistence: only from service / config / controller
+  • persistence must NOT depend on service or controller
+  • every public *ServiceImpl method is @Transactional
+    (except fallback* / authenticate)
+  • @Service under ..service.., @Entity under ..persistence..
+end note
+
+note top of REST
+  Only **rest** is bootable: spring-boot-maven-plugin
+  is skip=true in the root pom and re-enabled here.
+  Kotlin and Java share src/main/java in every module.
+end note
+
+footer docs/packages.puml — Bigorno12/monolith-architecture
+@enduml

@@ -1,0 +1,71 @@
+@startuml sequence-register
+' Hand-maintained. Source of truth = AuthenticationControllerV2.kt + KeycloakServiceImpl.java
+title POST /api/v2/auth/register — register, grant role, authenticate, bind fingerprint
+
+autonumber
+skinparam responseMessageBelowArrow true
+
+actor Client
+participant "AuthenticationControllerV2" as C <<rest>>
+participant "KeycloakServiceImpl" as S <<service>>
+participant "UserRepository" as R <<persistence>>
+participant "UserMapper" as M <<MapStruct>>
+participant "UsersResource" as KCA <<keycloak-admin>>
+participant "KeycloakConfig" as KTP <<KeycloakTokenProvider>>
+participant "fingerprintCache" as FC <<Caffeine>>
+database MySQL
+participant Keycloak <<external>>
+
+Client -> C : POST /api/v2/auth/register\nX-API-Version: 2.0
+activate C
+C -> S : register(userRequest, request)
+activate S
+
+S -> R : findUserByUsername(username)
+R -> MySQL : SELECT
+alt username already taken
+  S -->> C : UsernameExistException
+  note right of S : handled by GlobalExceptionHandler
+end
+
+S -> M : mapToUserRepresentation(request, credentials)
+S -> KCA : create(userRepresentation)
+KCA -> Keycloak : POST /users
+Keycloak --> KCA : 201 + Location: .../users/{keycloakId}
+note right of S
+  Non-201 → RuntimeException.
+  keycloakId is parsed from the Location header.
+end note
+
+S -> KCA : roles().realmLevel().listAvailable()
+S -> KCA : roles().realmLevel().add([role])
+KCA -> Keycloak : PUT realm role mapping
+
+S -> M : mapToUser(userRequest)
+S -> R : save(user + keycloakId)
+R -> MySQL : INSERT _user
+
+S -> S : authenticate(username, password, request)
+S -> KTP : getToken(username, password)
+KTP -> Keycloak : password grant
+Keycloak --> KTP : access + refresh token
+
+S -> FC : put(accessToken, fingerprint(request))
+note right of FC
+  FingerprintFilter later compares this
+  on every /api/v1/mono/** call and
+  rejects a token replayed elsewhere.
+end note
+
+S --> C : TokenResponse
+deactivate S
+C --> Client : 200 + {accessToken, refreshToken}
+deactivate C
+
+note over S, MySQL
+  @Transactional covers the DB write only — the Keycloak
+  calls are NOT rolled back if the transaction later fails.
+end note
+
+footer docs/sequence-register.puml — Bigorno12/monolith-architecture
+@enduml
