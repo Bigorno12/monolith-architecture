@@ -1,0 +1,55 @@
+{
+  "//": "Shared, committed project settings: policy + hooks. Personal allowlists belong in settings.local.json (gitignored).",
+  "permissions": {
+    "deny": [
+      "Bash(git commit --no-verify*)",
+      "Bash(git push --no-verify*)",
+      "Read(./**/*.env)",
+      "Read(./**/.env)"
+    ],
+    "ask": [
+      "Edit(.claude/settings.json)",
+      "Edit(infra/k8s/manifest/api.yaml)"
+    ]
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|resume",
+        "hooks": [
+          {
+            "//": "auto-setup githooks — this repo uses .githook (singular), installed by 'mvn initialize'",
+            "type": "command",
+            "command": "test \"$(git config --get core.hooksPath)\" = .githook || { git config core.hooksPath .githook && echo 'restored core.hooksPath -> .githook (project hooks were disabled)'; }"
+          },
+          {
+            "//": "auto-feed Claude the latest git changes",
+            "type": "command",
+            "command": "printf '## Repo state\\nBranch: %s\\n\\nUncommitted changes:\\n%s\\n\\nLast 5 commits:\\n%s\\n' \"$(git branch --show-current)\" \"$(git status --short)\" \"$(git log --oneline -5)\""
+          }
+        ]
+      },
+      {
+        "//": "warn when other Claude Code sessions share this checkout; suggest EnterWorktree",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/detect-concurrent-sessions.sh\""
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "//": "after a .java/.kt edit: flag FQCNs and files misplaced under src/main/kotlin",
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/post-java-kotlin-edit.sh\""
+          }
+        ]
+      }
+    ]
+  }
+}

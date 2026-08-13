@@ -36,3 +36,6 @@ replay_pid*
 *.env
 .env.*
 !.env.example
+
+# Claude Code — settings.json is shared; settings.local.json is personal
+.claude/settings.local.json

@@ -1,0 +1,99 @@
+@startuml DomainModel
+' Hand-maintained. Source of truth = persistence/src/main/java/mu/server/persistence/
+title Domain model — mu.server.persistence
+
+skinparam classAttributeIconSize 0
+hide empty members
+
+abstract class Auditable <<@MappedSuperclass>> {
+  createdDate : LocalDateTime
+  lastModifiedDate : LocalDateTime
+  createdBy : String
+  modifiedBy : String
+}
+note right of Auditable
+  Filled by AuditingEntityListener
+  + AuditorAwareImpl (security context)
+end note
+
+class User <<@Entity>> <<_user>> {
+  id : Long
+  firstname : String
+  lastname : String
+  age : Integer
+  gender : Gender
+  username : String <<unique>>
+  email : String <<encrypted>>
+  keycloakId : String <<unique>>
+  role : Role
+}
+note right of User::email
+  @Convert(EncryptionConverter)
+  AES, key = WELLDEV.AES.SECRET.KEY
+end note
+note right of User::keycloakId
+  Links the row to the Keycloak
+  account; deletes must remove both
+end note
+
+class Todo <<@Entity>> {
+  id : Long
+  title : String
+  completed : Boolean
+}
+
+class Post <<@Entity>> {
+  id : Long
+  title : String
+  body : String
+}
+
+class Comment <<@Entity>> <<comments>> {
+  id : Long
+  email : String
+  body : String
+  name : String
+}
+
+enum Role {
+  USER
+  ADMIN
+  --
+  permissions : Set<Permission>
+}
+
+enum Permission {
+  ADMIN_READ / ADMIN_CREATE
+  ADMIN_UPDATE / ADMIN_DELETE
+  USER_READ / USER_CREATE
+  USER_UPDATE / USER_DELETE
+  --
+  permission : String
+}
+note bottom of Permission
+  The String values ("user:read", …)
+  are the Spring Security authorities
+  used in SecurityConfig and @PreAuthorize
+end note
+
+enum Gender {
+  FEMALE
+  MALE
+  OTHER
+}
+
+Auditable <|-- User
+Auditable <|-- Todo
+Auditable <|-- Post
+Auditable <|-- Comment
+
+User "1" *-- "0..*" Todo : user_id >
+User "1" *-- "0..*" Post : user_id >
+Post "1" *-- "0..*" Comment : post_id >
+
+User --> Role
+User --> Gender
+Role --> "1..*" Permission
+
+footer docs/DomainModel.puml — Bigorno12/monolith-architecture
+@enduml
