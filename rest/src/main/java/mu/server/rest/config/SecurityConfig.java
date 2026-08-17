@@ -1,9 +1,11 @@
 package mu.server.rest.config;
 
+import jakarta.servlet.Filter;
 import lombok.RequiredArgsConstructor;
 import mu.server.rest.filter.FingerprintFilter;
 import mu.server.rest.filter.RateLimitFilter;
 import org.springframework.boot.security.autoconfigure.actuate.web.servlet.EndpointRequest;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -21,6 +23,7 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -115,6 +118,7 @@ public class SecurityConfig {
                         .ignoringRequestMatchers(WHITELISTED_PATHS)
                 )
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .addFilterBefore(rateLimitFilter, UsernamePasswordAuthenticationFilter.class)
                 .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin))
                 .oauth2Login(Customizer.withDefaults())
                 .logout(logout -> {
@@ -149,5 +153,21 @@ public class SecurityConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
         return source;
+    }
+
+    @Bean
+    public FilterRegistrationBean<RateLimitFilter> rateLimitFilterRegistration(RateLimitFilter filter) {
+        return disableServletRegistration(filter);
+    }
+
+    @Bean
+    public FilterRegistrationBean<FingerprintFilter> fingerprintFilterRegistration(FingerprintFilter filter) {
+        return disableServletRegistration(filter);
+    }
+
+    private <T extends Filter> FilterRegistrationBean<T> disableServletRegistration(T filter) {
+        FilterRegistrationBean<T> registration = new FilterRegistrationBean<>(filter);
+        registration.setEnabled(false);
+        return registration;
     }
 }
