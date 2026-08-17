@@ -6,7 +6,6 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import mu.server.persistence.enumeration.Gender;
-import mu.server.persistence.enumeration.Role;
 
 @Builder
 public record UserRequest(@NotNull(message = "Firstname must not be null") String firstName,
@@ -16,7 +15,6 @@ public record UserRequest(@NotNull(message = "Firstname must not be null") Strin
                           Gender gender,
                           @NotBlank(message = "Email must not be blank") String email,
                           @NotBlank(message = "Username must not be blank") String username,
-                          @NotNull(message = "Role must not be blank") Role role,
                           @NotNull(message = "Password must not be null")
                           @NotBlank(message = "Password must not be blank") String password) {
 }
