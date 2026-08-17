@@ -76,6 +76,7 @@
                     <skip>false</skip>
                     <mainClass>${app.main.class}</mainClass>
                     <image>
+                        <builder>paketobuildpacks/builder-jammy-base:latest</builder>
                         <env>
                             <BP_JVM_VERSION>25</BP_JVM_VERSION>
                             <BP_OCI_TITLE>${project.name}</BP_OCI_TITLE>
