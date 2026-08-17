@@ -17,9 +17,11 @@ import java.util.Collections;
 public interface UserMapper extends KeycloakMapper {
 
     @Mapping(target = "id", ignore = true)
-    @Mapping(source = "firstName", target = "firstname")
-    @Mapping(source = "lastName", target = "lastname")
-    User mapToUser(UserRequest userRequest);
+    @Mapping(source = "userRequest.firstName", target = "firstname")
+    @Mapping(source = "userRequest.lastName", target = "lastname")
+    @Mapping(source = "keycloakId", target = "keycloakId")
+    @Mapping(target = "role", constant = "USER")
+    User mapToUser(UserRequest userRequest, String keycloakId);
 
     @InheritInverseConfiguration
     @Mapping(target = "id", ignore = true)

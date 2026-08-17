@@ -1,0 +1,23 @@
+# encoding/asn1: DoS via excessive recursion in Unmarshal
+CVE-2026-33818
+
+# golang.org/x/net/idna: privilege escalation via Punycode label processing
+CVE-2026-39821
+
+# golang.org/x/net/dns/dnsmessage: DoS via invalid SVCB/HTTPS RR parsing
+CVE-2026-46600
+
+# net/http: DoS on unencrypted HTTP/2 connections (ReadHeaderTimeout)
+CVE-2026-56853
+
+# html/template: XSS via JavaScript regexp context tracking
+CVE-2026-56858
+
+# encoding/xml: DoS via decoding recursion depth
+CVE-2026-56859
+
+# net/url: quadratic complexity in resolvePath
+CVE-2026-56860
+
+# crypto/tls: unbounded post-handshake messages
+CVE-2026-56862

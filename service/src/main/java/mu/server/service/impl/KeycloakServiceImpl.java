@@ -26,6 +26,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
+import static mu.server.service.dto.api.Role.USER;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -64,14 +66,13 @@ public class KeycloakServiceImpl implements KeycloakService {
                     .realmLevel()
                     .listAvailable()
                     .stream()
-                    .filter(role -> role.getName().equals(userRequest.role().name()))
+                    .filter(role -> role.getName().equals(USER.name()))
                     .findFirst()
-                    .orElseThrow(() -> new RuntimeException("Role not found: " + userRequest.role().name()));
+                    .orElseThrow(() -> new RuntimeException("Role not found: " + USER.name()));
 
             usersResource.get(keycloakId).roles().realmLevel().add(List.of(roleRepresentation));
 
-            User user = userMapper.mapToUser(userRequest);
-            user.setKeycloakId(keycloakId);
+            User user = userMapper.mapToUser(userRequest, keycloakId);
 
             userRepository.save(user);
             log.info("Username {} successfully created with keycloakId: {}", user.getUsername(), keycloakId);
