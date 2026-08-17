@@ -21,7 +21,7 @@ Production-grade **modular monolith** — a Keycloak-secured REST API over MySQL
 | File | When it applies |
 |---|---|
 | [ARCHITECTURE.md](ARCHITECTURE.md) + [`docs/*.puml`](docs/) | Domain model, ER, layering, register sequence, C4 context. Hand-maintained: update the `.puml` in the same commit as the code it describes. |
-| [`.claude/rule/pom-rule.md`](.claude/rule/pom-rule.md) | **Before touching any `pom.xml`.** Where versions may live, and the enforcer/Spotless gates that reject the alternatives. |
+| [`.claude/rules/pom-rule.md`](.claude/rules/pom-rule.md) | **Before touching any `pom.xml`.** Where versions may live, and the enforcer/Spotless gates that reject the alternatives. |
 | [`.claude/boris-CLAUDE.md`](.claude/boris-CLAUDE.md) | How to work: planning, subagents, verification-before-done, autonomous CI repair. |
 | [`.claude/agents/reviewer-*.md`](.claude/agents/) | Three single-focus reviewers (reuse / simplification / efficiency), run in parallel as one pass. |
 | [`.claude/settings.json`](.claude/settings.json) | Shared hooks + permission policy. Personal allowlists go in `settings.local.json` (gitignored). |
