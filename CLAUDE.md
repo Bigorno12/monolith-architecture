@@ -182,3 +182,4 @@ All entities extend `Auditable` (`createdDate`/`lastModifiedDate`/`createdBy`/`m
 - Keep comments concise, prefer explanatory names; don't leave tombstone comments when deleting or moving code
 - Keep explanations concise; challenge ambiguous prompts rather than guessing
 - Before committing/pushing: if the working tree is on `main`, create a feature branch first (`git checkout -b <type>/<short-description>`) rather than committing directly to `main`
+- Keep commits and PRs small and focused — one logical change per commit, scoped to what was actually asked. Don't bundle an unrelated fix, a drive-by refactor, or multiple features into the same commit or PR just because they touched nearby code; split them, even if that means asking before committing something that was already staged by someone else
