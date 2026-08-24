@@ -93,4 +93,4 @@ full `mvn clean test`, and a push to `main` triggers the release + GitOps chain.
 `openapi/json-api-holder.yaml` or the MapStruct interface), never edit an applied Flyway
 migration (add `V1_N__*.sql`), never hand-edit the image tag in
 `infra/k8s/manifest/api.yaml` (CI owns it), and pin new dependency versions in the **root**
-`pom.xml` — see [.claude/rule/pom-rule.md](rule/pom-rule.md).
+`pom.xml` — see [.claude/rules/pom-rule.md](rules/pom-rule.md).
