@@ -179,3 +179,4 @@ All entities extend `Auditable` (`createdDate`/`lastModifiedDate`/`createdBy`/`m
 - Don't put real values in `.env.example`; `secret.env`/`local.env`/`config.env` are gitignored and the pre-commit hook blocks their values from leaking into other files
 - Keep comments concise, prefer explanatory names; don't leave tombstone comments when deleting or moving code
 - Keep explanations concise; challenge ambiguous prompts rather than guessing
+- Before committing/pushing: if the working tree is on `main`, create a feature branch first (`git checkout -b <type>/<short-description>`) rather than committing directly to `main`
