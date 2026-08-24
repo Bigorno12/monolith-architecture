@@ -1,5 +1,5 @@
 {
-  "//": "Shared, committed project settings: policy + hooks. Personal allowlists belong in settings.local.json (gitignored).",
+  "//": "Shared, committed project settings: policy + hooks. Personal allowlists belong in settings.local.json (gitignored). Secret-file reads are enforced here via permissions.deny; ../.aiignore mirrors the same patterns for AI tools that honor .aiignore instead of this file.",
   "permissions": {
     "deny": [
       "Bash(git commit --no-verify*)",
