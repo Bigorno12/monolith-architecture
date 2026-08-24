@@ -119,7 +119,7 @@ Build-time gates that fail before code compiles:
   - `@Order(2)` everything else — OAuth2 login client, cookie CSRF, OIDC-initiated logout
 - Authorities are the `Permission` enum values **from the persistence module** (`user:read`, `admin:create`, …), mapped from Keycloak claims by `AuthoritiesConverter`/`KeycloakAuthenticationConverter`. The same strings are hardcoded in `@PreAuthorize` — **changing `Permission` touches persistence, `SecurityConfig`, and every controller**.
 - Ownership checks use `#username == authentication.name` in `@PreAuthorize`
-- `Role.USER` → `{user:create, user:update, user:delete, admin:read}`; `Role.ADMIN` → all `admin:*`
+- `Role.USER` → `{user:create, user:read, user:update, user:delete}`; `Role.ADMIN` → all `admin:*`
 - `User.email` is encrypted at rest via `EncryptionConverter`/`AESConverter`
 
 ## API Endpoints
