@@ -1,0 +1,26 @@
+# .aiignore — paths AI coding tools (Cursor, Copilot, Aider, Continue, Windsurf, etc.)
+# should not read, index, or send as context. Claude Code itself enforces the equivalent
+# for secrets via .claude/settings.json's permissions.deny (Read(./**/*.env),
+# Read(./**/.env)); this file exists so tools that honor .aiignore instead get the same
+# guarantee. Keep patterns in sync with .gitignore where they overlap.
+
+# Secrets — never let an AI tool read live credentials
+*.env
+.env.*
+!.env.example
+secret.env
+local.env
+config.env
+
+# Build output / generated code — regenerate via Maven, don't read or edit directly
+target/
+**/target/
+**/generated-sources/
+
+# IDE / OS cruft
+.idea/
+*.iml
+.DS_Store
+
+# Logs
+*.log
