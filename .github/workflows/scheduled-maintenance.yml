@@ -55,7 +55,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
 
       - name: Delete stale or non-default-branch caches
-        uses: Bigorno12/ci-cd-templates/.github/actions/cache-cleanup@042275df166955addd19cdb9d020b16fce82738c
+        uses: Bigorno12/ci-cd-templates/.github/actions/cache-cleanup@93d0be296117da871f06b61fbcb643c7fcb2d280
         with:
           keep-ref: 'refs/heads/main'
           retention-days: '5'
