@@ -17,9 +17,20 @@ Name the simpler form that does the same job.
 
 ## Shapes that show up in this codebase
 
-**Kotlin written like Java**
-- Manual null checks instead of `?.`, `?:`, `let`, `takeIf`.
-- `if/else` blocks assigning a variable where an expression body (`=`) reads better.
+**Kotlin written like Java** — the full standard is
+[`.claude/rules/kotlin-rule.md`](../rules/kotlin-rule.md); flag any `.kt` hunk that
+violates it.
+- Manual null checks instead of `?.`, `?:`, `let`, `takeIf`/`takeUnless`,
+  `requireNotNull`. And the reverse: a scope function on a value that is already non-null
+  (`x.let { f(it) }` → `f(x)`) is noise, not idiom.
+- `try/finally { close() }` instead of `.use { }`; a temp variable that exists only to log
+  or peek instead of `.also { }`; multi-statement configuration instead of `.apply { }`.
+- `if/else` blocks assigning a variable where an expression body (`=`) reads better;
+  `if/else if` ladders on one subject where `when` reads better.
+- `.equals()` where `==` is the Kotlin operator; `!!` anywhere.
+- Redundant explicit types inside function bodies, and nullable types (`User?`) on values
+  a preceding `orElseThrow`/`require` already proved non-null.
+- `MutableList`/`MutableMap` in a signature that never mutates → the read-only interface.
 - `Optional` juggling carried into Kotlin instead of `orElseThrow { … }` once, or a
   nullable return.
 - An explicit `return ResponseEntity.status(HttpStatus.OK).body(x)` → `ResponseEntity.ok(x)`.
