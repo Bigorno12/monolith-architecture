@@ -57,6 +57,10 @@ project is. When the two disagree, CLAUDE.md wins.
     `*ServiceImpl` method, never collapse the interface/impl split, never "simplify" into
     `src/main/kotlin` (nothing compiles it). Reach for what already exists — MapStruct,
     `@HttpExchange`, Resilience4j, `@Cacheable`, Blaze entity views — before writing it.
+    In `.kt` files elegance has a fixed definition, not a negotiable one: the JetBrains
+    Kotlin conventions in [rules/kotlin-rule.md](rules/kotlin-rule.md). Java transliterated
+    into Kotlin is never the elegant answer, and dropping to Java because the Kotlin took
+    more thought is the one shortcut that is always wrong here.
 
 ### 6. Autonomous Bug Fixing
 - When given a bug report: just fix it. Don't ask for hand-holding
