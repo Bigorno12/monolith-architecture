@@ -12,7 +12,23 @@
       "Edit(infra/k8s/manifest/api.yaml)"
     ]
   },
+  "env": {
+    "//": "token-guard threshold (lines) — see hooks/pre-read-token-guard.sh; override per-person in settings.local.json",
+    "TOKEN_GUARD_MAX_LINES": "350"
+  },
   "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Read|Bash",
+        "hooks": [
+          {
+            "//": "token guard: block whole-file dumps of large files; redirect to sliced reads or the bulk-read skill (haiku Explore)",
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/pre-read-token-guard.sh\""
+          }
+        ]
+      }
+    ],
     "SessionStart": [
       {
         "matcher": "startup|resume",
