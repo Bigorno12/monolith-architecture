@@ -23,7 +23,9 @@ project is. When the two disagree, CLAUDE.md wins.
 - Offload research, exploration, and parallel analysis to subagents
 - For complex problems, throw more compute at it via subagents
 - One task per subagent for focused execution
-  - → `Explore` for "where does X live" across four Maven modules; `Plan` for design.
+  - → `Explore` for "where does X live" across four Maven modules — spawn it with
+    `model: haiku` for bulk reading/surveys (see the `bulk-read` skill; the token-guard
+    hook enforces this for large files); `Plan` for design.
     The three single-focus reviewers in `.claude/agents/` (`reviewer-reuse`,
     `-simplification`, `-efficiency`) are spawned **in parallel, in one message** — they
     are internal to the review flow, not for direct use.
