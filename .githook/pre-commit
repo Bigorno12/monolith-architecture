@@ -59,10 +59,15 @@ if [ -n "$STAGED_ADDITIONS" ]; then
   fi
 done
 
-# ── 3. Backend: Spotless-format staged Java files ─────────────────────────────
-# Format Java files on commit to enforce code style automatically.
-STAGED_JAVA=$(git diff --cached --name-only --diff-filter=ACMR | grep -E '\.java$' || true)
-if [ -n "$STAGED_JAVA" ]; then
+# ── 3. Backend: Spotless-format staged Java AND Kotlin files ──────────────────
+# Both languages live in src/main/java here, and Spotless is configured for both
+# (java{} for *.java, kotlin{}/ktlint for *.kt) — so the trigger and the re-stage
+# list must cover .kt too. Matching only *.java used to let Kotlin through
+# unformatted: on a Kotlin-only commit Spotless never ran, and on a mixed commit it
+# reformatted the .kt on disk but re-staged only the .java, committing the
+# unformatted version and leaving the work tree dirty.
+STAGED_SRC=$(git diff --cached --name-only --diff-filter=ACMR | grep -E '\.(java|kt)$' || true)
+if [ -n "$STAGED_SRC" ]; then
   if command -v mvn >/dev/null 2>&1; then
     # Run Spotless from the project root
     if ! SPOTLESS_OUT=$(cd "$ROOT" && mvn spotless:apply -q 2>&1); then
@@ -71,9 +76,10 @@ if [ -n "$STAGED_JAVA" ]; then
       exit 1
     fi
     # Re-stage the formatted files so the commit contains the formatted version.
+    # Skip anything deleted from the work tree between staging and now.
     while IFS= read -r f; do
-      git add "$ROOT/$f"
-    done <<<"$STAGED_JAVA"
+      [ -f "$ROOT/$f" ] && git add "$ROOT/$f"
+    done <<<"$STAGED_SRC"
   else
     echo "[pre-commit] ⚠️  mvn not on PATH — skipping Spotless formatting."
   fi
