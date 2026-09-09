@@ -3,6 +3,8 @@ description: Run this project's local quality gate (format → build → test) a
 ---
 
 Run the same gate that `.githook/pre-push` and CI run, from the repo root, and get it green.
+It covers Java and Kotlin alike — Spotless formats `.java` and `.kt`, and the hooks trigger on
+both — so don't skip the gate just because a change was Kotlin-only.
 
 1. **`mvn spotless:apply` first, always.** Spotless `check` is bound to the `validate`
    phase, so one unformatted file fails every later step for a reason that has nothing

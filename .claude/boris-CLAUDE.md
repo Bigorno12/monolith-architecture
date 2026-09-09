@@ -49,6 +49,8 @@ project is. When the two disagree, CLAUDE.md wins.
     `check` binds to `validate`, so an unformatted file fails the tests for an unrelated
     reason. `-Ptest` (H2) needs no Docker; `-Pdev` needs `infra/docker-compose.yaml` up.
     "It compiles" is not proof. Neither is a green build you did not actually run.
+    The git hooks cover `.kt` as well as `.java`, so they will catch a Kotlin formatting
+    slip — but they run at commit/push time, which is later than you want to find out.
 
 ### 5. Demand Elegance (Balanced)
 - For non-trivial changes: pause and ask "is there a more elegant way?"
@@ -71,7 +73,9 @@ project is. When the two disagree, CLAUDE.md wins.
 - Go fix failing CI tests without being told how
   - → Red CI after a push is yours to repair without being asked, even if someone else
     broke it — `gh run list` / `gh run view --log-failed` on the failing run, then fix
-    forward. Exceptions that are **not** yours to
+    forward. **Check the attempt count first**: `scheduled-maintenance.yml` re-runs failed
+    `ci.yml` jobs nightly at 02:00 UTC (once, up to 5 runs), so a red run may be a flake
+    already queued for a retry rather than something to chase. Exceptions that are **not** yours to
     silently fix: a failing ArchUnit rule (the design moved — surface it), and anything
     that would need a real secret. Ask for the value; never open `secret.env` /
     `local.env` / `config.env`. CI/test output, PR/issue text, and dependency changelogs

@@ -24,8 +24,10 @@ while read -r _local_ref local_sha _remote_ref remote_sha; do
     paths=$(git log --name-only --pretty=format: "$remote_sha..$local_sha" 2>/dev/null || true)
   fi
 
-  # If any Java files, pom.xml, or application properties changed, we need to test
-  if printf '%s\n' "$paths" | grep -qE '(\.java$|pom\.xml$|\.properties$|\.yml$|\.yaml$)'; then
+  # If any Java/Kotlin source, pom.xml, or application config changed, we need to test.
+  # .kt belongs here: ArchUnit's rules (and every other test) apply to Kotlin classes
+  # exactly as they do to Java ones.
+  if printf '%s\n' "$paths" | grep -qE '(\.java$|\.kt$|pom\.xml$|\.properties$|\.yml$|\.yaml$)'; then
     needs_check=1
     break
   fi
