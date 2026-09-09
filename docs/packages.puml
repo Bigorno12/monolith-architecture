@@ -26,7 +26,7 @@ package "persistence  (mu.server.persistence)" as PERS #FEF7E0 {
   [entity] <<@Entity>>
   [repository] <<Spring Data>>
   [repository.blaze] <<entity views>>
-  [enumeration] <<Role / Permission>>
+  [enumeration] <<Role / Permission / Gender / Tier>>
   [audit] <<Auditable>>
   [converter] <<AES @Convert>>
 }
@@ -45,6 +45,7 @@ cloud "JSONPlaceholder" as JP
 
 [config] --> KC : Keycloak admin client
 [filter] --> [dto]
+[filter] --> [enumeration] : Tier (Bucket4j)
 [advice] --> [exception]
 [http] --> JP : RestClient + @Retryable
 [repository] --> DB : JPA / Blaze
@@ -54,7 +55,11 @@ note bottom of PERS
   **ArchUnit rules (ArchitectureTest):**
   • controller: accessed by NO layer
   • service: only from controller / config / advice / filter
-  • persistence: only from service / config / controller
+  • persistence (minus enumeration): only from
+    service / config / controller
+  • **enumeration is its own layer** — readable from every
+    layer, and must NOT depend on the rest of persistence
+  • every persistence enum lives in ..persistence.enumeration..
   • persistence must NOT depend on service or controller
   • every public *ServiceImpl method is @Transactional
     (except fallback* / authenticate)
