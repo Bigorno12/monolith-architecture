@@ -26,6 +26,17 @@ code it describes at the top; when that code changes, the diagram is what you up
 The layering shown there is not documentation — it is asserted by
 [`ArchitectureTest`](rest/src/test/java/ArchitectureTest.java) (ArchUnit) and fails the build.
 
+Note the one asymmetry the box diagram understates: **`..persistence.enumeration..` is a
+layer of its own**, carved out of `persistence` and importable from every other layer, which
+is how `RateLimitFilter` in `rest` may use the `Tier` enum. In exchange it must stay a leaf —
+ArchUnit fails the build if anything in `enumeration` depends on the rest of `persistence`,
+or if a persistence enum is declared outside it.
+
+These rules only bite when the tests run. Locally that is `mvn clean test`, which
+[`.githook/pre-push`](.githook/pre-push) triggers for any changed `.java`, `.kt`, `pom.xml`,
+`.properties`, `.yml` or `.yaml` — Kotlin included, since ArchUnit reads compiled classes and
+neither knows nor cares which language produced them.
+
 #### Sequence — register a user
 ![Register sequence](https://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/Bigorno12/monolith-architecture/main/docs/sequence-register.puml)
 
@@ -42,6 +53,14 @@ CI publishes an image to GHCR and writes the tag into
 of Deployments behind one Service selected by the `color` label, alongside MySQL,
 PostgreSQL, Keycloak and the LGTM observability stack. See
 [CLAUDE.md → Deployment](CLAUDE.md#deployment).
+
+Ingress is **Gateway API**, not an Ingress controller: a kgateway-backed `Gateway` fronts an
+`HTTPRoute` that splits `/auth` to Keycloak and `/` to the API. Every workload Service is
+`ClusterIP`, so that Gateway is the only way in. Locally the cluster is **minikube** on the
+podman driver (profile `monolith-cluster`) —
+[`minikube/minikube-cluster.sh`](infra/k8s/minikube/minikube-cluster.sh) creates it and
+installs the Gateway API CRDs plus the kgateway controller; on macOS a
+`minikube tunnel` must stay running for the Gateway to be reachable from the host.
 
 ### Rendering notes
 

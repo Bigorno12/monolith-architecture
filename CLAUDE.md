@@ -25,6 +25,8 @@ Production-grade **modular monolith** — a Keycloak-secured REST API over MySQL
 | [`.claude/rules/kotlin-rule.md`](.claude/rules/kotlin-rule.md) | **Before writing or editing any `.kt` file.** JetBrains-idiomatic Kotlin is mandatory — scope functions (`use`/`let`/`takeIf`/`apply`/`also`), no Java-shaped Kotlin, and the short list of things that must stay Java. |
 | [`.claude/boris-CLAUDE.md`](.claude/boris-CLAUDE.md) | How to work: planning, subagents, verification-before-done, autonomous CI repair. |
 | [`.claude/agents/reviewer-*.md`](.claude/agents/) | Three single-focus reviewers (reuse / simplification / efficiency), run in parallel as one pass. |
+| [`.claude/skills/bulk-read/SKILL.md`](.claude/skills/bulk-read/SKILL.md) | Surveying many/large files. Delegates the reading to a haiku `Explore` subagent so file bodies never enter the main context. |
+| [`.claude/commands/my-command.md`](.claude/commands/my-command.md) | `/my-command` — run the local quality gate (`spotless:apply` → `clean test`) and get it green. |
 | [`.claude/settings.json`](.claude/settings.json) | Shared hooks + permission policy. Personal allowlists go in `settings.local.json` (gitignored). |
 | [`.aiignore`](.aiignore) | Paths no AI tool should read/index — secrets, `target/`, generated sources, IDE/OS cruft. Claude Code's actual enforcement for secrets is `.claude/settings.json`'s `permissions.deny`; this file gives the same guarantee to tools that honor `.aiignore` instead. |
 
@@ -50,13 +52,15 @@ mvn spotless:apply                                  # format Java + Kotlin + pom
 mvn clean package spring-boot:build-image -Pdev -pl rest -am  # Paketo image, no Dockerfile
 ```
 
-### Kubernetes (infra/k8s/)
+### Kubernetes (infra/k8s/) — minikube on the podman driver, profile `monolith-cluster`
 ```sh
-kind/kind-cluster.sh create                         # local cluster
-./bootstrap-gitops.sh                               # seeds monolith-secrets, installs Argo CD
+./minikube/minikube-cluster.sh create               # cluster + Gateway API CRDs + kgateway (needs helm)
+minikube tunnel --profile monolith-cluster          # SEPARATE terminal; required on macOS/podman
+./bootstrap-gitops.sh                               # monolith-secrets (from infra/secret.env), Argo CD
 ./check-read.sh                                     # pod health + logs for failures
-kind/kind-cluster.sh destroy
+./minikube/minikube-cluster.sh destroy
 ```
+`bootstrap-gitops.sh` reads `../secret.env`, i.e. **`infra/secret.env`** — the same file docker-compose uses, not a second copy under `infra/k8s/`.
 
 ## Architecture
 
@@ -77,6 +81,15 @@ ArchUnit rules that fail the build; read them before restructuring packages:
 - `@Service`/`*Service` types must live under `..service..`; `@Entity` types under `..persistence..`
 - `persistence` may not depend on `service` or `controller`
 
+**`..persistence.enumeration..` is its own ArchUnit layer, carved out of `persistence`** —
+it is the one slice of the persistence module every other layer may import (persistence,
+service, controller, config, advice, filter). Two rules keep it honest:
+- **every enum under `persistence` must live in `enumeration`** — one outside it is unreachable from the upper layers
+- **`enumeration` may not depend on the rest of `persistence`** — it has to stay a leaf, or entities/repositories leak upward through the back door
+
+That layer is why `RateLimitFilter` (rest) can use `Tier` (persistence) at all. Put a new
+shared enum there; never give it a field or method that touches an entity.
+
 ### Generated Code — never edit, edit the source
 - `openapi/json-api-holder.yaml` → `openapi-generator-maven-plugin`, two executions per module:
   `service` emits models (`mu.server.service.dto`, `Dto` suffix), `rest` emits API interfaces + a RestClient
@@ -84,16 +97,19 @@ ArchUnit rules that fail the build; read them before restructuring packages:
 - Hand-written DTOs (Java records / Kotlin data classes) live beside the generated ones in `service/.../dto/`
 
 ### Java + Kotlin coexist in `src/main/java`
-`kotlin-maven-plugin` compiles `src/main/java`, and Spotless only includes `src/main/java/**/*.kt`.
+`kotlin-maven-plugin` compiles `src/main/java`, and Spotless includes `src/main/java/**/*.kt` **and** `src/test/java/**/*.kt`.
 **Put new Kotlin files in `src/main/java`, not `src/main/kotlin`** — the latter is compiled by nothing and formatted by nothing.
+Kotlin **tests** work the same way: a `.kt` under `src/test/java` compiles and runs under Surefire like any Java test.
 
 **Kotlin is written as Kotlin, never as Java with `fun` keywords.** Idiomatic, JetBrains-convention Kotlin is the required output for every `.kt` file — scope functions (`use`, `let`, `takeIf`, `apply`, `also`, `run`), `?:`/`?.`, expression bodies, `val` + read-only collections, `when`, `data class`. Asked for a Kotlin class, deliver idiomatic Kotlin; **writing it in Java instead is the last resort**, valid only for the three annotation-processor blockers (MapStruct mappers, Lombok-annotated entities, generated OpenAPI types) — there is no `kapt`/KSP in this build. Full rules and the repo's recurring Java-isms: [`.claude/rules/kotlin-rule.md`](.claude/rules/kotlin-rule.md).
 
 ### Cross-cutting
-- **Caching** — `CaffeineConfig` names caches explicitly. A new cache name must be added *both* there and to `spring.cache.cache-names`, else `@Cacheable` silently no-ops. `fingerprintCache` is a separate custom cache (30 min) used by `FingerprintFilter` to reject tokens replayed from another client fingerprint.
-- **Resilience** — `@CircuitBreaker(name = "userService"|"keycloakService")`; instances configured in `application.properties`; each `fallback*` method mirrors the guarded signature plus a trailing `Throwable`.
+- **Caching** — `CaffeineConfig` names caches explicitly: `jsonPlaceHolder`, `userCache`, `todoCache`, `adminCache`, `keycloakCache`, `profileCache` (shared builder: max 100, 300 s after write). A new cache name must be added *both* there and to `spring.cache.cache-names`, else `@Cacheable` silently no-ops. `fingerprintCache` is a separate custom cache (30 min) used by `FingerprintFilter` to reject tokens replayed from another client fingerprint.
+- **Resilience** — `@CircuitBreaker(name = "userService"|"keycloakService")`; instances configured in `application.properties` (count-based window of 10, 50% failure rate, 10 s open); each `fallback*` method mirrors the guarded signature plus a trailing `Throwable`. `keycloakService` lists `NotFoundException` under `ignore-exceptions` — a missing user is not a Keycloak outage and must not trip the breaker.
 - **Outbound HTTP** — declarative `@HttpExchange` interfaces (`JsonPlaceHolderService`) registered via `@ImportHttpServices` in `RestClientConfig`, with `@Retryable` + `@EnableResilientMethods`.
 - **API versioning** — Spring MVC's native `version` attribute on `@RequestMapping`/`@GetMapping`, resolved from the `X-API-Version` header (`spring.mvc.apiversion.use.header`). Path segment and declared version are kept in sync by convention.
+- **Rate limiting** — Bucket4j, driven by the `Tier` enum in `persistence/enumeration/`: `AUTH` = 10 req/min for any URI containing `/auth/`, `API` = 100 req/min for everything else. `RateLimitFilter` keys buckets by `user:<name>` once authenticated and `ip:<remoteAddr>` before that, holds them in its own Caffeine cache (100k entries, 10 min idle TTL), skips `/actuator/**`, and answers `429` + `Retry-After`. Change a limit in `Tier`, not in the filter.
+- **Concurrency** — `spring.threads.virtual.enabled=true` (Loom) for request handling; `AsyncConfig` supplies a separate `ThreadPoolTaskExecutor` for `@Async` (3/10/25) and `SchedulingConfig` a 4-thread `TaskScheduler` for `@Scheduled`.
 
 ## Configuration & Profiles
 
@@ -108,10 +124,15 @@ This is enforced, not just requested: `.claude/settings.json` denies `Read(./**/
 Build-time gates that fail before code compiles:
 - **Spotless** `check` binds to `validate` — unformatted Java/Kotlin/`pom.xml` fails *every* build. Run `spotless:apply` first.
 - **Enforcer** applies `dependencyConvergence`, `requireUpperBoundDeps`, `requirePluginVersions` — pin new versions in the root `dependencyManagement`. Java ≥ 25 and Maven ≥ 3.9.9 required.
-- **Git hooks install themselves** on any build (`exec-maven-plugin` sets `core.hooksPath=.githook`). `pre-commit` = gitleaks + a scan for `secret.env`/`local.env`/`config.env` values in staged additions + `spotless:apply` with re-staging. `pre-push` = `mvn clean test` when `.java`/`pom.xml`/`.properties`/`.yaml` changed.
+- **Git hooks install themselves** on any build (`exec-maven-plugin` sets `core.hooksPath=.githook`). `pre-commit` = gitleaks + a scan for `secret.env`/`local.env`/`config.env` values in staged additions + `spotless:apply` with re-staging of every staged `.java`/`.kt`. `pre-push` = `mvn clean test` when `.java`/`.kt`/`pom.xml`/`.properties`/`.yml`/`.yaml` changed.
+
+**Both hooks cover Java and Kotlin equally** — the file filters are `\.(java|kt)$`. Keep it
+that way when editing them: Spotless is configured for both languages, so a filter that
+matches only `.java` silently ships unformatted Kotlin (it did, until it was fixed). The
+failure is invisible locally and surfaces as a CI failure at `validate`.
 
 ## Database
-- **Dev:** MySQL 9.x via docker-compose (`-Pdev`)
+- **Dev:** MySQL via docker-compose (`-Pdev`) — the image tag is whatever `infra/docker-compose.yaml` pins (Dependabot bumps it); Postgres 17-alpine backs Keycloak
 - **Tests:** H2 in-memory (`-Ptest`, `/h2-console`, user `sa`, no password), or Testcontainers MySQL + Postgres + Keycloak via `TestContainerDBConfiguration`
 - **Flyway** migrations live in `persistence/src/main/resources/db.migration` — **a dot, not a slash** (`spring.flyway.locations=classpath:db.migration`). Add `V1_N__*.sql`, never edit an applied one. Disabled under `-Ptest`.
 - `ddl-auto` is unset; `spring.jpa.open-in-view=false`, Hikari `auto-commit=false` — lazy loading outside a transaction will blow up
@@ -122,6 +143,10 @@ Build-time gates that fail before code compiles:
   - `@Order(1)` `/api/v1/mono/**` — stateless JWT resource server, CSRF off, `FingerprintFilter` → `RateLimitFilter` after `BearerTokenAuthenticationFilter`
   - `@Order(2)` everything else — OAuth2 login client, cookie CSRF, OIDC-initiated logout
 - Authorities are the `Permission` enum values **from the persistence module** (`user:read`, `admin:create`, …), mapped from Keycloak claims by `AuthoritiesConverter`/`KeycloakAuthenticationConverter`. The same strings are hardcoded in `@PreAuthorize` — **changing `Permission` touches persistence, `SecurityConfig`, and every controller**.
+- **Both filters are `@Component`s, so Boot would also register them with the servlet container** — `SecurityConfig` neutralises that with a `FilterRegistrationBean` per filter and `setEnabled(false)`, leaving the security chain as the only place they run. Add a new `@Component` filter and you must add the same bean, or it fires twice (and on every request, outside the chain).
+- `RateLimitFilter` runs on **both** chains — after `FingerprintFilter` on the resource-server chain, and before `UsernamePasswordAuthenticationFilter` on the login chain.
+- **Actuator:** only `health`, `info`, `metrics` are exposed, and `health`/`info` require `admin:read`. Health probes are on (`readiness`/`liveness` for k8s), `show-details=when_authorized`.
+- **CORS** is one shared `CorsConfigurationSource` used by both chains — origins `localhost:8080` / `localhost:4200`, credentials on, and `X-API-Version` must stay in `allowedHeaders` or every versioned call from a browser breaks.
 - Ownership checks use `#username == authentication.name` in `@PreAuthorize`
 - `Role.USER` → `{user:create, user:read, user:update, user:delete}`; `Role.ADMIN` → all `admin:*`
 - `User.email` is encrypted at rest via `EncryptionConverter`/`AESConverter`
@@ -129,6 +154,7 @@ Build-time gates that fail before code compiles:
 ## API Endpoints
 Base: http://localhost:8080 · Swagger UI: `/swagger-ui.html` · spec: `/v3/api-docs`
 Send `X-API-Version` matching the endpoint's declared version.
+Rate limits apply per caller: 10/min on `/auth/`, 100/min elsewhere (see Cross-cutting → Rate limiting).
 
 | Endpoint | Auth |
 |---|---|
@@ -144,10 +170,16 @@ Send `X-API-Version` matching the endpoint's declared version.
 
 ⚠️ `TodoController.findAllTodos` has `@PreAuthorize` but **no `@GetMapping`** — it is not routed. Add the mapping (and a path) before assuming it works.
 
+⚠️ `UserController`'s `delete` and `view-profile` mappings declare `consumes = ["application/json"]`
+even though neither takes a body. A `GET`/`DELETE` sent without a `Content-Type: application/json`
+header therefore fails to match the mapping and comes back **415**, not 200. Either send the
+header or drop `consumes` from those two mappings.
+
 ## Domain Model
 All entities extend `Auditable` (`createdDate`/`lastModifiedDate`/`createdBy`/`modifiedBy`, filled by `AuditorAwareImpl` from the security context).
 - **User** 1→N **Todo** (`todo.user_id`) — table is `_user`
 - **User** 1→N **Post** 1→N **Comment** (table `comments`)
+- **Every association is a unidirectional `@ManyToOne(LAZY)` on the child** — there is no `@OneToMany` anywhere in the codebase. "All todos for a user" is a repository query, not `user.getTodos()`; with `open-in-view=false` there is no collection to lazily walk outside the transaction anyway.
 - **User** carries `keycloakId` (unique, links to the Keycloak account), `role: Role`, `gender: Gender`, encrypted `email`
 - **Role** → `Set<Permission>`; both enums live in `persistence/enumeration/`
 - Deleting a user must delete both the row *and* the Keycloak account — see `UserServiceImpl.deleteUser`
@@ -157,8 +189,11 @@ All entities extend `Auditable` (`createdDate`/`lastModifiedDate`/`createdBy`/`m
 - The pipeline **writes the image tag into `infra/k8s/manifest/api.yaml` and commits it** (`chore(gitops): update image tag …`). Don't hand-edit that tag.
 - Argo CD (`infra/k8s/argo-app.yaml`) auto-syncs `infra/k8s/manifest` from `main` with prune + self-heal.
 - `api.yaml` is a blue/green pair of Deployments behind one Service selected by the `color` label.
+- `infra/k8s/manifest/ingress.yaml` is **Gateway API** (`Gateway` + `HTTPRoute`, `gatewayClassName: kgateway`), not an Ingress. Locally, `minikube/minikube-cluster.sh create` installs the Gateway API CRDs (v1.1.0) and the kgateway controller (Helm OCI chart → `kgateway-system`); any other cluster needs both before the manifests will route.
 - `auto-release.yml` tags + releases every green merge to `main` (patch bump, keeps latest 10).
-- ⚠️ `README.md` still documents `infra/k8s/deploy.sh`; it no longer exists — the Argo bootstrap replaced it.
+- `scheduled-maintenance.yml` runs nightly at **02:00 UTC**: it re-runs the failed jobs of up to 5 failed `ci.yml` runs (skipping any already on attempt ≥ 2), then prunes caches not on `main` older than 5 days. A red run may therefore go green on its own — check `gh run view` for the attempt count before chasing a flake.
+- The reusable workflow is pinned to a **commit SHA**, not a tag, and CI signs the image with **cosign keyless** (hence `id-token: write` in `ci.yml`; `signer-identity-regexp` must keep matching the template repo).
+- `infra/k8s/deploy.sh` no longer exists — `bootstrap-gitops.sh` + Argo CD replaced it. Because Argo syncs with `prune` + `selfHeal`, a live `kubectl edit`/`apply` is reverted: change the manifest in git instead.
 
 ## Development Notes
 
