@@ -15,12 +15,10 @@ command -v kubectl >/dev/null 2>&1 || fail "kubectl not found in PATH"
 info "kubectl version:"
 kubectl version --client || true
 
-# Look for kind config dynamically from the script's directory, fallback to current K8s context
-if [[ -f kind/kind-config.yml ]]; then
-  CLUSTER_NAME=$(awk '/^\s*name:\s*/{print $2; exit}' kind/kind-config.yml || true)
-else
-  CLUSTER_NAME=$(kubectl config current-context 2>/dev/null || echo "kind")
-fi
+# The cluster name is whatever kubectl is pointed at. Locally that is the minikube
+# profile created by minikube/minikube-cluster.sh; fall back to its name if there is
+# no active context at all.
+CLUSTER_NAME=$(kubectl config current-context 2>/dev/null || echo "monolith-cluster")
 
 info "Active Cluster / Context: ${CLUSTER_NAME}"
 
@@ -36,8 +34,13 @@ kubectl get pods -A --field-selector=status.phase!=Running || echo "(none)"
 info "Pods with restart count > 0 (if any):"
 kubectl get pods -A --no-headers | awk '$4+0>0 {print $0}' || echo "(none)"
 
-# Collect list of suspect pods (not Running or restart >0)
-mapfile -t suspect < <(kubectl get pods -A --no-headers | awk '$4+0>0 || $4 ~ /0\// || $3!~/Running/ {print $1"/"$2}' | sort -u || true)
+# macOS Bash 3.2 Compatible Array Assignment (Replaces mapfile)
+suspect=()
+for pod in $(kubectl get pods -A --no-headers 2>/dev/null | awk '$4+0>0 || $4 ~ /0\// || $3!~/Running/ {print $1"/"$2}' | sort -u || true); do
+  if [ -n "$pod" ]; then
+    suspect+=("$pod")
+  fi
+done
 
 if [[ ${#suspect[@]} -eq 0 ]]; then
   success "No suspect pods detected. Your infrastructure is healthy!"

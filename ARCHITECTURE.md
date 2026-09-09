@@ -54,6 +54,14 @@ of Deployments behind one Service selected by the `color` label, alongside MySQL
 PostgreSQL, Keycloak and the LGTM observability stack. See
 [CLAUDE.md → Deployment](CLAUDE.md#deployment).
 
+Ingress is **Gateway API**, not an Ingress controller: a kgateway-backed `Gateway` fronts an
+`HTTPRoute` that splits `/auth` to Keycloak and `/` to the API. Every workload Service is
+`ClusterIP`, so that Gateway is the only way in. Locally the cluster is **minikube** on the
+podman driver (profile `monolith-cluster`) —
+[`minikube/minikube-cluster.sh`](infra/k8s/minikube/minikube-cluster.sh) creates it and
+installs the Gateway API CRDs plus the kgateway controller; on macOS a
+`minikube tunnel` must stay running for the Gateway to be reachable from the host.
+
 ### Rendering notes
 
 - A diagram renders **only once its `.puml` is on `main`** — on a feature branch the proxy

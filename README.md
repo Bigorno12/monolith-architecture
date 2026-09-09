@@ -15,7 +15,7 @@ Keycloak   JSONPlaceholder   MySQL / H2
 - **service** — business logic, circuit breakers/retries (Resilience4j), Caffeine caching
 - **persistence** — JPA entities, repositories, Flyway migrations
 
-Deploys via **Docker Compose** (local) or **Kubernetes** (`kind`, blue/green).
+Deploys via **Docker Compose** (local) or **Kubernetes** (`minikube` + Argo CD, blue/green).
 
 ## Getting Started
 
@@ -111,37 +111,53 @@ mvn clean package spring-boot:build-image -Pdev -pl rest -am \
 
 CI builds/publishes to GHCR the same way via the shared pipeline template — see CI/CD.
 
-## Kubernetes (kind + Argo CD)
+## Kubernetes (minikube + Argo CD)
 
 Deployment is **GitOps**: you bootstrap Argo CD once, and it syncs `infra/k8s/manifest`
 from `main` thereafter. There is no imperative deploy step.
 
+**Prerequisites:** `minikube` · `podman` (the configured driver) · `helm` · `kubectl`
+
 ```bash
-cd infra/k8s
-kind/kind-cluster.sh create                     # local cluster
-cp ../.env.example secret.env                   # fill in real values
+# secret.env lives in infra/ and is shared with docker-compose — one file, not two
+cd infra
+cp .env.example secret.env                          # fill in real values
+
+cd k8s
+./minikube/minikube-cluster.sh create               # cluster + Gateway API CRDs + kgateway
 kubectl create secret docker-registry ghcr-secret \
   --docker-server=ghcr.io --docker-username=<gh-user> --docker-password=<gh-pat>
-./bootstrap-gitops.sh                           # seeds monolith-secrets, installs Argo CD, applies argo-app.yaml
+./bootstrap-gitops.sh                               # monolith-secrets, Argo CD, argo-app.yaml
 ```
 
-- `bootstrap-gitops.sh` creates the `monolith-secrets` Secret from `secret.env`, installs
-  Argo CD into the `argocd` namespace, waits for it, then applies `argo-app.yaml` and hands
+> **macOS + Podman:** the Gateway is reached through a LoadBalancer service, so you must
+> leave `minikube tunnel --profile monolith-cluster` running in a **separate terminal**
+> or nothing is routable from the host. The create script prints this reminder too.
+
+- `minikube/minikube-cluster.sh create` starts the `monolith-cluster` profile on the podman
+  driver (reusing it if it already exists), then installs the **Gateway API CRDs** (v1.1.0)
+  and the **kgateway** controller via its Helm OCI chart into `kgateway-system`. It fails
+  fast if `helm` is missing. `destroy` deletes the profile.
+- `bootstrap-gitops.sh` creates the `monolith-secrets` Secret from `../secret.env`
+  (i.e. `infra/secret.env`), installs Argo CD into the `argocd` namespace with
+  `--server-side --force-conflicts`, waits for it, then applies `argo-app.yaml` and hands
   over. It prints the port-forward and initial-admin-password commands for the Argo CD UI.
 - `argo-app.yaml` points Argo CD at `infra/k8s/manifest` on `main` with `prune: true` and
   `selfHeal: true` — **edit the manifests in git, not with `kubectl edit`**, or self-heal
   reverts you.
 - `manifest/` — `mysql.yaml`, `postgres.yaml`, `keycloak.yaml`, `api.yaml` (blue/green
   Deployments + Service), `configmap.yaml` (non-secret `monolith-config` values),
-  `ingress.yaml`, `lgtm.yaml` (Grafana OTel-LGTM observability).
+  `ingress.yaml`, `lgtm.yaml` (Grafana OTel-LGTM observability). Every app Service is
+  `ClusterIP`; the kgateway `Gateway` is the only external entry point.
 - Despite its filename, `ingress.yaml` is **Gateway API**, not an Ingress: a `Gateway`
   (`gatewayClassName: kgateway`, port 80) plus an `HTTPRoute` sending `/auth` → Keycloak:7080
-  and `/` → monolith-api:8080. The cluster needs the Gateway API CRDs and the kgateway
-  controller — a stock nginx-ingress install will not serve these.
+  and `/` → monolith-api:8080. The create script installs the CRDs and controller it needs;
+  a stock nginx-ingress install will not serve these.
 - `api.yaml` pulls from GHCR via the `ghcr-secret` image pull secret, and **CI owns its image
   tag** (`chore(gitops): update image tag …`) — don't hand-edit it.
-- `./check-read.sh` (in `infra/k8s`) reports pod health and dumps logs for failures.
-- Tear down: `kind/kind-cluster.sh destroy`.
+- `./check-read.sh` (in `infra/k8s`) reports pod health and dumps logs for failures. It
+  names the cluster from the active kubectl context.
+- Tear down: `./minikube/minikube-cluster.sh destroy`.
 
 ## CI/CD
 

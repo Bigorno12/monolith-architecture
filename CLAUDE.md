@@ -52,13 +52,15 @@ mvn spotless:apply                                  # format Java + Kotlin + pom
 mvn clean package spring-boot:build-image -Pdev -pl rest -am  # Paketo image, no Dockerfile
 ```
 
-### Kubernetes (infra/k8s/)
+### Kubernetes (infra/k8s/) — minikube on the podman driver, profile `monolith-cluster`
 ```sh
-kind/kind-cluster.sh create                         # local cluster
-./bootstrap-gitops.sh                               # seeds monolith-secrets, installs Argo CD
+./minikube/minikube-cluster.sh create               # cluster + Gateway API CRDs + kgateway (needs helm)
+minikube tunnel --profile monolith-cluster          # SEPARATE terminal; required on macOS/podman
+./bootstrap-gitops.sh                               # monolith-secrets (from infra/secret.env), Argo CD
 ./check-read.sh                                     # pod health + logs for failures
-kind/kind-cluster.sh destroy
+./minikube/minikube-cluster.sh destroy
 ```
+`bootstrap-gitops.sh` reads `../secret.env`, i.e. **`infra/secret.env`** — the same file docker-compose uses, not a second copy under `infra/k8s/`.
 
 ## Architecture
 
@@ -187,7 +189,7 @@ All entities extend `Auditable` (`createdDate`/`lastModifiedDate`/`createdBy`/`m
 - The pipeline **writes the image tag into `infra/k8s/manifest/api.yaml` and commits it** (`chore(gitops): update image tag …`). Don't hand-edit that tag.
 - Argo CD (`infra/k8s/argo-app.yaml`) auto-syncs `infra/k8s/manifest` from `main` with prune + self-heal.
 - `api.yaml` is a blue/green pair of Deployments behind one Service selected by the `color` label.
-- `infra/k8s/manifest/ingress.yaml` is **Gateway API** (`Gateway` + `HTTPRoute`, `gatewayClassName: kgateway`), not an Ingress — the cluster needs the Gateway API CRDs and the kgateway controller.
+- `infra/k8s/manifest/ingress.yaml` is **Gateway API** (`Gateway` + `HTTPRoute`, `gatewayClassName: kgateway`), not an Ingress. Locally, `minikube/minikube-cluster.sh create` installs the Gateway API CRDs (v1.1.0) and the kgateway controller (Helm OCI chart → `kgateway-system`); any other cluster needs both before the manifests will route.
 - `auto-release.yml` tags + releases every green merge to `main` (patch bump, keeps latest 10).
 - `scheduled-maintenance.yml` runs nightly at **02:00 UTC**: it re-runs the failed jobs of up to 5 failed `ci.yml` runs (skipping any already on attempt ≥ 2), then prunes caches not on `main` older than 5 days. A red run may therefore go green on its own — check `gh run view` for the attempt count before chasing a flake.
 - The reusable workflow is pinned to a **commit SHA**, not a tag, and CI signs the image with **cosign keyless** (hence `id-token: write` in `ci.yml`; `signer-identity-regexp` must keep matching the template repo).
