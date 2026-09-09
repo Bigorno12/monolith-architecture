@@ -26,6 +26,17 @@ code it describes at the top; when that code changes, the diagram is what you up
 The layering shown there is not documentation — it is asserted by
 [`ArchitectureTest`](rest/src/test/java/ArchitectureTest.java) (ArchUnit) and fails the build.
 
+Note the one asymmetry the box diagram understates: **`..persistence.enumeration..` is a
+layer of its own**, carved out of `persistence` and importable from every other layer, which
+is how `RateLimitFilter` in `rest` may use the `Tier` enum. In exchange it must stay a leaf —
+ArchUnit fails the build if anything in `enumeration` depends on the rest of `persistence`,
+or if a persistence enum is declared outside it.
+
+These rules only bite when the tests run. Locally that is `mvn clean test`, which
+[`.githook/pre-push`](.githook/pre-push) triggers for any changed `.java`, `.kt`, `pom.xml`,
+`.properties`, `.yml` or `.yaml` — Kotlin included, since ArchUnit reads compiled classes and
+neither knows nor cares which language produced them.
+
 #### Sequence — register a user
 ![Register sequence](https://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/Bigorno12/monolith-architecture/main/docs/sequence-register.puml)
 

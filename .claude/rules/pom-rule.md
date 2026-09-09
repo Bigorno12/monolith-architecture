@@ -10,7 +10,7 @@ A redundant `<version>` silently pins the artifact, so the next parent upgrade s
 applying to it — the dependency drifts out of the tested, coherent set the BOM guarantees.
 
 This repo is a **four-POM reactor**: `pom.xml` (root, parent
-`spring-boot-starter-parent` 4.1.0) → `persistence` → `service` → `rest`.
+`spring-boot-starter-parent` 4.1.1) → `persistence` → `service` → `rest`.
 **All versions live in the root POM.** A module POM lists `groupId` + `artifactId`
 (+ `scope`) and nothing else — that is the current state of all three, keep it that way.
 
@@ -86,14 +86,14 @@ To see whether Boot itself defines a property before you override it:
 
 ```sh
 grep -oE '<THE.version>[^<]*<' ~/.m2/repository/org/springframework/boot/\
-spring-boot-dependencies/4.1.0/spring-boot-dependencies-4.1.0.pom
+spring-boot-dependencies/4.1.1/spring-boot-dependencies-4.1.1.pom
 ```
 
 Then confirm nothing broke: `./mvnw -q -o initialize` (runs the enforcer alone, fast).
 
 ## State of this repo
 
-**Managed by the Boot 4.1.0 parent — never give these a version:** anything
+**Managed by the Boot 4.1.1 parent — never give these a version:** anything
 `spring-boot-starter-*` / `spring-*`, `com.github.ben-manes.caffeine:caffeine`,
 `org.projectlombok:lombok`, `com.mysql:mysql-connector-j`, `com.h2database:h2`.
 
@@ -110,7 +110,7 @@ Known deviations, worth fixing when you are next in the file:
 | --- | --- | --- |
 | root `<dependencies>` → `org.projectlombok:lombok` | carries `<version>${lombok.version}</version>`, but Boot already manages lombok (1.18.46) | drop the `<version>` line; override `lombok.version` in `<properties>` only if you need a different one |
 | root `dependencyManagement` → `kotlin-reflect` | pinned to `${kotlin.version}` although `kotlin-bom` is imported right above it | drop the entry; the BOM covers it |
-| `<properties>` → `build-helper-maven-plugin.version` = 3.5.0 | Boot 4.1.0 ships **3.6.1** — this override is a silent **downgrade** | raise it or delete the property |
+| `<properties>` → `build-helper-maven-plugin.version` = 3.5.0 | Boot 4.1.1 ships **3.6.1** — this override is a silent **downgrade** | raise it or delete the property |
 | `<properties>` → `commons-lang3.version` = 3.20.0 | identical to Boot's 3.20.0 — a no-op today that will pin the artifact the moment Boot moves | delete unless you deliberately want it frozen |
 
 The other two overrides are doing real work and should stay: `commons-codec.version` 1.22.1

@@ -9,7 +9,9 @@ rest  ──▶  service  ──▶  persistence
 Keycloak   JSONPlaceholder   MySQL / H2
 ```
 
-- **rest** — HTTP layer, stateless JWT resource server + OAuth2/OIDC client (Keycloak), API versioning, rate limiting
+- **rest** — HTTP layer, stateless JWT resource server + OAuth2/OIDC client (Keycloak),
+  `X-API-Version` versioning, Bucket4j rate limiting (10/min on `/auth/`, 100/min elsewhere),
+  token-fingerprint replay protection
 - **service** — business logic, circuit breakers/retries (Resilience4j), Caffeine caching
 - **persistence** — JPA entities, repositories, Flyway migrations
 
@@ -62,6 +64,32 @@ GRANT ALL PRIVILEGES ON MYSQL_DATABASE.* TO 'user'@'%';
 FLUSH PRIVILEGES;
 ```
 
+## Code Style & Git Hooks
+
+Formatting and tests are enforced by the build, not by review. **Spotless `check` binds to
+the `validate` phase**, so a single unformatted file fails every build — including builds
+that have nothing to do with your change. Run the formatter first:
+
+```bash
+mvn spotless:apply     # Java + Kotlin (ktlint) + pom.xml (sortPom)
+mvn clean test         # ArchUnit layering rules + unit/integration tests
+```
+
+The git hooks install themselves on any build (`mvn initialize` sets
+`core.hooksPath=.githook`) and cover **Java and Kotlin equally**:
+
+| Hook | Runs | Trigger |
+|---|---|---|
+| `pre-commit` | gitleaks, a scan for `secret.env`/`local.env`/`config.env` values in staged additions, then `spotless:apply` with re-staging | any staged `.java` / `.kt` |
+| `pre-push` | `mvn clean test` | any changed `.java` / `.kt` / `pom.xml` / `.properties` / `.yml` / `.yaml` |
+
+Both filters are `\.(java|kt)$`. If you edit them, keep Kotlin in — Spotless is configured
+for both languages, so a Java-only filter lets unformatted Kotlin through silently and it
+resurfaces as a CI failure at `validate`.
+
+Kotlin lives in `src/main/java` alongside Java (`src/main/kotlin` is compiled by nothing).
+Kotlin tests go in `src/test/java` and run under Surefire like any Java test.
+
 ## Building a Container Image
 
 ```bash
@@ -83,23 +111,35 @@ mvn clean package spring-boot:build-image -Pdev -pl rest -am \
 
 CI builds/publishes to GHCR the same way via the shared pipeline template — see CI/CD.
 
-## Kubernetes (kind)
+## Kubernetes (kind + Argo CD)
+
+Deployment is **GitOps**: you bootstrap Argo CD once, and it syncs `infra/k8s/manifest`
+from `main` thereafter. There is no imperative deploy step.
 
 ```bash
-cd infra/k8s/kind && ./kind-cluster.sh create && cd ..
-cp ../.env.example config.env && cp ../.env.example secret.env   # fill in real values
+cd infra/k8s
+kind/kind-cluster.sh create                     # local cluster
+cp ../.env.example secret.env                   # fill in real values
 kubectl create secret docker-registry ghcr-secret \
   --docker-server=ghcr.io --docker-username=<gh-user> --docker-password=<gh-pat>
-cd manifest && ../deploy.sh
+./bootstrap-gitops.sh                           # seeds monolith-secrets, installs Argo CD, applies argo-app.yaml
 ```
 
+- `bootstrap-gitops.sh` creates the `monolith-secrets` Secret from `secret.env`, installs
+  Argo CD into the `argocd` namespace, waits for it, then applies `argo-app.yaml` and hands
+  over. It prints the port-forward and initial-admin-password commands for the Argo CD UI.
+- `argo-app.yaml` points Argo CD at `infra/k8s/manifest` on `main` with `prune: true` and
+  `selfHeal: true` — **edit the manifests in git, not with `kubectl edit`**, or self-heal
+  reverts you.
 - `manifest/` — `mysql.yaml`, `postgres.yaml`, `keycloak.yaml`, `api.yaml` (blue/green
-  Deployments + Service), `ingress.yaml` (`/` → API, `/auth` → Keycloak), `lgtm.yaml`
-  (Grafana OTel-LGTM observability).
-- `deploy.sh` rebuilds the `monolith-config`/`monolith-secrets` ConfigMap/Secret from
-  `config.env`/`secret.env`, then rolls out MySQL → Postgres → Keycloak → API/Ingress.
-- `api.yaml` pulls `ghcr.io/bigorno12/monolith-architecture:latest` (`imagePullPolicy: Always`)
-  via the `ghcr-secret` image pull secret — push an image to GHCR first (see above).
+  Deployments + Service), `configmap.yaml` (non-secret `monolith-config` values),
+  `ingress.yaml`, `lgtm.yaml` (Grafana OTel-LGTM observability).
+- Despite its filename, `ingress.yaml` is **Gateway API**, not an Ingress: a `Gateway`
+  (`gatewayClassName: kgateway`, port 80) plus an `HTTPRoute` sending `/auth` → Keycloak:7080
+  and `/` → monolith-api:8080. The cluster needs the Gateway API CRDs and the kgateway
+  controller — a stock nginx-ingress install will not serve these.
+- `api.yaml` pulls from GHCR via the `ghcr-secret` image pull secret, and **CI owns its image
+  tag** (`chore(gitops): update image tag …`) — don't hand-edit it.
 - `./check-read.sh` (in `infra/k8s`) reports pod health and dumps logs for failures.
 - Tear down: `kind/kind-cluster.sh destroy`.
 
@@ -108,8 +148,11 @@ cd manifest && ../deploy.sh
 `.github/workflows/ci.yml` delegates the whole pipeline (build → lint → unit/integration
 tests → CodeQL/Gitleaks security scan → Docker image build/publish to GHCR) to a shared
 reusable workflow, [`Bigorno12/ci-cd-templates`](https://github.com/Bigorno12/ci-cd-templates).
-`auto-release.yml` tags/releases on every merge to `main` (patch bump, keeps latest 10
-releases). `dependabot.yml` updates Maven, Docker Compose, and Actions weekly/monthly.
+The reusable workflow is pinned to a commit SHA and the published image is signed with
+cosign (keyless). `auto-release.yml` tags/releases on every merge to `main` (patch bump,
+keeps latest 10 releases). `scheduled-maintenance.yml` runs nightly at 02:00 UTC to re-run
+failed CI jobs once and prune stale caches. `dependabot.yml` updates Maven, Docker Compose,
+and Actions weekly/monthly.
 
 ## For AI coding agents
 

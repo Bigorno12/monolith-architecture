@@ -131,10 +131,11 @@ this repo's Kotlin sources.
     defaults beats four constructors.
 
 14. **Nothing in `src/main/kotlin`.** `kotlin-maven-plugin` compiles `src/main/java`, and
-    Spotless only includes `src/main/java/**/*.kt`. A file under `src/main/kotlin` is
-    compiled by nothing and formatted by nothing. This is in
-    [CLAUDE.md](../../CLAUDE.md) too — it is the single easiest way to ship a class that
-    silently does not exist.
+    Spotless includes `src/main/java/**/*.kt` and `src/test/java/**/*.kt` — never
+    `src/main/kotlin`. A file there is compiled by nothing and formatted by nothing. This is
+    in [CLAUDE.md](../../CLAUDE.md) too — it is the single easiest way to ship a class that
+    silently does not exist. **Kotlin tests belong in `src/test/java` for the same reason**;
+    put one there and it compiles and runs under Surefire exactly like a Java test.
 
 ## Interop with the Java side of the monolith
 
@@ -180,3 +181,9 @@ mvn clean test              # ArchUnit + the rest; Spotless check binds to valid
 
 Spotless runs **ktlint** with `ij_kotlin_imports_layout = *,java.**,javax.**,kotlin.**,^`.
 It fixes formatting; it does not fix Java-shaped Kotlin. That part is on you.
+
+The git hooks are a backstop, not a substitute: `.githook/pre-commit` runs `spotless:apply`
+and re-stages every staged `.java`/`.kt`, and `.githook/pre-push` runs `mvn clean test` when
+a `.java`/`.kt`/`pom.xml`/`.properties`/`.yml`/`.yaml` file changed. Both filters read
+`\.(java|kt)$` — if you ever edit them, keep Kotlin in, or unformatted `.kt` ships silently
+and fails CI at `validate`.
