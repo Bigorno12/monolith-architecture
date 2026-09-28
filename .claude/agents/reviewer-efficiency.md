@@ -35,7 +35,7 @@ round-trips, not CPU.
   `persistence/src/main/resources/db.migration/`.
 
 **Keycloak / outbound HTTP**
-- Building a `Keycloak`/`KeycloakBuilder` client per call instead of reusing the
+- Building a `ApiConfiguration`/`KeycloakBuilder` client per call instead of reusing the
   configured bean (`adminKeycloak`/`usersResource` from `KeycloakConfig`).
 - Admin-client or `@HttpExchange` calls inside a loop → batch, or hoist out.
 - A remote call made twice for the same data in one request.
