@@ -172,7 +172,7 @@
             <!-- Arch Unit -->
             <dependency>
                 <groupId>com.tngtech.archunit</groupId>
-                <artifactId>archunit</artifactId>
+                <artifactId>archunit-junit5</artifactId>
                 <version>${archunit.version}</version>
                 <scope>test</scope>
             </dependency>

@@ -53,6 +53,10 @@ spec:
             periodSeconds: 15
             failureThreshold: 10
             timeoutSeconds: 5
+          readinessProbe:
+            periodSeconds: 10
+            failureThreshold: 5
+            timeoutSeconds: 5
 
       volumes:
         - name: keycloak-import-vol
