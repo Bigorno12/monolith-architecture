@@ -29,13 +29,13 @@ jobs:
 
       - name: Bump Version and Push tag
         id: tag_version
-        uses: mathieudutour/github-tag-action@a22cf08638b34d5badda920f9daf6e72c477b07b
+        uses: mathieudutour/github-tag-action@af99e60ce8132224b8e6ebab5023449fe256ed46
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           default_bump: 'patch'
 
       - name: Create Github release
-        uses: softprops/action-gh-release@v3.0.2
+        uses: softprops/action-gh-release@v3.0.3
         with:
           tag_name: ${{ steps.tag_version.outputs.new_tag }}
           name: Release ${{ steps.tag_version.outputs.new_tag }}
