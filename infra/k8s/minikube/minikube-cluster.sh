@@ -7,34 +7,41 @@ function _fail() {
   exit 1
 }
 
-if ! command -v helm &> /dev/null; then
-    _fail "Helm is not installed. Please install it first: brew install helm"
-fi
-
 CLUSTER_NAME="monolith-cluster"
+GATEWAY_API_VERSION="v1.6.1"
+KGATEWAY_VERSION="v2.4.7"
+MINIKUBE_MEMORY="${MINIKUBE_MEMORY:-7g}"
+MINIKUBE_CPUS="${MINIKUBE_CPUS:-4}"
 
 function create() {
+    command -v helm &> /dev/null || _fail "Helm is not installed. Please install it first: brew install helm"
+
     echo "📦 Initializing Minikube cluster using Podman..."
 
     if minikube profile list 2>/dev/null | grep -q "${CLUSTER_NAME}"; then
         echo "✅ Cluster '${CLUSTER_NAME}' already exists — starting it up"
+        echo "   (--cni/--memory/--cpus apply only when a cluster is created; destroy + create to change them)"
         minikube start --profile "${CLUSTER_NAME}"
     else
         echo "Creating Minikube cluster named '${CLUSTER_NAME}'..."
-        minikube start --profile "${CLUSTER_NAME}" --driver=podman || _fail "Minikube start failed"
+        minikube start --profile "${CLUSTER_NAME}" --driver=podman --cni=calico \
+            --memory="${MINIKUBE_MEMORY}" --cpus="${MINIKUBE_CPUS}" || _fail "Minikube start failed"
     fi
 
     echo -e "\n-----------------------------------------------------\n"
-    echo "🌐 Installing Kubernetes Gateway API CRDs..."
-    kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.1.0/standard-install.yaml || _fail "Failed to apply Gateway API CRDs"
+    echo "🌐 Installing Kubernetes Gateway API CRDs ${GATEWAY_API_VERSION}..."
+    kubectl apply --server-side -f "https://github.com/kubernetes-sigs/gateway-api/releases/download/${GATEWAY_API_VERSION}/standard-install.yaml" \
+        || _fail "Failed to apply Gateway API CRDs"
 
     echo -e "\n-----------------------------------------------------\n"
-    echo "🚪 Installing kgateway via Helm OCI..."
-
-    # NOTE: Removed 'helm repo add' and updated to use the OCI registry format
-    helm upgrade --install kgateway oci://cr.kgateway.dev/kgateway-dev/charts/kgateway \
+    echo "🚪 Installing kgateway ${KGATEWAY_VERSION} via Helm OCI..."
+    helm upgrade --install kgateway-crds oci://cr.kgateway.dev/kgateway-dev/charts/kgateway-crds \
+        --version "${KGATEWAY_VERSION}" \
         --namespace kgateway-system \
-        --create-namespace \
+        --create-namespace || _fail "Failed to install kgateway CRDs"
+    helm upgrade --install kgateway oci://cr.kgateway.dev/kgateway-dev/charts/kgateway \
+        --version "${KGATEWAY_VERSION}" \
+        --namespace kgateway-system \
         --wait || _fail "Failed to install kgateway"
 
     echo -e "\n"
