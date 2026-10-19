@@ -1,8 +1,8 @@
-# 1. The Switchboard (Service)
 apiVersion: v1
 kind: Service
 metadata:
   name: monolith-api
+  namespace: monolith
 spec:
   type: ClusterIP
   selector:
@@ -12,14 +12,16 @@ spec:
     - name: http
       protocol: TCP
       port: 8080
-      targetPort: 8080
+      targetPort: http
 ---
-# 2. The LIVE Environment (Blue)
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: monolith-api-blue
+  namespace: monolith
 spec:
+  replicas: 0
+  revisionHistoryLimit: 3
   selector:
     matchLabels:
       app: monolith-api
@@ -30,60 +32,98 @@ spec:
         app: monolith-api
         color: blue
     spec:
+      automountServiceAccountToken: false
       terminationGracePeriodSeconds: 40
       imagePullSecrets:
         - name: ghcr-secret
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
       containers:
         - name: monolith-api
           image: ghcr.io/bigorno12/monolith-architecture:main-8ace1ec
-          imagePullPolicy: Always
+          imagePullPolicy: IfNotPresent
           ports:
-            - containerPort: 8080
+            - name: http
+              containerPort: 8080
+            - name: management
+              containerPort: 8081
           env:
             - name: JAVA_TOOL_OPTIONS
-              value: -XX:MaxRAMPercentage=75.0 -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+UseStringDeduplication -XX:MaxMetaspaceSize=256m
+              value: -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+UseStringDeduplication -XX:MaxMetaspaceSize=256m
             - name: BPL_JVM_THREAD_COUNT
               value: "50"
+            - name: WELLDEV_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: monolith-secrets
+                  key: WELLDEV_PASSWORD
+            - name: WELLDEV_KEYCLOAK_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: monolith-secrets
+                  key: WELLDEV.KEYCLOAK.CLIENT-SECRET
+            - name: WELLDEV_AES_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: monolith-secrets
+                  key: WELLDEV.AES.SECRET.KEY
+          envFrom:
+            - configMapRef:
+                name: monolith-api-config
           resources:
             requests:
               memory: "1Gi"
               cpu: "500m"
             limits:
               memory: "1Gi"
-              cpu: "2.0"
-          envFrom:
-            - configMapRef:
-                name: monolith-config
-            - secretRef:
-                name: monolith-secrets
+              cpu: "2"
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+          startupProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: management
+            periodSeconds: 5
+            failureThreshold: 36
+            timeoutSeconds: 3
           livenessProbe:
             httpGet:
               path: /actuator/health/liveness
-              port: 8080
-            initialDelaySeconds: 45
+              port: management
             periodSeconds: 10
+            failureThreshold: 3
             timeoutSeconds: 3
           readinessProbe:
             httpGet:
               path: /actuator/health/readiness
-              port: 8080
-            initialDelaySeconds: 30
+              port: management
             periodSeconds: 5
+            failureThreshold: 3
             timeoutSeconds: 3
           lifecycle:
             preStop:
-              exec:
-                command:
-                  - "sh"
-                  - "-c"
-                  - "sleep 10"
+              sleep:
+                seconds: 10
+      volumes:
+        - name: tmp
+          emptyDir: {}
 ---
-# 3. The IDLE Environment (Green)
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: monolith-api-green
+  namespace: monolith
 spec:
+  replicas: 1
+  revisionHistoryLimit: 3
   selector:
     matchLabels:
       app: monolith-api
@@ -94,50 +134,86 @@ spec:
         app: monolith-api
         color: green
     spec:
+      automountServiceAccountToken: false
       terminationGracePeriodSeconds: 40
       imagePullSecrets:
         - name: ghcr-secret
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
       containers:
         - name: monolith-api
           image: ghcr.io/bigorno12/monolith-architecture:main-8ace1ec
-          imagePullPolicy: Always
+          imagePullPolicy: IfNotPresent
           ports:
-            - containerPort: 8080
+            - name: http
+              containerPort: 8080
+            - name: management
+              containerPort: 8081
           env:
             - name: JAVA_TOOL_OPTIONS
-              value: -XX:MaxRAMPercentage=75.0 -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+UseStringDeduplication -XX:MaxMetaspaceSize=256m
+              value: -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+UseStringDeduplication -XX:MaxMetaspaceSize=256m
             - name: BPL_JVM_THREAD_COUNT
               value: "50"
+            - name: WELLDEV_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: monolith-secrets
+                  key: WELLDEV_PASSWORD
+            - name: WELLDEV_KEYCLOAK_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: monolith-secrets
+                  key: WELLDEV.KEYCLOAK.CLIENT-SECRET
+            - name: WELLDEV_AES_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: monolith-secrets
+                  key: WELLDEV.AES.SECRET.KEY
+          envFrom:
+            - configMapRef:
+                name: monolith-api-config
           resources:
             requests:
               memory: "1Gi"
               cpu: "500m"
             limits:
               memory: "1Gi"
-              cpu: "2.0"
-          envFrom:
-            - configMapRef:
-                name: monolith-config
-            - secretRef:
-                name: monolith-secrets
+              cpu: "2"
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+          startupProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: management
+            periodSeconds: 5
+            failureThreshold: 36
+            timeoutSeconds: 3
           livenessProbe:
             httpGet:
               path: /actuator/health/liveness
-              port: 8080
-            initialDelaySeconds: 45
+              port: management
             periodSeconds: 10
+            failureThreshold: 3
             timeoutSeconds: 3
           readinessProbe:
             httpGet:
               path: /actuator/health/readiness
-              port: 8080
-            initialDelaySeconds: 30
+              port: management
             periodSeconds: 5
+            failureThreshold: 3
             timeoutSeconds: 3
           lifecycle:
             preStop:
-              exec:
-                command:
-                  - "sh"
-                  - "-c"
-                  - "sleep 10"
+              sleep:
+                seconds: 10
+      volumes:
+        - name: tmp
+          emptyDir: {}
