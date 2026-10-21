@@ -2,21 +2,30 @@ apiVersion: v1
 kind: Service
 metadata:
   name: monolith-lgtm
+  namespace: monolith
 spec:
   type: ClusterIP
   selector:
     app: monolith-lgtm
   ports:
-    - name: lgtm-port
+    - name: grafana
       port: 3000
-      targetPort: 3000
-      protocol: TCP
+      targetPort: grafana
+    - name: otlp-grpc
+      port: 4317
+      targetPort: otlp-grpc
+    - name: otlp-http
+      port: 4318
+      targetPort: otlp-http
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: monolith-lgtm
+  namespace: monolith
 spec:
+  replicas: 1
+  revisionHistoryLimit: 3
   selector:
     matchLabels:
       app: monolith-lgtm
@@ -27,8 +36,46 @@ spec:
       labels:
         app: monolith-lgtm
     spec:
+      automountServiceAccountToken: false
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
       containers:
         - name: lgtm
           image: grafana/otel-lgtm:0.28.0
           ports:
-            - containerPort: 3000
+            - name: grafana
+              containerPort: 3000
+            - name: otlp-grpc
+              containerPort: 4317
+            - name: otlp-http
+              containerPort: 4318
+          resources:
+            requests:
+              memory: "1Gi"
+              cpu: "250m"
+            limits:
+              memory: "1Gi"
+              cpu: "1"
+          securityContext:
+            allowPrivilegeEscalation: false
+          startupProbe:
+            httpGet:
+              path: /api/health
+              port: grafana
+            periodSeconds: 5
+            failureThreshold: 60
+            timeoutSeconds: 3
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: grafana
+            periodSeconds: 15
+            failureThreshold: 3
+            timeoutSeconds: 3
+          readinessProbe:
+            tcpSocket:
+              port: otlp-http
+            periodSeconds: 10
+            failureThreshold: 3
+            timeoutSeconds: 3

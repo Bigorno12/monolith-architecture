@@ -124,10 +124,12 @@ cd infra
 cp .env.example secret.env                          # fill in real values
 
 cd k8s
-./minikube/minikube-cluster.sh create               # cluster + Gateway API CRDs + kgateway
-kubectl create secret docker-registry ghcr-secret \
+./minikube/minikube-cluster.sh create               # cluster (Calico) + Gateway API CRDs + kgateway
+kubectl apply -f manifest/namespace.yaml
+kubectl create secret docker-registry ghcr-secret -n monolith \
   --docker-server=ghcr.io --docker-username=<gh-user> --docker-password=<gh-pat>
-./bootstrap-gitops.sh                               # monolith-secrets, Argo CD, argo-app.yaml
+./bootstrap-gitops.sh                               # Secret, realm ConfigMap, Sealed Secrets, Argo CD
+./seal-secrets.sh                                   # optional: commit manifest/monolith-secrets.sealed.yaml
 ```
 
 > **macOS + Podman:** the Gateway is reached through a LoadBalancer service, so you must
@@ -135,28 +137,33 @@ kubectl create secret docker-registry ghcr-secret \
 > or nothing is routable from the host. The create script prints this reminder too.
 
 - `minikube/minikube-cluster.sh create` starts the `monolith-cluster` profile on the podman
-  driver (reusing it if it already exists), then installs the **Gateway API CRDs** (v1.1.0)
-  and the **kgateway** controller via its Helm OCI chart into `kgateway-system`. It fails
-  fast if `helm` is missing. `destroy` deletes the profile.
-- `bootstrap-gitops.sh` creates the `monolith-secrets` Secret from `../secret.env`
-  (i.e. `infra/secret.env`), installs Argo CD into the `argocd` namespace with
-  `--server-side --force-conflicts`, waits for it, then applies `argo-app.yaml` and hands
-  over. It prints the port-forward and initial-admin-password commands for the Argo CD UI.
-- `argo-app.yaml` points Argo CD at `infra/k8s/manifest` on `main` with `prune: true` and
-  `selfHeal: true` — **edit the manifests in git, not with `kubectl edit`**, or self-heal
-  reverts you.
-- `manifest/` — `mysql.yaml`, `postgres.yaml`, `keycloak.yaml`, `api.yaml` (blue/green
-  Deployments + Service), `configmap.yaml` (non-secret `monolith-config` values),
-  `ingress.yaml`, `lgtm.yaml` (Grafana OTel-LGTM observability). Every app Service is
-  `ClusterIP`; the kgateway `Gateway` is the only external entry point.
-- Despite its filename, `ingress.yaml` is **Gateway API**, not an Ingress: a `Gateway`
-  (`gatewayClassName: kgateway`, port 80) plus an `HTTPRoute` sending `/auth` → Keycloak:7080
-  and `/` → monolith-api:8080. The create script installs the CRDs and controller it needs;
-  a stock nginx-ingress install will not serve these.
+  driver with **Calico** (so NetworkPolicies are enforced), 7 GiB / 4 CPUs by default
+  (`MINIKUBE_MEMORY`/`MINIKUBE_CPUS`; the podman machine must be larger). It installs the
+  **Gateway API CRDs** (v1.6.1) and **kgateway** v2.4.7 (`kgateway-crds` + `kgateway`
+  charts) into `kgateway-system`. Flags only apply to a new cluster. `destroy` deletes it.
+- `bootstrap-gitops.sh` creates namespace `monolith`, installs the Sealed Secrets
+  controller (chart 2.20.0), creates `monolith-secrets` from `infra/secret.env` (unless a
+  committed SealedSecret exists), creates the `keycloak-realm` ConfigMap from
+  `infra/keycloak/realm-export.json`, installs Argo CD **v3.5.5** and applies
+  `argo-app.yaml`. It is safe to re-run.
+- `seal-secrets.sh` encrypts `infra/secret.env` into `manifest/monolith-secrets.sealed.yaml`
+  (safe to commit) and backs up the cluster's sealing key to the gitignored
+  `sealed-secrets-key.yaml`, which `bootstrap-gitops.sh` restores into a new cluster.
+  Lose that key and the committed SealedSecret can't be decrypted: re-run the script.
+- `argo-app.yaml` points Argo CD at `infra/k8s/manifest` on `main` (namespace `monolith`)
+  with `prune` + `selfHeal`: **edit the manifests in git, not with `kubectl edit`**.
+- `manifest/`: `namespace.yaml` (Pod Security `baseline` enforced, `restricted` warned),
+  `configmap.yaml` (one ConfigMap per workload), `api.yaml` (blue/green; green live, blue
+  at 0), `keycloak.yaml` (production `start` on Postgres), `mysql.yaml` / `postgres.yaml`
+  (StatefulSets), `lgtm.yaml` (Grafana OTel-LGTM, receives the API's OTLP metrics/traces),
+  `ingress.yaml` (Gateway API), `networkpolicy.yaml` (default-deny + one allow per link).
+  Each pod gets only the Secret keys it uses, runs non-root where the image allows, and
+  has startup/liveness/readiness probes and memory request = limit.
+- The API serves actuator on a **management port (8081)** that no Service or route exposes;
+  the probes hit `/actuator/health/{liveness,readiness}` there.
 - `api.yaml` pulls from GHCR via the `ghcr-secret` image pull secret, and **CI owns its image
   tag** (`chore(gitops): update image tag …`) — don't hand-edit it.
-- `./check-read.sh` (in `infra/k8s`) reports pod health and dumps logs for failures. It
-  names the cluster from the active kubectl context.
+- `./check-read.sh` (in `infra/k8s`) reports pod health and dumps logs for failing pods.
 - Tear down: `./minikube/minikube-cluster.sh destroy`.
 
 ## CI/CD

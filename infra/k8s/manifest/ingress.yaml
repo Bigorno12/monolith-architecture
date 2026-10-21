@@ -2,7 +2,7 @@ apiVersion: gateway.networking.k8s.io/v1
 kind: Gateway
 metadata:
   name: monolith-gateway
-  namespace: default
+  namespace: monolith
 spec:
   gatewayClassName: kgateway
   listeners:
@@ -12,14 +12,12 @@ spec:
       allowedRoutes:
         namespaces:
           from: Same
-
 ---
-
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
   name: monolith-route
-  namespace: default
+  namespace: monolith
 spec:
   parentRefs:
     - name: monolith-gateway
@@ -31,7 +29,6 @@ spec:
       backendRefs:
         - name: keycloak
           port: 7080
-
     - matches:
         - path:
             type: PathPrefix
