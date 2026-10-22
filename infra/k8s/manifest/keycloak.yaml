@@ -68,8 +68,6 @@ spec:
             limits:
               memory: "1280Mi"
               cpu: "2"
-          # readOnlyRootFilesystem stays off: non-optimized "start" re-augments the
-          # server into /opt/keycloak on boot.
           securityContext:
             allowPrivilegeEscalation: false
             capabilities:

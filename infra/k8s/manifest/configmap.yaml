@@ -50,8 +50,6 @@ data:
   KC_HTTP_ENABLED: "true"
   KC_HTTP_RELATIVE_PATH: "/auth"
   KC_HTTP_MANAGEMENT_RELATIVE_PATH: "/"
-  # Front-channel URLs (issuer, login page) are the Gateway address; back-channel calls
-  # from the API to keycloak:7080 get URLs built from that request instead.
   KC_HOSTNAME: "http://localhost/auth"
   KC_HOSTNAME_BACKCHANNEL_DYNAMIC: "true"
   KC_PROXY_HEADERS: "xforwarded"
