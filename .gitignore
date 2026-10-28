@@ -37,5 +37,6 @@ replay_pid*
 .env.*
 !.env.example
 
-# Claude Code — settings.json is shared; settings.local.json is personal
 .claude/settings.local.json
+
+infra/k8s/sealed-secrets-key.yaml

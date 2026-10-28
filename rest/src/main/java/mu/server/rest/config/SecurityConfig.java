@@ -53,6 +53,11 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 @EnableMethodSecurity(jsr250Enabled = true, securedEnabled = true)
 public class SecurityConfig {
 
+    private static final String[] KUBERNETES_PROBE_PATHS = {
+            "/actuator/health/liveness",
+            "/actuator/health/readiness"
+    };
+
     private static final String[] WHITELISTED_PATHS = {
             "/api/v1/auth/**",
             "/api/v2/auth/**",
@@ -132,6 +137,7 @@ public class SecurityConfig {
                 })
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(WHITELISTED_PATHS).permitAll()
+                        .requestMatchers(KUBERNETES_PROBE_PATHS).permitAll()
                         .requestMatchers(EndpointRequest.to("health", "info")).hasAnyAuthority(ADMIN_READ.getPermission())
                         .anyRequest().authenticated()
                 )
