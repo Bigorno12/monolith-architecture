@@ -30,3 +30,6 @@ CVE-2026-78669
 
 # crypto/tls: DoS via multiple ECH outer extension references
 CVE-2026-97031
+
+# crypto/x509: Man-in-the-middle attacks
+CVE-2026-111943
