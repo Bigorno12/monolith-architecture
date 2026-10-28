@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-@RequestMapping(version = "1.0", value = ["/api/v1/mono/user"], produces = ["application/json"])
+@RequestMapping(version = "1.0", value = ["/api/mono/user"], produces = ["application/json"])
 class UserController(
     private val userService: UserService,
 ) {

@@ -21,3 +21,12 @@ CVE-2026-56860
 
 # crypto/tls: unbounded post-handshake messages
 CVE-2026-56862
+
+# net/http: DoS via crafted HTTP Range headers (Go stdlib in Paketo lifecycle/helpers; fixed in 1.26.9/1.27.2)
+CVE-2026-78667
+
+# golang.org/x/net/http2: DoS via excessive HTTP/2 SETTINGS frames (fixed in x/net 0.60.0)
+CVE-2026-78669
+
+# crypto/tls: DoS via multiple ECH outer extension references
+CVE-2026-97031

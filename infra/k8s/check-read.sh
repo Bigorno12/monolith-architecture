@@ -5,7 +5,7 @@ set -euo pipefail
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 cd "$SCRIPT_DIR" || exit 1
 
-fail() { echo -e "\033[31mERROR: $*\033[0M" >&2; exit 1; }
+fail() { echo -e "\033[31mERROR: $*\033[0m" >&2; exit 1; }
 info() { echo -e "\033[36mINFO: $*\033[0m"; }
 success() { echo -e "\033[32mSUCCESS: $*\033[0m"; }
 
@@ -32,11 +32,12 @@ info "Pods not in Running phase (if any):"
 kubectl get pods -A --field-selector=status.phase!=Running || echo "(none)"
 
 info "Pods with restart count > 0 (if any):"
-kubectl get pods -A --no-headers | awk '$4+0>0 {print $0}' || echo "(none)"
+# Columns with -A: NAMESPACE NAME READY STATUS RESTARTS AGE
+kubectl get pods -A --no-headers | awk '$5+0>0 {print $0}' || echo "(none)"
 
 # macOS Bash 3.2 Compatible Array Assignment (Replaces mapfile)
 suspect=()
-for pod in $(kubectl get pods -A --no-headers 2>/dev/null | awk '$4+0>0 || $4 ~ /0\// || $3!~/Running/ {print $1"/"$2}' | sort -u || true); do
+for pod in $(kubectl get pods -A --no-headers 2>/dev/null | awk '$5+0>0 || $3 ~ /^0\// || ($4!="Running" && $4!="Completed") {print $1"/"$2}' | sort -u || true); do
   if [ -n "$pod" ]; then
     suspect+=("$pod")
   fi

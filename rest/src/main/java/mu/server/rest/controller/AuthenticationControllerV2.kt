@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-@RequestMapping(version = "2.0", value = ["/api/v2/auth"], produces = ["application/json"])
+@RequestMapping(version = "2.0", value = ["/api/auth"], produces = ["application/json"])
 class AuthenticationControllerV2(
     private val keycloakService: KeycloakService,
 ) {

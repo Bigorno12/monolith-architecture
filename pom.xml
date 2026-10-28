@@ -393,6 +393,15 @@
                                     <dependencyConvergence/>
                                     <!-- apply semver rules -->
                                     <requireUpperBoundDeps/>
+                                    <bannedDependencies>
+                                        <excludes>
+                                            <exclude>javax.annotation:javax.annotation-api</exclude>
+                                            <exclude>javax.inject:javax.inject</exclude>
+                                            <exclude>javax.validation:validation-api</exclude>
+                                            <exclude>javax.persistence:*</exclude>
+                                            <exclude>javax.servlet:*</exclude>
+                                        </excludes>
+                                    </bannedDependencies>
                                 </rules>
                             </configuration>
                         </execution>
