@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-@RequestMapping(version = "1.0", value = ["/api/v1/mono/admin"], produces = ["application/json"])
+@RequestMapping(version = "1.0", value = ["/api/mono/admin"], produces = ["application/json"])
 class AdminController(
     private val userService: UserService,
 ) {

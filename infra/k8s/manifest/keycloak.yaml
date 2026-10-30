@@ -2,19 +2,24 @@ apiVersion: v1
 kind: Service
 metadata:
   name: keycloak
+  namespace: monolith
 spec:
   type: ClusterIP
   selector:
     app: keycloak
   ports:
-    - port: 7080
-      targetPort: 7080
+    - name: http
+      port: 7080
+      targetPort: http
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: keycloak
+  namespace: monolith
 spec:
+  replicas: 1
+  revisionHistoryLimit: 3
   selector:
     matchLabels:
       app: keycloak
@@ -23,42 +28,76 @@ spec:
       labels:
         app: keycloak
     spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
       containers:
         - name: keycloak
-          image: quay.io/keycloak/keycloak:26.6.4
-          args: ["start-dev", "--http-port", "7080", "--import-realm"]
+          image: quay.io/keycloak/keycloak:26.7.0
+          args: ["start", "--http-port=7080", "--import-realm"]
           ports:
-            - containerPort: 7080
+            - name: http
+              containerPort: 7080
+            - name: management
+              containerPort: 9000
           envFrom:
             - configMapRef:
-                name: monolith-config
-            - secretRef:
-                name: monolith-secrets
-
-          volumeMounts:
-            - name: keycloak-import-vol
-              mountPath: /opt/keycloak/data/import/
-
+                name: keycloak-config
+          env:
+            - name: KC_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: monolith-secrets
+                  key: POSTGRES_PASSWORD
+            - name: KC_BOOTSTRAP_ADMIN_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: monolith-secrets
+                  key: KEYCLOAK_ADMIN
+            - name: KC_BOOTSTRAP_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: monolith-secrets
+                  key: KEYCLOAK_ADMIN_PASSWORD
           resources:
+            requests:
+              memory: "1280Mi"
+              cpu: "500m"
             limits:
-              memory: "2Gi"
-              cpu: "4.0"
+              memory: "1280Mi"
+              cpu: "2"
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          volumeMounts:
+            - name: realm-import
+              mountPath: /opt/keycloak/data/import/
+              readOnly: true
+          startupProbe:
+            httpGet:
+              path: /health/started
+              port: management
+            periodSeconds: 5
+            failureThreshold: 60
+            timeoutSeconds: 3
           livenessProbe:
-            exec:
-              command:
-                - "sh"
-                - "-c"
-                - '[ -f /tmp/HealthCheck.java ] || echo "public class HealthCheck { public static void main(String[] args) throws java.lang.Throwable { System.exit(java.net.HttpURLConnection.HTTP_OK == ((java.net.HttpURLConnection)new java.net.URL(args[0]).openConnection()).getResponseCode() ? 0 : 1); } }" > /tmp/HealthCheck.java && java /tmp/HealthCheck.java http://localhost:7080/health/live'
-            initialDelaySeconds: 30
+            httpGet:
+              path: /health/live
+              port: management
             periodSeconds: 15
-            failureThreshold: 10
+            failureThreshold: 3
             timeoutSeconds: 5
           readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: management
             periodSeconds: 10
-            failureThreshold: 5
+            failureThreshold: 3
             timeoutSeconds: 5
-
       volumes:
-        - name: keycloak-import-vol
+        - name: realm-import
           configMap:
             name: keycloak-realm

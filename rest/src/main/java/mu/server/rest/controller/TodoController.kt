@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-@RequestMapping(version = "1.0", value = ["/api/v1/mono/todo"], produces = ["application/json"])
+@RequestMapping(version = "1.0", value = ["/api/mono/todo"], produces = ["application/json"])
 class TodoController(
     private val todoService: TodoService,
 ) {
