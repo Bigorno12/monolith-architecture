@@ -1,72 +1,109 @@
-#manifest/mysql.yaml
 apiVersion: v1
 kind: Service
 metadata:
   name: mysql
+  namespace: monolith
 spec:
   type: ClusterIP
   selector:
     app: mysql
   ports:
-    - port: 3306
-      targetPort: 3306
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: mysql-pvc
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 1Gi
+    - name: mysql
+      port: 3306
+      targetPort: mysql
 ---
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: mysql
+  namespace: monolith
 spec:
+  serviceName: mysql
+  replicas: 1
   selector:
     matchLabels:
       app: mysql
-  strategy:
-    type: Recreate
   template:
     metadata:
       labels:
         app: mysql
     spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 999
+        runAsGroup: 999
+        fsGroup: 999
+        seccompProfile:
+          type: RuntimeDefault
       containers:
         - name: mysql
-          image: mysql:9.7
+          image: mysql:26.7
           ports:
-            - containerPort: 3306
+            - name: mysql
+              containerPort: 3306
           envFrom:
             - configMapRef:
-                name: monolith-config
-            - secretRef:
-                name: monolith-secrets
-          volumeMounts:
-            - name: mysql-data
-              mountPath: /var/lib/mysql
+                name: mysql-config
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: monolith-secrets
+                  key: MYSQL_ROOT_PASSWORD
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: monolith-secrets
+                  key: MYSQL_PASSWORD
           resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
             limits:
               memory: "512Mi"
-              cpu: "1.0"
+              cpu: "1"
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/mysql
+            - name: run
+              mountPath: /var/run/mysqld
+            - name: tmp
+              mountPath: /tmp
+          startupProbe:
+            exec:
+              command: ["mysqladmin", "ping", "-h", "127.0.0.1"]
+            periodSeconds: 5
+            failureThreshold: 36
+            timeoutSeconds: 5
           livenessProbe:
             exec:
-              command: ["mysqladmin", "ping", "-h", "localhost"]
-            initialDelaySeconds: 30
+              command: ["mysqladmin", "ping", "-h", "127.0.0.1"]
             periodSeconds: 10
-            failureThreshold: 5
+            failureThreshold: 3
             timeoutSeconds: 5
+          # Ready means the app user can actually query, not just that mysqld answers.
           readinessProbe:
+            exec:
+              command: ["sh", "-c", 'MYSQL_PWD="$MYSQL_PASSWORD" mysql -h 127.0.0.1 -u "$MYSQL_USER" -e "SELECT 1" "$MYSQL_DATABASE"']
             periodSeconds: 10
-            failureThreshold: 5
+            failureThreshold: 3
             timeoutSeconds: 5
-
       volumes:
-        - name: mysql-data
-          persistentVolumeClaim:
-            claimName: mysql-pvc
+        - name: run
+          emptyDir: {}
+        - name: tmp
+          emptyDir: {}
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 1Gi

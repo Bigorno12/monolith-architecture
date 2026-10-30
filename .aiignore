@@ -11,6 +11,7 @@
 secret.env
 local.env
 config.env
+infra/k8s/sealed-secrets-key.yaml
 
 # Build output / generated code — regenerate via Maven, don't read or edit directly
 target/
