@@ -18,6 +18,13 @@ import java.time.Duration
 
 @Component
 class RateLimitFilter : OncePerRequestFilter() {
+
+    companion object {
+        private val LOG = LoggerFactory.getLogger(RateLimitFilter::class.java)
+        private val IDLE_BUCKET_TTL: Duration = Duration.ofMinutes(10)
+        private const val MAX_TRACKED_CALLERS = 100_000L
+    }
+
     private val buckets: Cache<String, Bucket> =
         Caffeine
             .newBuilder()
@@ -54,11 +61,5 @@ class RateLimitFilter : OncePerRequestFilter() {
                 authentication !is AnonymousAuthenticationToken
 
         return if (authenticated) "user:${authentication.name}" else "ip:${request.remoteAddr}"
-    }
-
-    companion object {
-        private val LOG = LoggerFactory.getLogger(RateLimitFilter::class.java)
-        private val IDLE_BUCKET_TTL: Duration = Duration.ofMinutes(10)
-        private const val MAX_TRACKED_CALLERS = 100_000L
     }
 }

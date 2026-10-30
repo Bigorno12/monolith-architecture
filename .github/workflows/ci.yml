@@ -17,7 +17,7 @@ permissions:
 
 jobs:
   run-entire-pipeline:
-    uses: Bigorno12/ci-cd-templates/.github/workflows/master-java-pipeline.yml@4cf9118cad09542a79efb0c8b52b78ade7af3495
+    uses: Bigorno12/ci-cd-templates/.github/workflows/master-java-pipeline.yml@51e40917d0aaee71c69e82f04a5ad475a7019f25
     secrets:
       CR_PAT: ${{ secrets.CR_PAT }}
       GITOPS_PAT: ${{ secrets.GITOPS_PAT }}
