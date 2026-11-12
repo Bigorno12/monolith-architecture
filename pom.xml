@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>4.1.1</version>
+        <version>4.1.2</version>
     </parent>
 
     <groupId>mu.modularachictecture</groupId>
@@ -60,7 +60,6 @@
         <swagger-annotations.version>3.0.0</swagger-annotations.version>
         <testcontainers-keycloak.version>4.4.0</testcontainers-keycloak.version>
         <testcontainers.version>1.21.4</testcontainers.version>
-        <tomcat.version>11.0.25</tomcat.version>
     </properties>
 
     <dependencyManagement>
