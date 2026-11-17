@@ -2,6 +2,7 @@ version: 2
 updates:
   - package-ecosystem: "maven"
     directory: "/"
+    rebase-strategy: auto
     schedule:
       interval: "weekly"
       day: "monday"
@@ -40,6 +41,7 @@ updates:
 
   - package-ecosystem: "docker-compose"
     directory: "/infra"
+    rebase-strategy: auto
     schedule:
       interval: "weekly"
       day: "tuesday"
@@ -61,6 +63,7 @@ updates:
 
   - package-ecosystem: "github-actions"
     directory: "/"
+    rebase-strategy: auto
     schedule:
       interval: "weekly"
       day: "wednesday"
