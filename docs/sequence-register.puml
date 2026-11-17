@@ -1,6 +1,6 @@
 @startuml sequence-register
 ' Hand-maintained. Source of truth = AuthenticationControllerV2.kt + KeycloakServiceImpl.java
-title POST /api/v2/auth/register — register, grant role, authenticate, bind fingerprint
+title POST /api/auth/register — register, grant role, authenticate, bind fingerprint
 
 autonumber
 skinparam responseMessageBelowArrow true
@@ -16,7 +16,7 @@ participant "fingerprintCache" as FC <<Caffeine>>
 database MySQL
 participant Keycloak <<external>>
 
-Client -> C : POST /api/v2/auth/register\nX-API-Version: 2.0
+Client -> C : POST /api/auth/register\nX-API-Version: 2.0
 activate C
 C -> S : register(userRequest, request)
 activate S
@@ -53,7 +53,7 @@ Keycloak --> KTP : access + refresh token
 S -> FC : put(accessToken, fingerprint(request))
 note right of FC
   FingerprintFilter later compares this
-  on every /api/v1/mono/** call and
+  on every /api/mono/** call and
   rejects a token replayed elsewhere.
 end note
 

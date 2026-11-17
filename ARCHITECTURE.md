@@ -18,7 +18,7 @@ you know.
 | **Service interface + `*ServiceImpl`, every public impl method `@Transactional`** | *Reason not recorded.* The `@Transactional` half is enforced by `ArchitectureTest` | *Not recorded* |
 | **Unidirectional `@ManyToOne(LAZY)` only**, no `@OneToMany` | With `open-in-view=false` and `auto-commit=false` there is no collection to lazily walk outside the transaction; "children of X" is a repository query | Bidirectional associations |
 | **Blaze-Persistence entity views** for paginated projections | Paginated projections without JPA fetch joins | Fetch joins |
-| **Keycloak, two filter chains**: stateless JWT for `/api/v1/mono/**`, OAuth2 login + cookie CSRF for the rest | *Reason not recorded.* | *Not recorded* |
+| **Keycloak, two filter chains**: stateless JWT for `/api/mono/**`, OAuth2 login + cookie CSRF for the rest | *Reason not recorded.* | *Not recorded* |
 | **Rate limits live in the `Tier` enum** (Bucket4j) | One place to change a limit, shared by both chains | Limits hard-coded in `RateLimitFilter` |
 | **Virtual threads for requests; a separate pool for `@Async` and `@Scheduled`** | *Reason not recorded.* | *Not recorded* |
 | **Flyway** migrations, disabled under `-Ptest` (H2) | *Reason not recorded.* | *Not recorded* |
