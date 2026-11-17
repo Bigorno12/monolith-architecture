@@ -36,7 +36,7 @@
         <blaze-persistence.version>1.6.20</blaze-persistence.version>
         <bucket.version>8.22.0</bucket.version>
         <build-helper-maven-plugin.version>3.5.0</build-helper-maven-plugin.version>
-        <commons-codec.version>1.22.1</commons-codec.version>
+        <commons-codec.version>1.23.0</commons-codec.version>
         <commons-io.version>2.22.0</commons-io.version>
         <commons-lang3.version>3.20.0</commons-lang3.version>
         <datasource-proxy-spring-boot-starter.version>2.0.1</datasource-proxy-spring-boot-starter.version>
@@ -436,10 +436,11 @@
                             <goals>
                                 <goal>compile</goal>
                             </goals>
-                            <phase>compile</phase>
+                            <phase>process-sources</phase>
                             <configuration>
-                                <sourceDirs>${project.basedir}/src/main/kotlin</sourceDirs>
-                                <sourceDirs>${project.basedir}/src/main/java</sourceDirs>
+                                <sourceDirs>
+                                    <sourceDir>${project.basedir}/src/main/java</sourceDir>
+                                </sourceDirs>
                             </configuration>
                         </execution>
                         <execution>
@@ -447,10 +448,11 @@
                             <goals>
                                 <goal>test-compile</goal>
                             </goals>
-                            <phase>test-compile</phase>
+                            <phase>process-test-sources</phase>
                             <configuration>
-                                <sourceDirs>${project.basedir}/src/main/kotlin</sourceDirs>
-                                <sourceDirs>${project.basedir}/src/main/java</sourceDirs>
+                                <sourceDirs>
+                                    <sourceDir>${project.basedir}/src/test/java</sourceDir>
+                                </sourceDirs>
                             </configuration>
                         </execution>
                     </executions>
@@ -485,6 +487,7 @@
                         <ktlint>
                             <editorConfigOverride>
                                 <ij_kotlin_imports_layout>*,java.**,javax.**,kotlin.**,^</ij_kotlin_imports_layout>
+                                <ktlint_standard_class-signature>disabled</ktlint_standard_class-signature>
                             </editorConfigOverride>
                         </ktlint>
                     </kotlin>
