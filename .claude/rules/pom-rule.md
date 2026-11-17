@@ -28,7 +28,7 @@ This repo is a **four-POM reactor**: `pom.xml` (root, parent
 
    ```xml
    <properties>
-     <commons-codec.version>1.22.1</commons-codec.version>  <!-- overrides Boot's 1.21.0 -->
+     <commons-codec.version>1.23.0</commons-codec.version>  <!-- overrides Boot's 1.21.0 -->
    </properties>
    ```
 
@@ -113,7 +113,7 @@ Known deviations, worth fixing when you are next in the file:
 | `<properties>` → `build-helper-maven-plugin.version` = 3.5.0 | Boot 4.1.1 ships **3.6.1** — this override is a silent **downgrade** | raise it or delete the property |
 | `<properties>` → `commons-lang3.version` = 3.20.0 | identical to Boot's 3.20.0 — a no-op today that will pin the artifact the moment Boot moves | delete unless you deliberately want it frozen |
 
-The other overrides are doing real work and should stay: `commons-codec.version` 1.22.1
+The other overrides are doing real work and should stay: `commons-codec.version` 1.23.0
 (Boot: 1.21.0), `jackson-2-bom.version` 2.22.3 (Boot: 2.21.5) and `jackson-bom.version` 3.1.7
 (Boot: 3.1.5) — the Jackson pair patch CVE-2026-68497/89407/89425/91776/91777. None is
 declared anywhere in these POMs — the properties exist solely to lift the transitive versions.
