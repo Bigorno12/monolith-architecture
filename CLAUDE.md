@@ -161,8 +161,7 @@ Kotlin (it did, until it was fixed), which surfaces as a CI failure at `validate
 ## Security
 - Keycloak-backed. **Two filter chains** in `SecurityConfig`:
   - `@Order(1)` `/api/mono/**`: stateless JWT resource server, CSRF off, `FingerprintFilter` → `RateLimitFilter` after `BearerTokenAuthenticationFilter`
-  - `@Order(2)` everything else: OAuth2 login client, cookie CSRF, OIDC-initiated logout. Public: `/api/auth/**`, Swagger, the OAuth2 callback. CSRF is waived only for `/api/auth/login` and `/register` (no session to forge); `/api/auth/logout` still needs the `X-XSRF-TOKEN`
-  - **The matchers are literal paths, and versioning is header-only**, so a controller path and `SecurityConfig` must move together. `SecurityConfigTest` (a `@WebMvcTest` over the real chains) fails if they drift
+  - `@Order(2)` everything else: OAuth2 login client, cookie CSRF, OIDC-initiated logout
 - Authorities are the `Permission` enum values **from the persistence module** (`user:read`, `admin:create`, …), mapped from Keycloak claims by `AuthoritiesConverter`/`KeycloakAuthenticationConverter`. The same strings are hardcoded in `@PreAuthorize`, so **changing `Permission` touches persistence, `SecurityConfig`, and every controller**.
 - **Both filters are `@Component`s, so Boot would also register them with the servlet container.** `SecurityConfig` neutralises that with a `FilterRegistrationBean` per filter and `setEnabled(false)`, leaving the security chain as the only place they run. Add a new `@Component` filter and you must add the same bean, or it fires twice (and on every request, outside the chain).
 - **Two Keycloak clients.** `monolith-keycloak-confidential` logs users in (auth code + password grant) and is the required JWT `aud` (`spring.security.oauth2.resourceserver.jwt.audiences`, fed by an audience mapper in the realm). `monolith-keycloak-admin` is a service account holding `realm-management: view-users, manage-users`, used only by `KeycloakConfig.adminKeycloak`. Never give the login client admin roles back.
@@ -176,6 +175,8 @@ Kotlin (it did, until it was fixed), which surfaces as a CI failure at `validate
 - Ownership checks use `#username == authentication.name` in `@PreAuthorize`
 - `Role.USER` → `{user:create, user:read, user:update, user:delete}`; `Role.ADMIN` → all `admin:*`
 - `User.email` is encrypted at rest via `EncryptionConverter`/`AESConverter`
+- **Keycloak client requirements** (`monolith-keycloak-confidential`, used for both `client_credentials` and the password grant): service account with `realm-management` `manage-users` + `view-users`, and the **`kc-admin-api` client scope** attached to the client. Since Keycloak 26.8.2 the Admin API rejects tokens without that audience with `401`. A realm export masks the client secret as `**********`, so a fresh import needs the secret regenerated and copied into `WELLDEV.KEYCLOAK.CLIENT-SECRET`.
+- Bad login credentials surface as `InvalidCredentialsException` → `401`; `GlobalExceptionHandler` builds every error body as `ErrorMessage` with the same status it returns.
 
 ## API Endpoints
 Base: http://localhost:8080 · Swagger UI: `/swagger-ui.html` · spec: `/v3/api-docs` (both off in k8s via `SPRINGDOC_*_ENABLED=false`)
@@ -185,7 +186,7 @@ Rate limits apply per caller: 10/min on `/auth/`, 100/min elsewhere (see Cross-c
 | Endpoint | Version | Auth |
 |---|---|---|
 | `POST /api/auth/register`, `POST /api/auth/login` | `2.0` | public |
-| `POST /api/auth/logout` (Spring Security `logoutUrl`, not a controller) | none | session + CSRF token (OIDC logout) |
+| `POST /api/auth/logout` (Spring Security `logoutUrl`, not a controller) | none | session (OIDC logout) |
 | `GET /api/mono/admin/{id}` | `1.0` | `admin:read` |
 | `PUT /api/mono/user/update?username=` | `1.0` | `user:update` + self |
 | `DELETE /api/mono/user/delete/{username}` | `1.0` | `user:delete` + self |
@@ -193,7 +194,6 @@ Rate limits apply per caller: 10/min on `/auth/`, 100/min elsewhere (see Cross-c
 | `POST /api/mono/todo/{username}` (import from JSONPlaceholder) | `1.0` | `user:create` + self |
 | `POST /api/mono/todo/save/{username}` | `1.0` | `user:create` + self |
 | `GET /api/mono/todo/all-todos/{username}` | `1.0` | `user:read` + self |
-| `GET /api/mono/todo/all-todos` (every user's todos, paged) | `1.0` | `admin:read` |
 
 ## Domain Model
 All entities extend `Auditable` (`createdDate`/`lastModifiedDate`/`createdBy`/`modifiedBy`, filled by `AuditorAwareImpl` from the security context).

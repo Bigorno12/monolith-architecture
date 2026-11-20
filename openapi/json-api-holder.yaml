@@ -1,7 +1,11 @@
 openapi: 3.0.3
 info:
   title: Monolith Architecture - OpenAPI 3.0
-  version: 1.0.11
+  description: |
+    Keycloak-secured REST API. Every endpoint is versioned through the `X-API-Version` header
+    (Spring MVC API versioning), not the path. Rate limits apply per caller: 10 req/min on
+    `/api/auth/**`, 100 req/min elsewhere; exceeding them returns `429` with `Retry-After`.
+  version: 2.0.0
 servers:
   - url: http://localhost:8080
     description: Local Server
@@ -22,6 +26,9 @@ paths:
       tags:
         - auth
       summary: "Register new user"
+      description: |
+        Creates the user in Keycloak, assigns the `USER` realm role, stores the user locally and
+        returns tokens for the new account.
       operationId: registerUser
       security: []
       parameters:
@@ -39,8 +46,16 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/TokenResponse'
-        '401':
-          description: Unauthorized
+        '400':
+          description: Request body failed validation, or the username already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          description: Keycloak rejected the user creation
 
   /api/auth/login:
     post:
@@ -64,8 +79,16 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/TokenResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
         '401':
-          description: Unauthorized
+          description: Invalid username or password
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
 
   /api/mono/user/update:
     put:
@@ -77,6 +100,7 @@ paths:
         - $ref: '#/components/parameters/ApiVersionHeader'
         - name: username
           in: query
+          description: Must match the authenticated user
           required: true
           schema:
             type: string
@@ -93,45 +117,57 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UpdateUserRequest'
+        '400':
+          $ref: '#/components/responses/BadRequest'
         '401':
-          description: Unauthorized
+          $ref: '#/components/responses/Unauthorized'
         '403':
-          description: Forbidden
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
 
   /api/mono/user/delete/{username}:
     delete:
       tags:
         - user
       summary: "Delete the authenticated user"
+      description: |
+        Deletes the local user and its Keycloak account. The mapping declares
+        `consumes = application/json`, so the request must send `Content-Type: application/json`
+        even though it has no body, otherwise it is answered with `415`.
       operationId: deleteUser
       parameters:
         - $ref: '#/components/parameters/ApiVersionHeader'
-        - name: username
-          in: path
-          required: true
-          schema:
-            type: string
+        - $ref: '#/components/parameters/UsernamePath'
       responses:
         '200':
           description: User deleted successfully
         '401':
-          description: Unauthorized
+          $ref: '#/components/responses/Unauthorized'
         '403':
-          description: Forbidden
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '415':
+          description: Missing `Content-Type application/json` header
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
 
   /api/mono/user/view-profile/{username}:
     get:
       tags:
         - user
       summary: "View the authenticated user's profile"
+      description: |
+        The mapping declares `consumes = application/json`, so the request must send
+        `Content-Type: application/json` even though it has no body, otherwise it is answered
+        with `415`.
       operationId: viewUserProfile
       parameters:
         - $ref: '#/components/parameters/ApiVersionHeader'
-        - name: username
-          in: path
-          required: true
-          schema:
-            type: string
+        - $ref: '#/components/parameters/UsernamePath'
       responses:
         '200':
           description: Profile fetched successfully
@@ -140,30 +176,37 @@ paths:
               schema:
                 $ref: '#/components/schemas/ViewUserProfile'
         '401':
-          description: Unauthorized
+          $ref: '#/components/responses/Unauthorized'
         '403':
-          description: Forbidden
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '415':
+          description: Missing `Content-Type application/json` header
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
 
   /api/mono/todo/{username}:
     post:
       tags:
         - todo
-      summary: "Create an empty todo list for a user"
-      operationId: createTodoForUser
+      summary: "Import the user's todos from JSONPlaceholder"
+      description: Fetches the todos for the user's id from JSONPlaceholder and stores them for the user.
+      operationId: importTodosForUser
       parameters:
         - $ref: '#/components/parameters/ApiVersionHeader'
-        - name: username
-          in: path
-          required: true
-          schema:
-            type: string
+        - $ref: '#/components/parameters/UsernamePath'
       responses:
         '200':
-          description: Todo created successfully
+          description: Todos imported successfully
         '401':
-          description: Unauthorized
+          $ref: '#/components/responses/Unauthorized'
         '403':
-          description: Forbidden
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
 
   /api/mono/todo/save/{username}:
     post:
@@ -173,11 +216,7 @@ paths:
       operationId: saveTodos
       parameters:
         - $ref: '#/components/parameters/ApiVersionHeader'
-        - name: username
-          in: path
-          required: true
-          schema:
-            type: string
+        - $ref: '#/components/parameters/UsernamePath'
       requestBody:
         required: true
         content:
@@ -189,35 +228,39 @@ paths:
       responses:
         '200':
           description: Todos saved successfully
+        '400':
+          $ref: '#/components/responses/BadRequest'
         '401':
-          description: Unauthorized
+          $ref: '#/components/responses/Unauthorized'
         '403':
-          description: Forbidden
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
 
   /api/mono/todo/all-todos/{username}:
     get:
       tags:
         - todo
-      summary: "List all todos for a user (paginated)"
+      summary: "List all todos for a user (paginated, sorted by id ascending)"
       operationId: findAllTodosByUsername
       parameters:
         - $ref: '#/components/parameters/ApiVersionHeader'
-        - name: username
-          in: path
-          required: true
-          schema:
-            type: string
+        - $ref: '#/components/parameters/UsernamePath'
         - name: pageNum
           in: query
           required: false
           schema:
             type: integer
+            format: int32
+            minimum: 0
             default: 0
         - name: pageSize
           in: query
           required: false
           schema:
             type: integer
+            format: int32
+            minimum: 1
             default: 10
       responses:
         '200':
@@ -225,16 +268,13 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  content:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/TodoUsernameResponse'
+                $ref: '#/components/schemas/TodoUsernameResponsePage'
         '401':
-          description: Unauthorized
+          $ref: '#/components/responses/Unauthorized'
         '403':
-          description: Forbidden
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
 
   /api/mono/admin/{id}:
     get:
@@ -258,11 +298,13 @@ paths:
               schema:
                 $ref: '#/components/schemas/UserResponse'
         '401':
-          description: Unauthorized
+          $ref: '#/components/responses/Unauthorized'
         '403':
-          description: Forbidden
+          $ref: '#/components/responses/Forbidden'
         '404':
           description: User not found
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
 
 components:
   securitySchemes:
@@ -288,17 +330,48 @@ components:
         type: string
         default: "2.0"
         example: "2.0"
+    UsernamePath:
+      name: username
+      in: path
+      description: Must match the authenticated user
+      required: true
+      schema:
+        type: string
+  responses:
+    BadRequest:
+      description: Request body failed validation or could not be parsed (unknown properties are rejected)
+    Unauthorized:
+      description: Missing or invalid bearer token
+    Forbidden:
+      description: Missing permission, or the username does not match the authenticated user
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorMessage'
+    TooManyRequests:
+      description: Rate limit exceeded
+      headers:
+        Retry-After:
+          description: Seconds until the next request is allowed
+          schema:
+            type: integer
   schemas:
     UserRequest:
       type: object
+      required:
+        - firstName
+        - lastName
+        - email
+        - username
+        - password
       properties:
         firstName:
           type: string
-          nullable: false
           example: John
         lastName:
           type: string
-          nullable: false
           example: Doe
         age:
           type: integer
@@ -310,75 +383,76 @@ components:
           $ref: '#/components/schemas/Gender'
         email:
           type: string
-          format: email
-          nullable: false
-        username:
-          type: string
-          nullable: false
-          example: test
-        role:
-          $ref: '#/components/schemas/Role'
-        password:
-          type: string
-          nullable: false
-          example: P@ssW0rd%
-    AuthenticationRequest:
-      type: object
-      properties:
-        username:
-          type: string
-          nullable: false
-          example: test
-        password:
-          type: string
-          nullable: false
-          example: P@ssW0rd%
-    TokenResponse:
-      type: object
-      properties:
-        access_token:
-          type: string
-          nullable: false
-        refresh_token:
-          type: string
-          nullable: false
-    UpdateUserRequest:
-      type: object
-      properties:
-        firstname:
-          type: string
-          nullable: false
-          example: John
-        lastname:
-          type: string
-          nullable: false
-          example: Doe
-        age:
-          type: integer
-          format: int32
-          minimum: 16
-          maximum: 100
-          example: 25
-        gender:
-          $ref: '#/components/schemas/Gender'
-        email:
-          type: string
-          nullable: false
+          minLength: 1
           example: john.doe@test.com
         username:
           type: string
-          nullable: false
+          minLength: 1
+          example: test
+        password:
+          type: string
+          minLength: 1
+          example: P@ssW0rd%
+    AuthenticationRequest:
+      type: object
+      required:
+        - username
+        - password
+      properties:
+        username:
+          type: string
+          example: test
+        password:
+          type: string
+          example: P@ssW0rd%
+    TokenResponse:
+      type: object
+      required:
+        - accessToken
+        - refreshToken
+      properties:
+        accessToken:
+          type: string
+        refreshToken:
+          type: string
+    UpdateUserRequest:
+      type: object
+      required:
+        - firstname
+        - lastname
+        - email
+        - username
+      properties:
+        firstname:
+          type: string
+          example: John
+        lastname:
+          type: string
+          example: Doe
+        age:
+          type: integer
+          format: int32
+          minimum: 16
+          maximum: 100
+          example: 25
+        gender:
+          $ref: '#/components/schemas/Gender'
+        email:
+          type: string
+          minLength: 1
+          example: john.doe@test.com
+        username:
+          type: string
+          minLength: 1
           example: test
     UserResponse:
       type: object
       properties:
         firstName:
           type: string
-          nullable: false
           example: John
         lastName:
           type: string
-          nullable: false
           example: Doe
         age:
           type: integer
@@ -388,14 +462,18 @@ components:
           $ref: '#/components/schemas/Gender'
         email:
           type: string
-          nullable: false
           example: john.doe@test.com
         username:
           type: string
-          nullable: false
           example: test
     ViewUserProfile:
       type: object
+      required:
+        - firstName
+        - lastName
+        - username
+        - email
+        - age
       properties:
         firstName:
           type: string
@@ -411,31 +489,72 @@ components:
           example: john.doe@test.com
         age:
           type: integer
+          format: int32
           example: 25
     TodoRequest:
       type: object
+      required:
+        - title
+        - completed
       properties:
         title:
           type: string
-          nullable: false
+          minLength: 1
           example: delectus aut autem
         completed:
           type: boolean
-          nullable: false
     TodoUsernameResponse:
       type: object
+      required:
+        - title
+        - completed
+        - username
       properties:
         title:
           type: string
-          nullable: false
           example: delectus aut autem
         completed:
           type: boolean
-          nullable: false
         username:
           type: string
-          nullable: false
           example: test
+    TodoUsernameResponsePage:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/TodoUsernameResponse'
+        page:
+          $ref: '#/components/schemas/PageMetadata'
+    PageMetadata:
+      type: object
+      properties:
+        size:
+          type: integer
+          format: int64
+        number:
+          type: integer
+          format: int64
+        totalElements:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+          format: int64
+    ErrorMessage:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          format: int32
+        timestamp:
+          type: string
+          format: date-time
+        message:
+          type: string
+        description:
+          type: string
     Gender:
       type: string
       enum:
@@ -444,6 +563,7 @@ components:
         - OTHER
     Role:
       type: string
+      description: Not part of any request; kept because the generated enum is used by KeycloakServiceImpl.
       enum:
         - USER
         - ADMIN
