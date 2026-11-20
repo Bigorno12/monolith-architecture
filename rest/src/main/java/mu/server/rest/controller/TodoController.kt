@@ -1,6 +1,7 @@
 package mu.server.rest.controller
 
 import com.blazebit.persistence.PagedList
+import jakarta.validation.Valid
 import mu.server.persistence.repository.blaze.TodoView
 import mu.server.service.TodoService
 import mu.server.service.dto.todo.TodoRequest
@@ -35,7 +36,7 @@ class TodoController(
     @PostMapping(value = ["/save/{username}"], version = "1.0")
     @PreAuthorize(value = "hasAnyAuthority('user:create') AND #username == authentication.name")
     fun save(
-        @RequestBody todoRequests: MutableList<TodoRequest>,
+        @RequestBody @Valid todoRequests: MutableList<TodoRequest>,
         @PathVariable username: String?,
     ): ResponseEntity<Void> {
         todoService.save(todoRequests, username)
