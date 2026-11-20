@@ -45,7 +45,7 @@ public class TodoServiceImpl implements TodoService {
             cacheNames = "todoCache",
             unless = "#result == null",
             key = "#username",
-            condition = "#username != null OR todoRequest != null"
+            condition = "#username != null OR #todoRequest != null"
     )
     public void save(List<TodoRequest> todoRequest, String username) {
         User user = userRepository.findUserByUsername(username)

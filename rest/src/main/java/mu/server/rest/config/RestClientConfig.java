@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.web.client.ApiVersionInserter;
 import org.springframework.web.client.support.RestClientHttpServiceGroupConfigurer;
+import org.springframework.web.service.registry.HttpServiceGroup;
 import org.springframework.web.service.registry.ImportHttpServices;
 
 import mu.server.service.exception.InvalidCallException;
@@ -15,7 +16,7 @@ import mu.server.service.exception.NotFoundException;
 import mu.server.service.http.JsonPlaceHolderService;
 
 @Configuration
-@ImportHttpServices(group = "jsonplaceholder", types = {JsonPlaceHolderService.class})
+@ImportHttpServices(group = "jsonplaceholder", types = {JsonPlaceHolderService.class}, clientType = HttpServiceGroup.ClientType.REST_CLIENT)
 public class RestClientConfig {
 
     private static final String URL = "https://jsonplaceholder.typicode.com";

@@ -1,5 +1,6 @@
 package mu.server.rest.controller
 
+import jakarta.validation.Valid
 import mu.server.service.UserService
 import mu.server.service.dto.user.UpdateUserRequest
 import mu.server.service.dto.user.ViewUserProfile
@@ -28,7 +29,7 @@ class UserController(
         version = "1.0",
     )
     fun updateUser(
-        @RequestBody updateUserRequest: UpdateUserRequest,
+        @RequestBody @Valid updateUserRequest: UpdateUserRequest,
         @RequestParam(name = "username") username: String,
     ): ResponseEntity<UpdateUserRequest> {
         val updateUser: UpdateUserRequest = userService.updateUser(updateUserRequest, username)

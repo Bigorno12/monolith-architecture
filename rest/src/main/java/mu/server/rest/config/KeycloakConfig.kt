@@ -1,8 +1,10 @@
 package mu.server.rest.config
 
+import jakarta.ws.rs.NotAuthorizedException
 import mu.server.rest.config.properties.ApiConfiguration
 import mu.server.service.KeycloakTokenProvider
 import mu.server.service.dto.auth.TokenResponse
+import mu.server.service.exception.InvalidCredentialsException
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder
 import org.keycloak.OAuth2Constants
 import org.keycloak.admin.client.Keycloak
@@ -51,9 +53,14 @@ class KeycloakConfig(val apiConfiguration: ApiConfiguration) : KeycloakTokenProv
                 .resteasyClient(ResteasyClientBuilder.newBuilder().build())
                 .build()
 
-        keycloakClient.use { client ->
-            val tokenPayload = client.tokenManager().accessToken
-            return TokenResponse(tokenPayload.token, tokenPayload.refreshToken)
+        return keycloakClient.use { client ->
+            val tokenPayload =
+                try {
+                    client.tokenManager().accessToken
+                } catch (e: NotAuthorizedException) {
+                    throw InvalidCredentialsException("Invalid username or password", e)
+                }
+            TokenResponse(tokenPayload.token, tokenPayload.refreshToken)
         }
     }
 }

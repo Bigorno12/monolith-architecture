@@ -61,8 +61,7 @@ public class SecurityConfig {
     };
 
     private static final String[] WHITELISTED_PATHS = {
-            "/api/v1/auth/**",
-            "/api/v2/auth/**",
+            "/api/auth/**",
             "/error",
             "/v2/api-docs",
             "/v3/api-docs",
@@ -79,8 +78,8 @@ public class SecurityConfig {
             "/login/oauth2/code/**"
     };
 
-    private static final String ADMIN_PATH = "/api/v1/mono/admin/**";
-    private static final String USER_PATH = "/api/v1/mono/**";
+    private static final String ADMIN_PATH = "/api/mono/admin/**";
+    private static final String USER_PATH = "/api/mono/**";
 
     private final FingerprintFilter fingerprintFilter;
     private final RateLimitFilter rateLimitFilter;
@@ -91,7 +90,7 @@ public class SecurityConfig {
             HttpSecurity http,
             JwtAuthenticationConverter jwtAuthenticationConverter) {
         return http
-                .securityMatcher("/api/v1/mono/**")
+                .securityMatcher("/api/mono/**")
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
@@ -132,7 +131,7 @@ public class SecurityConfig {
                     var oidcLogoutHandler = new OidcClientInitiatedLogoutSuccessHandler(clientRegistrationRepository);
                     oidcLogoutHandler.setPostLogoutRedirectUri("{baseUrl}/");
 
-                    logout.logoutUrl("/api/v1/auth/logout")
+                    logout.logoutUrl("/api/auth/logout")
                             .invalidateHttpSession(true)
                             .logoutSuccessHandler(oidcLogoutHandler)
                             .deleteCookies("JSESSIONID", "XSRF-TOKEN");
