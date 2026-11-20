@@ -151,7 +151,7 @@ The Java modules are not going away, so Kotlin here has to be a good neighbour:
   `@Component`/`@Service`/`@Configuration`/`@Transactional` classes are opened automatically
   — do **not** hand-write `open class` for Spring beans.
 - **Spring/Jakarta annotations that take arrays** need Kotlin array literals:
-  `@RequestMapping(value = ["/api/v1/mono/todo"])`, `@Transactional(rollbackFor = [NotFoundException::class])`.
+  `@RequestMapping(value = ["/api/mono/todo"])`, `@Transactional(rollbackFor = [NotFoundException::class])`.
 - The ArchUnit rules in `rest/src/test` do not care which language a class is written in.
   **Every public method of a `*ServiceImpl` still needs `@Transactional`**, Kotlin included.
 
