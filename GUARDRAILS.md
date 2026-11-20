@@ -27,6 +27,7 @@ hooks, in the **build** (`mvn clean test`, Spotless and Enforcer at `validate`),
 | `ArchitectureTest`: no field injection | Constructor injection everywhere | `NO_CLASSES_SHOULD_USE_FIELD_INJECTION` | ✓ |
 | Maven module graph | `persistence` can't see `service`/`rest` | `persistence/pom.xml` has no dependency on the upper modules, so the import doesn't compile | ✓ |
 | Flyway checksums | Applied migrations stay immutable | Flyway refuses to start when an applied migration's checksum changed | ✗ (only at app start-up with `-Pdev`; no test runs Flyway) |
+| `SecurityConfigTest` (`@WebMvcTest`) | Controller paths matching the security chains | Real `SecurityConfig` + filters over the real controllers: login public without CSRF, logout needs CSRF, anonymous API call is 401 (not a login redirect), ownership and admin-only routes enforced | ✓ |
 | `RateLimitFilterTest` | `Tier` limits, per-caller buckets, `/actuator/**` exempt | Unit tests of `RateLimitFilter` | ✓ |
 
 ### Code quality
@@ -44,7 +45,7 @@ hooks, in the **build** (`mvn clean test`, Spotless and Enforcer at `validate`),
 | Guardrail | What it protects | How | CI |
 |---|---|---|---|
 | gitleaks | Secrets in commits | `pre-commit` runs `gitleaks protect --staged` and blocks on a hit (skipped with a warning if gitleaks isn't installed) | ✓ (Gitleaks stage) |
-| Local env-value scan | Values from `secret.env`/`local.env`/`config.env` leaking into code | `pre-commit` compares staged additions with each value of 8+ characters. ⚠️ **Currently inert**: it reads the files from the repo root, but they live in `infra/` (see Gaps) | — (deliberately local) |
+| Local env-value scan | Values from `infra/secret.env`/`local.env`/`config.env` leaking into code | `pre-commit` compares staged additions with each value of 8+ characters | — (deliberately local) |
 | `Read(./**/*.env)` deny | Agents reading credentials | `.claude/settings.json` `permissions.deny`. It covers the Read tool only; CLAUDE.md's "never open an env file" covers the shell | n/a |
 | `.aiignore` | Non-Claude AI tools reading credentials or generated code | Mirrors the secret patterns of `.gitignore` | n/a |
 | CodeQL | Code-level vulnerabilities | Reusable pipeline, SARIF upload (`security-events: write`) | ✓ |
@@ -72,21 +73,18 @@ hooks, in the **build** (`mvn clean test`, Spotless and Enforcer at `validate`),
 
 In priority order:
 
-1. **Fix the env-value scan path.** `.githook/pre-commit` sets
-   `ENV_FILES=("$ROOT/secret.env" …)`, but `infra/` holds the files. Use `$ROOT/infra/*.env`.
-   Until then the only local secret check is gitleaks, and only if it's installed.
-2. **A context-booting test.** Nothing proves `SecurityConfig`, the two filter chains, the
-   `FilterRegistrationBean`s or the Flyway migrations at build time.
+1. **A full-context test.** `SecurityConfigTest` covers the security chains, but nothing proves
+   the Flyway migrations, JPA mappings or Keycloak wiring at build time.
    `TestContainerDBConfiguration` exists for exactly this and is used by no test.
-3. **Widen the `ask` list.** Editing `ArchitectureTest.java`, `.githook/**`,
+2. **Widen the `ask` list.** Editing `ArchitectureTest.java`, `.githook/**`,
    `.github/workflows/**` or an applied `db.migration/*.sql` loosens a guardrail with no prompt.
-4. **Structural lint for prose rules.** "A convention nobody checks is a suggestion."
+3. **Structural lint for prose rules.** "A convention nobody checks is a suggestion."
    Candidates for ArchUnit or [ast-grep](https://ast-grep.github.io/): every `@Cacheable` name
    is in `spring.cache.cache-names`; every `@Component` filter has a disabled
    `FilterRegistrationBean`; every `@CircuitBreaker` has a matching `fallback*`.
-5. **Diagram drift.** `docs/*.puml` is hand-maintained; `ArchitectureTest` could emit the
+4. **Diagram drift.** `docs/*.puml` is hand-maintained; `ArchitectureTest` could emit the
    `packages.puml` it asserts (see ARCHITECTURE.md → Making these generated).
-6. **`AGENTS.md` symlink check.** Nothing warns if a tool replaces the link with a copy.
+5. **`AGENTS.md` symlink check.** Nothing warns if a tool replaces the link with a copy.
 
 ## Considered, not scheduled
 

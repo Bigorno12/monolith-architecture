@@ -27,7 +27,7 @@
   "oauth2DevicePollingInterval": 5,
   "enabled": true,
   "sslRequired": "external",
-  "registrationAllowed": true,
+  "registrationAllowed": false,
   "registrationEmailAsUsername": false,
   "rememberMe": true,
   "verifyEmail": false,
@@ -35,7 +35,7 @@
   "duplicateEmailsAllowed": true,
   "resetPasswordAllowed": true,
   "editUsernameAllowed": true,
-  "bruteForceProtected": false,
+  "bruteForceProtected": true,
   "permanentLockout": false,
   "maxTemporaryLockouts": 0,
   "bruteForceStrategy": "MULTIPLE",
@@ -44,7 +44,7 @@
   "waitIncrementSeconds": 60,
   "quickLoginCheckMilliSeconds": 1000,
   "maxDeltaTimeSeconds": 43200,
-  "failureFactor": 30,
+  "failureFactor": 5,
   "maxSecondaryAuthFailures": 0,
   "roles": {
     "realm": [
@@ -628,12 +628,29 @@
         "default-roles-monolith-keycloak"
       ],
       "clientRoles": {
+        "monolith-keycloak-confidential": [
+          "uma_protection"
+        ]
+      },
+      "notBefore": 0,
+      "groups": []
+    },
+    {
+      "id": "64efd7c8-04c4-4c8c-a59c-1bf2e4825c8c",
+      "username": "service-account-monolith-keycloak-admin",
+      "emailVerified": false,
+      "enabled": true,
+      "totp": false,
+      "serviceAccountClientId": "monolith-keycloak-admin",
+      "disableableCredentialTypes": [],
+      "requiredActions": [],
+      "realmRoles": [
+        "default-roles-monolith-keycloak"
+      ],
+      "clientRoles": {
         "realm-management": [
           "view-users",
           "manage-users"
-        ],
-        "monolith-keycloak-confidential": [
-          "uma_protection"
         ]
       },
       "notBefore": 0,
@@ -923,7 +940,50 @@
         "policies": [],
         "scopes": [],
         "decisionStrategy": "UNANIMOUS"
-      }
+      },
+      "protocolMappers": [
+        {
+          "id": "3bc5ce4b-fe9b-49e7-b489-d3ad6f895a28",
+          "name": "audience-monolith-keycloak-confidential",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "included.client.audience": "monolith-keycloak-confidential",
+            "id.token.claim": "false",
+            "access.token.claim": "true",
+            "introspection.token.claim": "true"
+          }
+        }
+      ]
+    },
+    {
+      "id": "8ba8565b-f810-44ae-babb-2b8141c7d153",
+      "clientId": "monolith-keycloak-admin",
+      "name": "monolith-keycloak-admin",
+      "description": "Service account the API uses to create, update and delete users. No user logs in through it.",
+      "enabled": true,
+      "clientAuthenticatorType": "client-secret",
+      "redirectUris": [],
+      "webOrigins": [],
+      "bearerOnly": false,
+      "consentRequired": false,
+      "standardFlowEnabled": false,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": true,
+      "authorizationServicesEnabled": false,
+      "publicClient": false,
+      "frontchannelLogout": false,
+      "protocol": "openid-connect",
+      "attributes": {},
+      "fullScopeAllowed": false,
+      "nodeReRegistrationTimeout": -1,
+      "defaultClientScopes": [
+        "roles",
+        "basic"
+      ],
+      "optionalClientScopes": []
     },
     {
       "id": "2f82cc26-5bb6-4172-823a-23dcd6618216",
@@ -2817,5 +2877,6 @@
   },
   "clientPolicies": {
     "policies": []
-  }
+  },
+  "passwordPolicy": "length(12) and maxLength(64) and notUsername and notEmail"
 }

@@ -1,6 +1,6 @@
 @startuml sequence-register
 ' Hand-maintained. Source of truth = AuthenticationControllerV2.kt + KeycloakServiceImpl.java
-title POST /api/v2/auth/register — register, grant role, authenticate, bind fingerprint
+title POST /api/auth/register — register, grant role, authenticate, bind fingerprint
 
 autonumber
 skinparam responseMessageBelowArrow true
@@ -16,7 +16,7 @@ participant "fingerprintCache" as FC <<Caffeine>>
 database MySQL
 participant Keycloak <<external>>
 
-Client -> C : POST /api/v2/auth/register\nX-API-Version: 2.0
+Client -> C : POST /api/auth/register\nX-API-Version: 2.0
 activate C
 C -> S : register(userRequest, request)
 activate S
@@ -33,17 +33,20 @@ S -> KCA : create(userRepresentation)
 KCA -> Keycloak : POST /users
 Keycloak --> KCA : 201 + Location: .../users/{keycloakId}
 note right of S
-  Non-201 → RuntimeException.
-  keycloakId is parsed from the Location header.
+  409 → UsernameExistException, 400 (e.g. password
+  policy) → RegistrationRejectedException, other → KeycloakException.
+  keycloakId comes from CreatedResponseUtil (Location header).
 end note
+
+group try — the Keycloak account exists from here on
 
 S -> KCA : roles().realmLevel().listAvailable()
 S -> KCA : roles().realmLevel().add([role])
 KCA -> Keycloak : PUT realm role mapping
 
 S -> M : mapToUser(userRequest)
-S -> R : save(user + keycloakId)
-R -> MySQL : INSERT _user
+S -> R : saveAndFlush(user + keycloakId)
+R -> MySQL : INSERT _user (flushed now, so a constraint violation surfaces inside the try)
 
 S -> S : authenticate(username, password, request)
 S -> KTP : getToken(username, password)
@@ -53,9 +56,16 @@ Keycloak --> KTP : access + refresh token
 S -> FC : put(accessToken, fingerprint(request))
 note right of FC
   FingerprintFilter later compares this
-  on every /api/v1/mono/** call and
+  on every /api/mono/** call and
   rejects a token replayed elsewhere.
 end note
+end
+
+alt any step after create() throws
+  S -> KCA : delete(keycloakId)
+  KCA -> Keycloak : DELETE /users/{keycloakId}
+  note right of S : then rethrows; the DB transaction rolls back
+end
 
 S --> C : TokenResponse
 deactivate S
@@ -63,8 +73,9 @@ C --> Client : 200 + {accessToken, refreshToken}
 deactivate C
 
 note over S, MySQL
-  @Transactional covers the DB write only — the Keycloak
-  calls are NOT rolled back if the transaction later fails.
+  @Transactional covers the DB write; the Keycloak account is
+  removed by hand on failure. A failure at commit (after the
+  flush) would still leave it behind.
 end note
 
 footer docs/sequence-register.puml — Bigorno12/monolith-architecture

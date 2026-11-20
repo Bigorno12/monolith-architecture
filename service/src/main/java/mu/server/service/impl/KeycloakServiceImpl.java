@@ -10,12 +10,16 @@ import mu.server.service.KeycloakService;
 import mu.server.service.KeycloakTokenProvider;
 import mu.server.service.dto.auth.TokenResponse;
 import mu.server.service.dto.user.UserRequest;
+import mu.server.service.exception.KeycloakException;
+import mu.server.service.exception.RegistrationRejectedException;
 import mu.server.service.exception.UsernameExistException;
 import mu.server.service.mapper.user.UserMapper;
 import mu.server.service.util.Credentials;
 import mu.server.service.util.FingerprintUtil;
+import org.keycloak.admin.client.CreatedResponseUtil;
 import org.keycloak.admin.client.resource.UsersResource;
 import org.keycloak.representations.idm.CredentialRepresentation;
+import org.keycloak.representations.idm.ErrorRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.cache.Cache;
@@ -49,37 +53,20 @@ public class KeycloakServiceImpl implements KeycloakService {
 
         CredentialRepresentation credentialRepresentation = Credentials.INSTANCE.createCredentialRepresentation(userRequest.password());
         UserRepresentation userRepresentation = userMapper.mapToUserRepresentation(userRequest, credentialRepresentation);
+        String keycloakId = createKeycloakUser(userRepresentation);
 
-        try (Response response = usersResource.create(userRepresentation)) {
-            if (response.getStatus() != 201) {
-                String errorResponse = response.hasEntity() ? response.readEntity(String.class) : "No explicit details provided";
-                log.error("Keycloak registration failed! Status: {}, Details: {}", response.getStatus(), errorResponse);
-
-                throw new RuntimeException("Failed to create user in Keycloak. Status: " + response.getStatus() + " Details: " + errorResponse);
-            }
-
-            String keycloakId = response.getLocation().getPath()
-                    .substring(response.getLocation().getPath().lastIndexOf("/") + 1);
-
-            RoleRepresentation roleRepresentation = usersResource.get(keycloakId)
-                    .roles()
-                    .realmLevel()
-                    .listAvailable()
-                    .stream()
-                    .filter(role -> role.getName().equals(USER.name()))
-                    .findFirst()
-                    .orElseThrow(() -> new RuntimeException("Role not found: " + USER.name()));
-
-            usersResource.get(keycloakId).roles().realmLevel().add(List.of(roleRepresentation));
+        try {
+            assignUserRole(keycloakId);
 
             User user = userMapper.mapToUser(userRequest, keycloakId);
-
-            userRepository.save(user);
+            userRepository.saveAndFlush(user);
             log.info("Username {} successfully created with keycloakId: {}", user.getUsername(), keycloakId);
 
             return authenticate(userRequest.username(), userRequest.password(), request);
+        } catch (RuntimeException e) {
+            removeKeycloakUser(keycloakId);
+            throw e;
         }
-
     }
 
     @Override
@@ -97,5 +84,47 @@ public class KeycloakServiceImpl implements KeycloakService {
                 });
 
         return token;
+    }
+
+    private String createKeycloakUser(UserRepresentation userRepresentation) {
+        try (Response response = usersResource.create(userRepresentation)) {
+            int status = response.getStatus();
+            if (status == Response.Status.CREATED.getStatusCode()) {
+                return CreatedResponseUtil.getCreatedId(response);
+            }
+
+            ErrorRepresentation error = response.hasEntity() ? response.readEntity(ErrorRepresentation.class) : null;
+            String details = error == null ? "No explicit details provided" : error.getErrorMessage();
+            log.warn("Keycloak registration failed! Status: {}, Details: {}", status, details);
+
+            if (status == Response.Status.CONFLICT.getStatusCode()) {
+                throw new UsernameExistException("Username or email already exist");
+            }
+            if (status == Response.Status.BAD_REQUEST.getStatusCode()) {
+                throw new RegistrationRejectedException("Registration rejected: " + details);
+            }
+            throw new KeycloakException("Failed to create user in Keycloak. Status: " + status);
+        }
+    }
+
+    private void assignUserRole(String keycloakId) {
+        RoleRepresentation roleRepresentation = usersResource.get(keycloakId)
+                .roles()
+                .realmLevel()
+                .listAvailable()
+                .stream()
+                .filter(role -> role.getName().equals(USER.name()))
+                .findFirst()
+                .orElseThrow(() -> new KeycloakException("Role not found: " + USER.name()));
+
+        usersResource.get(keycloakId).roles().realmLevel().add(List.of(roleRepresentation));
+    }
+
+    private void removeKeycloakUser(String keycloakId) {
+        try (Response response = usersResource.delete(keycloakId)) {
+            log.warn("Registration failed; removed Keycloak user {} (status {})", keycloakId, response.getStatus());
+        } catch (RuntimeException e) {
+            log.error("Registration failed and Keycloak user {} could not be removed; delete it manually", keycloakId, e);
+        }
     }
 }

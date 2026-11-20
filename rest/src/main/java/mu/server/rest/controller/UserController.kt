@@ -39,7 +39,6 @@ class UserController(
     @DeleteMapping(
         path = ["/delete/{username}"],
         produces = ["application/json"],
-        consumes = ["application/json"],
         version = "1.0",
     )
     fun deleteUserById(
@@ -53,7 +52,6 @@ class UserController(
     @GetMapping(
         path = ["/view-profile/{username}"],
         produces = ["application/json"],
-        consumes = ["application/json"],
         version = "1.0",
     )
     fun viewUserProfile(
