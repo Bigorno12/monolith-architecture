@@ -34,9 +34,9 @@
         <app.main.class>mu.server.rest.Application</app.main.class>
         <archunit.version>1.5.1</archunit.version>
         <blaze-persistence.version>1.6.20</blaze-persistence.version>
-        <bucket.version>8.21.0</bucket.version>
+        <bucket.version>8.22.0</bucket.version>
         <build-helper-maven-plugin.version>3.5.0</build-helper-maven-plugin.version>
-        <commons-codec.version>1.22.1</commons-codec.version>
+        <commons-codec.version>1.23.0</commons-codec.version>
         <commons-io.version>2.22.0</commons-io.version>
         <commons-lang3.version>3.20.0</commons-lang3.version>
         <datasource-proxy-spring-boot-starter.version>2.0.1</datasource-proxy-spring-boot-starter.version>
@@ -45,7 +45,7 @@
         <jackson-bom.version>3.2.3</jackson-bom.version>
         <jakarta.validation-api.version>3.1.1</jakarta.validation-api.version>
         <java.version>25</java.version>
-        <keycloak.version>26.0.12</keycloak.version>
+        <keycloak.version>26.0.13</keycloak.version>
         <kotlin.version>2.4.21</kotlin.version>
         <lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version>
         <mapstruct.version>1.6.3</mapstruct.version>
@@ -54,8 +54,8 @@
         <org.openapi-generator-maven-plugin.version>7.27.0</org.openapi-generator-maven-plugin.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <resilience4j-spring-boot3.version>2.4.0</resilience4j-spring-boot3.version>
-        <resteasy.version>7.0.5.Final</resteasy.version>
-        <spotless.version>3.10.4</spotless.version>
+        <resteasy.version>7.0.6.Final</resteasy.version>
+        <spotless.version>3.11.0</spotless.version>
         <springdoc-openapi-starter-webmvc-ui.version>3.2.0</springdoc-openapi-starter-webmvc-ui.version>
         <swagger-annotations.version>3.0.0</swagger-annotations.version>
         <testcontainers-keycloak.version>4.4.0</testcontainers-keycloak.version>
@@ -436,10 +436,11 @@
                             <goals>
                                 <goal>compile</goal>
                             </goals>
-                            <phase>compile</phase>
+                            <phase>process-sources</phase>
                             <configuration>
-                                <sourceDirs>${project.basedir}/src/main/kotlin</sourceDirs>
-                                <sourceDirs>${project.basedir}/src/main/java</sourceDirs>
+                                <sourceDirs>
+                                    <sourceDir>${project.basedir}/src/main/java</sourceDir>
+                                </sourceDirs>
                             </configuration>
                         </execution>
                         <execution>
@@ -447,10 +448,11 @@
                             <goals>
                                 <goal>test-compile</goal>
                             </goals>
-                            <phase>test-compile</phase>
+                            <phase>process-test-sources</phase>
                             <configuration>
-                                <sourceDirs>${project.basedir}/src/main/kotlin</sourceDirs>
-                                <sourceDirs>${project.basedir}/src/main/java</sourceDirs>
+                                <sourceDirs>
+                                    <sourceDir>${project.basedir}/src/test/java</sourceDir>
+                                </sourceDirs>
                             </configuration>
                         </execution>
                     </executions>
@@ -485,6 +487,7 @@
                         <ktlint>
                             <editorConfigOverride>
                                 <ij_kotlin_imports_layout>*,java.**,javax.**,kotlin.**,^</ij_kotlin_imports_layout>
+                                <ktlint_standard_class-signature>disabled</ktlint_standard_class-signature>
                             </editorConfigOverride>
                         </ktlint>
                     </kotlin>

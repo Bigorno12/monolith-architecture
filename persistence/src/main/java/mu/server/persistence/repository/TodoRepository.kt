@@ -8,9 +8,7 @@ import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Repository
 
 @Repository
-interface TodoRepository :
-    GenericRepository<Todo>,
-    TodoCustomRepository {
+interface TodoRepository : GenericRepository<Todo>, TodoCustomRepository {
     @Modifying
     @Query(
         """
