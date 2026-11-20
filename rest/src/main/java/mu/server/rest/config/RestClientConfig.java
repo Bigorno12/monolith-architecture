@@ -1,9 +1,5 @@
 package mu.server.rest.config;
 
-import mu.server.service.exception.InvalidCallException;
-import mu.server.service.exception.JsonPlaceHolderException;
-import mu.server.service.exception.NotFoundException;
-import mu.server.service.http.JsonPlaceHolderService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
@@ -12,6 +8,11 @@ import org.springframework.http.MediaType;
 import org.springframework.web.client.ApiVersionInserter;
 import org.springframework.web.client.support.RestClientHttpServiceGroupConfigurer;
 import org.springframework.web.service.registry.ImportHttpServices;
+
+import mu.server.service.exception.InvalidCallException;
+import mu.server.service.exception.JsonPlaceHolderException;
+import mu.server.service.exception.NotFoundException;
+import mu.server.service.http.JsonPlaceHolderService;
 
 @Configuration
 @ImportHttpServices(group = "jsonplaceholder", types = {JsonPlaceHolderService.class})

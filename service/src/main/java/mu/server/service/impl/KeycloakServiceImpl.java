@@ -1,7 +1,22 @@
 package mu.server.service.impl;
 
+import java.util.List;
+import java.util.Optional;
+
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.ws.rs.core.Response;
+
+import org.keycloak.admin.client.resource.UsersResource;
+import org.keycloak.representations.idm.CredentialRepresentation;
+import org.keycloak.representations.idm.RoleRepresentation;
+import org.keycloak.representations.idm.UserRepresentation;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import static mu.server.service.dto.api.Role.USER;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import mu.server.persistence.entity.User;
@@ -14,19 +29,6 @@ import mu.server.service.exception.UsernameExistException;
 import mu.server.service.mapper.user.UserMapper;
 import mu.server.service.util.Credentials;
 import mu.server.service.util.FingerprintUtil;
-import org.keycloak.admin.client.resource.UsersResource;
-import org.keycloak.representations.idm.CredentialRepresentation;
-import org.keycloak.representations.idm.RoleRepresentation;
-import org.keycloak.representations.idm.UserRepresentation;
-import org.springframework.cache.Cache;
-import org.springframework.cache.CacheManager;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.Optional;
-
-import static mu.server.service.dto.api.Role.USER;
 
 @Slf4j
 @Service

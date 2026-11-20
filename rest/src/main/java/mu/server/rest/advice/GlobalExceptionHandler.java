@@ -1,10 +1,7 @@
 package mu.server.rest.advice;
 
-import lombok.Builder;
-import mu.server.service.exception.JsonPlaceHolderException;
-import mu.server.service.exception.KeycloakException;
-import mu.server.service.exception.NotFoundException;
-import mu.server.service.exception.UsernameExistException;
+import java.time.LocalDateTime;
+
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.http.HttpStatus;
@@ -14,7 +11,11 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
-import java.time.LocalDateTime;
+import lombok.Builder;
+import mu.server.service.exception.JsonPlaceHolderException;
+import mu.server.service.exception.KeycloakException;
+import mu.server.service.exception.NotFoundException;
+import mu.server.service.exception.UsernameExistException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
