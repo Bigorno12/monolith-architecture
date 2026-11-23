@@ -51,7 +51,7 @@ public class KeycloakAuthenticationConverter {
                     .map(GrantedAuthority.class::cast)
                     .toList();
 
-            log.info("Granted Authorities: {}", grantedAuthorities);
+            log.debug("Granted Authorities: {}", grantedAuthorities);
 
             return grantedAuthorities;
         };

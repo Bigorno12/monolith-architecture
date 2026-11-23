@@ -61,23 +61,24 @@ public class SecurityConfig {
     private static final String[] WHITELISTED_PATHS = {
             "/api/auth/**",
             "/error",
-            "/v2/api-docs",
             "/v3/api-docs",
             "/v3/api-docs/**",
-            "/swagger-resources",
-            "/swagger-resources/**",
-            "/configuration/ui",
-            "/configuration/security",
             "/swagger-ui/**",
-            "/webjars/**",
             "/swagger-ui.html",
             "/h2-console/**",
-            "/jsonplaceholder.typicode.com/**",
             "/login/oauth2/code/**"
     };
 
+    private static final String[] CSRF_EXEMPT_PATHS = {
+            "/api/auth/register",
+            "/api/auth/login",
+            "/h2-console/**"
+    };
+
+    private static final String RESOURCE_SERVER_PATH = "/api/mono/**";
     private static final String ADMIN_PATH = "/api/mono/admin/**";
-    private static final String USER_PATH = "/api/mono/**";
+    private static final String ALL_TODOS_PATH = "/api/mono/todo/all-todos";
+    private static final String LOGOUT_PATH = "/api/auth/logout";
 
     private final FingerprintFilter fingerprintFilter;
     private final RateLimitFilter rateLimitFilter;
@@ -88,7 +89,7 @@ public class SecurityConfig {
             HttpSecurity http,
             JwtAuthenticationConverter jwtAuthenticationConverter) {
         return http
-                .securityMatcher("/api/mono/**")
+                .securityMatcher(RESOURCE_SERVER_PATH)
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
@@ -103,10 +104,11 @@ public class SecurityConfig {
                         .requestMatchers(POST, ADMIN_PATH).hasAuthority(ADMIN_CREATE.getPermission())
                         .requestMatchers(PUT, ADMIN_PATH).hasAuthority(ADMIN_UPDATE.getPermission())
                         .requestMatchers(DELETE, ADMIN_PATH).hasAuthority(ADMIN_DELETE.getPermission())
-                        .requestMatchers(PUT, USER_PATH).hasAuthority(USER_UPDATE.getPermission())
-                        .requestMatchers(POST, USER_PATH).hasAuthority(USER_CREATE.getPermission())
-                        .requestMatchers(GET, USER_PATH).hasAuthority(USER_READ.getPermission())
-                        .requestMatchers(DELETE, USER_PATH).hasAuthority(USER_DELETE.getPermission())
+                        .requestMatchers(GET, ALL_TODOS_PATH).hasAuthority(ADMIN_READ.getPermission())
+                        .requestMatchers(PUT, RESOURCE_SERVER_PATH).hasAuthority(USER_UPDATE.getPermission())
+                        .requestMatchers(POST, RESOURCE_SERVER_PATH).hasAuthority(USER_CREATE.getPermission())
+                        .requestMatchers(GET, RESOURCE_SERVER_PATH).hasAuthority(USER_READ.getPermission())
+                        .requestMatchers(DELETE, RESOURCE_SERVER_PATH).hasAuthority(USER_DELETE.getPermission())
                         .anyRequest().authenticated()
                 )
                 .build();
@@ -119,7 +121,7 @@ public class SecurityConfig {
             ClientRegistrationRepository clientRegistrationRepository) {
         return http
                 .csrf(csrf -> csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-                        .ignoringRequestMatchers(WHITELISTED_PATHS)
+                        .ignoringRequestMatchers(CSRF_EXEMPT_PATHS)
                 )
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .addFilterBefore(rateLimitFilter, UsernamePasswordAuthenticationFilter.class)
@@ -129,7 +131,7 @@ public class SecurityConfig {
                     var oidcLogoutHandler = new OidcClientInitiatedLogoutSuccessHandler(clientRegistrationRepository);
                     oidcLogoutHandler.setPostLogoutRedirectUri("{baseUrl}/");
 
-                    logout.logoutUrl("/api/auth/logout")
+                    logout.logoutUrl(LOGOUT_PATH)
                             .invalidateHttpSession(true)
                             .logoutSuccessHandler(oidcLogoutHandler)
                             .deleteCookies("JSESSIONID", "XSRF-TOKEN");

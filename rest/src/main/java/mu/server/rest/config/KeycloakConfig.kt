@@ -13,6 +13,7 @@ import org.keycloak.admin.client.resource.RealmResource
 import org.keycloak.admin.client.resource.UsersResource
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import java.util.concurrent.TimeUnit.SECONDS
 
 @Configuration
 class KeycloakConfig(val apiConfiguration: ApiConfiguration) : KeycloakTokenProvider {
@@ -22,9 +23,9 @@ class KeycloakConfig(val apiConfiguration: ApiConfiguration) : KeycloakTokenProv
         .serverUrl(apiConfiguration.serverUrl)
         .realm(apiConfiguration.realm)
         .grantType(OAuth2Constants.CLIENT_CREDENTIALS)
-        .clientId(apiConfiguration.clientId)
-        .clientSecret(apiConfiguration.clientSecret)
-        .resteasyClient(ResteasyClientBuilder.newBuilder().build())
+        .clientId(apiConfiguration.adminClientId)
+        .clientSecret(apiConfiguration.adminClientSecret)
+        .resteasyClient(resteasyClient())
         .build()
 
     @Bean
@@ -50,7 +51,7 @@ class KeycloakConfig(val apiConfiguration: ApiConfiguration) : KeycloakTokenProv
                 .clientSecret(apiConfiguration.clientSecret)
                 .username(username)
                 .password(password)
-                .resteasyClient(ResteasyClientBuilder.newBuilder().build())
+                .resteasyClient(resteasyClient())
                 .build()
 
         return keycloakClient.use { client ->
@@ -62,5 +63,16 @@ class KeycloakConfig(val apiConfiguration: ApiConfiguration) : KeycloakTokenProv
                 }
             TokenResponse(tokenPayload.token, tokenPayload.refreshToken)
         }
+    }
+
+    private fun resteasyClient() = ResteasyClientBuilder
+        .newBuilder()
+        .connectTimeout(CONNECT_TIMEOUT_SECONDS, SECONDS)
+        .readTimeout(READ_TIMEOUT_SECONDS, SECONDS)
+        .build()
+
+    companion object {
+        private const val CONNECT_TIMEOUT_SECONDS = 5L
+        private const val READ_TIMEOUT_SECONDS = 10L
     }
 }

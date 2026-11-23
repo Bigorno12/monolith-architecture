@@ -58,7 +58,8 @@ class TodoController(
             ),
         )
 
-    @PreAuthorize(value = "hasAuthority('user:read')")
+    @GetMapping(value = ["/all-todos"], version = "1.0")
+    @PreAuthorize(value = "hasAuthority('admin:read')")
     fun findAllTodos(
         @RequestParam(name = "pageNum", defaultValue = "0") pageNum: Int,
         @RequestParam(name = "pageSize", defaultValue = "10") pageSize: Int,
