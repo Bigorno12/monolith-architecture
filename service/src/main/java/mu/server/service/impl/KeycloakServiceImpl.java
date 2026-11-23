@@ -1,6 +1,8 @@
 package mu.server.service.impl;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.ProcessingException;
+import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.Response;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +21,6 @@ import mu.server.service.util.FingerprintUtil;
 import org.keycloak.admin.client.CreatedResponseUtil;
 import org.keycloak.admin.client.resource.UsersResource;
 import org.keycloak.representations.idm.CredentialRepresentation;
-import org.keycloak.representations.idm.ErrorRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.cache.Cache;
@@ -28,7 +29,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import static mu.server.service.dto.api.Role.USER;
 
@@ -36,6 +40,8 @@ import static mu.server.service.dto.api.Role.USER;
 @Service
 @RequiredArgsConstructor
 public class KeycloakServiceImpl implements KeycloakService {
+
+    private static final String NO_ERROR_DETAILS = "No explicit details provided";
 
     private final UsersResource usersResource;
     private final UserRepository userRepository;
@@ -93,8 +99,7 @@ public class KeycloakServiceImpl implements KeycloakService {
                 return CreatedResponseUtil.getCreatedId(response);
             }
 
-            ErrorRepresentation error = response.hasEntity() ? response.readEntity(ErrorRepresentation.class) : null;
-            String details = error == null ? "No explicit details provided" : error.getErrorMessage();
+            String details = readErrorDetails(response);
             log.warn("Keycloak registration failed! Status: {}, Details: {}", status, details);
 
             if (status == Response.Status.CONFLICT.getStatusCode()) {
@@ -104,6 +109,24 @@ public class KeycloakServiceImpl implements KeycloakService {
                 throw new RegistrationRejectedException("Registration rejected: " + details);
             }
             throw new KeycloakException("Failed to create user in Keycloak. Status: " + status);
+        }
+    }
+
+    private static String readErrorDetails(Response response) {
+        if (!response.hasEntity()) {
+            return NO_ERROR_DETAILS;
+        }
+        try {
+            Map<String, Object> body = response.readEntity(new GenericType<Map<String, Object>>() {
+            });
+            return Stream.of("errorMessage", "error_description", "error")
+                    .map(body::get)
+                    .filter(Objects::nonNull)
+                    .map(Object::toString)
+                    .findFirst()
+                    .orElse(NO_ERROR_DETAILS);
+        } catch (ProcessingException e) {
+            return NO_ERROR_DETAILS;
         }
     }
 
