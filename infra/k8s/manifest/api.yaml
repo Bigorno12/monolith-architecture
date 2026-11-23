@@ -64,6 +64,11 @@ spec:
                 secretKeyRef:
                   name: monolith-secrets
                   key: WELLDEV.KEYCLOAK.CLIENT-SECRET
+            - name: WELLDEV_KEYCLOAK_ADMIN_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: monolith-secrets
+                  key: WELLDEV.KEYCLOAK.ADMIN.CLIENT-SECRET
             - name: WELLDEV_AES_SECRET_KEY
               valueFrom:
                 secretKeyRef:
@@ -166,6 +171,11 @@ spec:
                 secretKeyRef:
                   name: monolith-secrets
                   key: WELLDEV.KEYCLOAK.CLIENT-SECRET
+            - name: WELLDEV_KEYCLOAK_ADMIN_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: monolith-secrets
+                  key: WELLDEV.KEYCLOAK.ADMIN.CLIENT-SECRET
             - name: WELLDEV_AES_SECRET_KEY
               valueFrom:
                 secretKeyRef:

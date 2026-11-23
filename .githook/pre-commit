@@ -19,12 +19,12 @@ fi
 
 # ── 2. Project-local secrets scan (catches custom-shape secrets gitleaks misses) ─
 # Scans all local env files defined in your workspace
-ENV_FILES=("$ROOT/secret.env" "$ROOT/local.env" "$ROOT/config.env")
+ENV_FILES=("$ROOT/infra/secret.env" "$ROOT/infra/local.env" "$ROOT/infra/config.env")
 
 for ENV_FILE in "${ENV_FILES[@]}"; do
   if [ -f "$ENV_FILE" ]; then
     # Check staged additions against this specific env file
-    STAGED_ADDITIONS=$(git diff --cached -U0 --no-color -- ":!$(basename "$ENV_FILE")" | grep -E '^\+[^+]' || true)
+    STAGED_ADDITIONS=$(git diff --cached -U0 --no-color -- ":(top,exclude)${ENV_FILE#"$ROOT"/}" | grep -E '^\+[^+]' || true)
 if [ -n "$STAGED_ADDITIONS" ]; then
       # Read the file contents completely into memory first to avoid SC2094
       ENV_CONTENT=$(cat "$ENV_FILE")
