@@ -13,6 +13,10 @@ data:
   WELLDEV_KEYCLOAK_SERVER_URL: "http://keycloak:7080/auth"
   WELLDEV_KEYCLOAK_REALM: "monolith-keycloak"
   WELLDEV_KEYCLOAK_CLIENT_ID: "monolith-keycloak-confidential"
+  WELLDEV_KEYCLOAK_ADMIN_CLIENT_ID: "monolith-keycloak-admin"
+
+  SPRINGDOC_API_DOCS_ENABLED: "false"
+  SPRINGDOC_SWAGGER_UI_ENABLED: "false"
 
   LOGGING_STRUCTURED_FORMAT_CONSOLE: "ecs"
   MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: "true"

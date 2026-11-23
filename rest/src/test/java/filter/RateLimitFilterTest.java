@@ -28,26 +28,26 @@ class RateLimitFilterTest {
     @DisplayName("one caller exhausting its allowance does not block another caller")
     void buckets_are_per_caller_test() throws ServletException, IOException {
         for (int i = 0; i < API_CAPACITY; i++) {
-            assertEquals(OK, send("/api/v1/mono/user/view-profile/test", "10.0.0.1"));
+            assertEquals(OK, send("/api/mono/user/view-profile/test", "10.0.0.1"));
         }
 
-        assertEquals(TOO_MANY_REQUESTS, send("/api/v1/mono/user/view-profile/test", "10.0.0.1"));
-        assertEquals(OK, send("/api/v1/mono/user/view-profile/test", "10.0.0.2"));
+        assertEquals(TOO_MANY_REQUESTS, send("/api/mono/user/view-profile/test", "10.0.0.1"));
+        assertEquals(OK, send("/api/mono/user/view-profile/test", "10.0.0.2"));
     }
 
     @Test
     @DisplayName("the public auth endpoints get a tighter allowance than the rest of the API")
     void auth_endpoints_are_limited_separately_test() throws ServletException, IOException {
         for (int i = 0; i < AUTH_CAPACITY; i++) {
-            assertEquals(OK, send("/api/v2/auth/login", "10.0.0.3"));
+            assertEquals(OK, send("/api/auth/login", "10.0.0.3"));
         }
 
-        MockHttpServletResponse blocked = call("/api/v2/auth/login", "10.0.0.3");
+        MockHttpServletResponse blocked = call("/api/auth/login", "10.0.0.3");
         assertEquals(TOO_MANY_REQUESTS, blocked.getStatus());
         assertNotNull(blocked.getHeader("Retry-After"));
 
         // the auth allowance is spent, the API allowance for the same caller is untouched
-        assertEquals(OK, send("/api/v1/mono/todo/all-todos/test", "10.0.0.3"));
+        assertEquals(OK, send("/api/mono/todo/all-todos/test", "10.0.0.3"));
     }
 
     @Test
