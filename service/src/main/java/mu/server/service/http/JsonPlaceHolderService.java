@@ -1,12 +1,13 @@
 package mu.server.service.http;
 
-import mu.server.service.dto.todo.TodoRequest;
+import java.util.List;
+
 import org.springframework.resilience.annotation.Retryable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.service.annotation.GetExchange;
 import org.springframework.web.service.annotation.HttpExchange;
 
-import java.util.List;
+import mu.server.service.dto.todo.TodoRequest;
 
 @HttpExchange(value = "/todos", version = "1.0")
 public interface JsonPlaceHolderService {

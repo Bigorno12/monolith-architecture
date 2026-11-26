@@ -1,15 +1,16 @@
 package mu.server.service.mapper.todo;
 
+import java.util.List;
+
+import org.mapstruct.Context;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+
 import mu.server.persistence.entity.Todo;
 import mu.server.persistence.entity.User;
 import mu.server.service.dto.todo.TodoRequest;
 import mu.server.service.dto.todo.TodoUsernameResponse;
 import mu.server.service.dto.todo.TodosResponse;
-import org.mapstruct.Context;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-
-import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface TodoMapper {

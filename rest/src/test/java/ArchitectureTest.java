@@ -1,8 +1,5 @@
-import com.tngtech.archunit.core.importer.ImportOption;
-import com.tngtech.archunit.junit.AnalyzeClasses;
-import com.tngtech.archunit.junit.ArchTest;
-import com.tngtech.archunit.lang.ArchRule;
 import jakarta.persistence.Entity;
+
 import org.springframework.data.repository.NoRepositoryBean;
 import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
@@ -16,6 +13,11 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.methods;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 import static com.tngtech.archunit.library.Architectures.layeredArchitecture;
 import static com.tngtech.archunit.library.GeneralCodingRules.NO_CLASSES_SHOULD_USE_FIELD_INJECTION;
+
+import com.tngtech.archunit.core.importer.ImportOption;
+import com.tngtech.archunit.junit.AnalyzeClasses;
+import com.tngtech.archunit.junit.ArchTest;
+import com.tngtech.archunit.lang.ArchRule;
 
 @AnalyzeClasses(packages = "mu.server", importOptions = {ImportOption.DoNotIncludeTests.class})
 public class ArchitectureTest {
