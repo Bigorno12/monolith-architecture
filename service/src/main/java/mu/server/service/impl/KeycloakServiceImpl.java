@@ -119,8 +119,7 @@ public class KeycloakServiceImpl implements KeycloakService {
             return NO_ERROR_DETAILS;
         }
         try {
-            Map<String, Object> body = response.readEntity(new GenericType<Map<String, Object>>() {
-            });
+            Map<String, Object> body = response.readEntity(new GenericType<>() {});
             return Stream.of("errorMessage", "error_description", "error")
                     .map(body::get)
                     .filter(Objects::nonNull)
