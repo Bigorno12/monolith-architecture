@@ -42,7 +42,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: monolith-api
-          image: ghcr.io/bigorno12/monolith-architecture:main-a48f670
+          image: ghcr.io/bigorno12/monolith-architecture:main-c68e108
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
@@ -149,7 +149,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: monolith-api
-          image: ghcr.io/bigorno12/monolith-architecture:main-a48f670
+          image: ghcr.io/bigorno12/monolith-architecture:main-c68e108
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
