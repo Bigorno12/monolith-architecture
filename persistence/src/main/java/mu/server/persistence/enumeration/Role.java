@@ -1,8 +1,5 @@
 package mu.server.persistence.enumeration;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-
 import java.util.Set;
 
 import static mu.server.persistence.enumeration.Permission.ADMIN_CREATE;
@@ -13,6 +10,9 @@ import static mu.server.persistence.enumeration.Permission.USER_CREATE;
 import static mu.server.persistence.enumeration.Permission.USER_DELETE;
 import static mu.server.persistence.enumeration.Permission.USER_READ;
 import static mu.server.persistence.enumeration.Permission.USER_UPDATE;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 @Getter
 @AllArgsConstructor

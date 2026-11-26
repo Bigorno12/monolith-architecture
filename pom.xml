@@ -470,8 +470,11 @@
                     <java>
                         <toggleOffOn/>
                         <removeUnusedImports/>
+                        <forbidWildcardImports/>
+                        <forbidModuleImports/>
+                        <formatAnnotations/>
                         <importOrder>
-                            <order>,javax,java,\#</order>
+                            <order>java|javax,jakarta,org,\#</order>
                         </importOrder>
                         <includes>
                             <include>src/main/java/**/*.java</include>
@@ -506,6 +509,27 @@
                             <sortProperties>true</sortProperties>
                         </sortPom>
                     </pom>
+                    <!-- Rest -->
+                    <formats>
+                        <format>
+                            <includes>
+                                <include>src/**/*.yml</include>
+                                <include>src/**/*.yaml</include>
+                                <include>src/**/*.properties</include>
+                                <include>.github/**/*.yml</include>
+                                <include>*.md</include>
+                                <include>.gitattributes</include>
+                                <include>.gitignore</include>
+                                <include>.editorconfig</include>
+                            </includes>
+                            <trimTrailingWhitespace/>
+                            <endWithNewline/>
+                            <indent>
+                                <spaces>true</spaces>
+                                <spacesPerTab>2</spacesPerTab>
+                            </indent>
+                        </format>
+                    </formats>
                 </configuration>
                 <executions>
                     <execution>

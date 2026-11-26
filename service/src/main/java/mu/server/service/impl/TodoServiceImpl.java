@@ -1,5 +1,16 @@
 package mu.server.service.impl;
 
+import java.util.List;
+import java.util.Objects;
+
+import org.jspecify.annotations.Nullable;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.blazebit.persistence.PagedList;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,16 +27,6 @@ import mu.server.service.exception.JsonPlaceHolderException;
 import mu.server.service.exception.NotFoundException;
 import mu.server.service.http.JsonPlaceHolderService;
 import mu.server.service.mapper.todo.TodoMapper;
-import org.jspecify.annotations.Nullable;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.Objects;
 
 @Slf4j
 @Service

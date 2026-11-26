@@ -1,16 +1,18 @@
 package mu.server.persistence.repository.blaze.impl;
 
+import jakarta.persistence.EntityManager;
+
+import org.springframework.stereotype.Repository;
+
 import com.blazebit.persistence.CriteriaBuilder;
 import com.blazebit.persistence.CriteriaBuilderFactory;
 import com.blazebit.persistence.PagedList;
 import com.blazebit.persistence.view.EntityViewManager;
 import com.blazebit.persistence.view.EntityViewSetting;
-import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import mu.server.persistence.entity.Todo;
 import mu.server.persistence.entity.User;
 import mu.server.persistence.repository.blaze.TodoView;
-import org.springframework.stereotype.Repository;
 
 @Repository
 @RequiredArgsConstructor

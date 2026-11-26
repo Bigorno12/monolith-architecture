@@ -46,7 +46,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           OLD_RELEASES=$(gh release list --limit 100 --json tagName --jq '.[10:][].tagName')
-          
+
           if [ -z "$OLD_RELEASES" ]; then
             echo "10 or fewer releases exist. Nothing to clean up"
           else
