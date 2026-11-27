@@ -1,9 +1,28 @@
 package mu.server.service.impl;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Stream;
+
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.ws.rs.ProcessingException;
 import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.Response;
+
+import org.keycloak.admin.client.CreatedResponseUtil;
+import org.keycloak.admin.client.resource.UsersResource;
+import org.keycloak.representations.idm.CredentialRepresentation;
+import org.keycloak.representations.idm.RoleRepresentation;
+import org.keycloak.representations.idm.UserRepresentation;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import static mu.server.service.dto.api.Role.USER;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import mu.server.persistence.entity.User;
@@ -18,23 +37,6 @@ import mu.server.service.exception.UsernameExistException;
 import mu.server.service.mapper.user.UserMapper;
 import mu.server.service.util.Credentials;
 import mu.server.service.util.FingerprintUtil;
-import org.keycloak.admin.client.CreatedResponseUtil;
-import org.keycloak.admin.client.resource.UsersResource;
-import org.keycloak.representations.idm.CredentialRepresentation;
-import org.keycloak.representations.idm.RoleRepresentation;
-import org.keycloak.representations.idm.UserRepresentation;
-import org.springframework.cache.Cache;
-import org.springframework.cache.CacheManager;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Stream;
-
-import static mu.server.service.dto.api.Role.USER;
 
 @Slf4j
 @Service
@@ -117,8 +119,7 @@ public class KeycloakServiceImpl implements KeycloakService {
             return NO_ERROR_DETAILS;
         }
         try {
-            Map<String, Object> body = response.readEntity(new GenericType<Map<String, Object>>() {
-            });
+            Map<String, Object> body = response.readEntity(new GenericType<>() {});
             return Stream.of("errorMessage", "error_description", "error")
                     .map(body::get)
                     .filter(Objects::nonNull)

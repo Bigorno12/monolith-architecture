@@ -1,9 +1,9 @@
 package mu.server.rest.config;
 
+import java.util.List;
+
 import jakarta.servlet.Filter;
-import lombok.RequiredArgsConstructor;
-import mu.server.rest.filter.FingerprintFilter;
-import mu.server.rest.filter.RateLimitFilter;
+
 import org.springframework.boot.security.autoconfigure.actuate.web.servlet.EndpointRequest;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
@@ -29,8 +29,6 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.util.List;
-
 import static mu.server.persistence.enumeration.Permission.ADMIN_CREATE;
 import static mu.server.persistence.enumeration.Permission.ADMIN_DELETE;
 import static mu.server.persistence.enumeration.Permission.ADMIN_READ;
@@ -45,6 +43,10 @@ import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.POST;
 import static org.springframework.http.HttpMethod.PUT;
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
+
+import lombok.RequiredArgsConstructor;
+import mu.server.rest.filter.FingerprintFilter;
+import mu.server.rest.filter.RateLimitFilter;
 
 @Configuration
 @RequiredArgsConstructor

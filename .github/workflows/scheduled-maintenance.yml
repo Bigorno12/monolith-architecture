@@ -22,26 +22,26 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           WORKFLOW_FILENAME="ci.yml"
-          
+
           echo "Searching for failed runs in $WORKFLOW_FILENAME..."
-          
+
           RUN_IDS=$(gh run list --workflow "$WORKFLOW_FILENAME" --status failure --limit 5 --json databaseId --jq '.[].databaseId')
-          
+
           if [ -z "$RUN_IDS" ]; then
             echo "✅ No failed runs found. Everything is green!"
             exit 0
           fi
-          
+
           for id in $RUN_IDS; do
             ATTEMPTS=$(gh run view $id --json attempt --jq '.attempt')
-          
+
             if [ "$ATTEMPTS" -ge 2 ]; then
               echo "⏭️ Skipping $id (Already attempted $ATTEMPTS times)."
               continue
             fi
-          
+
             echo "⏳ Retrying failed jobs for Run ID: $id"
-          
+
             gh run rerun $id --failed || echo "⚠️ Could not retry $id (it might be too old or already running)"
 
             sleep 5
@@ -55,7 +55,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
 
       - name: Delete stale or non-default-branch caches
-        uses: Bigorno12/ci-cd-templates/.github/actions/cache-cleanup@51e40917d0aaee71c69e82f04a5ad475a7019f25
+        uses: Bigorno12/ci-cd-templates/.github/actions/cache-cleanup@731cd377fa835aa34f0ed1e5bc2b6cd4b3da2584
         with:
           keep-ref: 'refs/heads/main'
           retention-days: '5'

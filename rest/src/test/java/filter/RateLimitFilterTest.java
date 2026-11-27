@@ -1,17 +1,19 @@
 package filter;
 
+import java.io.IOException;
+
 import jakarta.servlet.ServletException;
-import mu.server.rest.filter.RateLimitFilter;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
-import java.io.IOException;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+import mu.server.rest.filter.RateLimitFilter;
 
 class RateLimitFilterTest {
 
